@@ -1,2 +1,2 @@
-# java-tools
-A repository containing a set of Java based tools
+# tools
+A repository containing a set of tools, some based on Java, other on C/C++
