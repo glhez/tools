@@ -1,2 +1,6 @@
 *.o
+*.log
 bin/
+autom4te.cache/
+
+check_device_is_zeroed
