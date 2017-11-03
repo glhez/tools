@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
   private static final String MAVEN_DIRECTORY = "META-INF/maven/";
   private static final String MAVEN_PROPERTY = "/pom.properties";
   private final OptionKind kind;
-  private final Map<Path, GAV> mavenArtifacts;
+  private final Map<JARInformation, GAV> mavenArtifacts;
 
   public MavenArtifactsJARProcessor(final OptionKind kind) {
     this.kind = kind;
@@ -42,7 +41,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
     final JarEntry jarEntry = properties.get(0);
     try (InputStream is = jarFile.getInputStream(jarEntry)) {
-      mavenArtifacts.put(context.getSource(), GAV.parse(is));
+      mavenArtifacts.put(context.getJARInformation(), GAV.parse(is));
     } catch (final IOException e) {
       context.addError("Failed to read GAV definition: " + e.getMessage());
     }
@@ -96,19 +95,19 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
   public enum OptionKind {
     LIST {
       @Override
-      void execute(final Map<Path, GAV> artifacts) {
+      void execute(final Map<JARInformation, GAV> artifacts) {
         artifacts.forEach((path, gav) -> System.out.printf("%s: %s%n", path, gav));
       }
     },
     SCRIPT {
       @Override
-      void execute(final Map<Path, GAV> artifacts) {
+      void execute(final Map<JARInformation, GAV> artifacts) {
         artifacts.forEach((path, gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId,
             gav.version, path));
       }
     };
 
-    abstract void execute(Map<Path, GAV> artifacts);
+    abstract void execute(Map<JARInformation, GAV> artifacts);
   }
 
 }

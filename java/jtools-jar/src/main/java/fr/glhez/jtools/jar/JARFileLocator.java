@@ -1,5 +1,8 @@
 package fr.glhez.jtools.jar;
 
+import static fr.glhez.jtools.jar.JARInformation.newJARInformation;
+import static java.util.stream.Collectors.*;
+
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -9,24 +12,49 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class JARFileLocator implements AutoCloseable {
-  private final SortedSet<Path> files;
+  private final SortedSet<JARInformation> files;
   private final FileErrors errors;
   private final DeepMode deepMode;
   private final List<Path> tempFiles;
+  private final Predicate<Path> filter;
+  private final Predicate<Path> deepInclude;
 
-  public JARFileLocator(final DeepMode deepMode) {
+  public JARFileLocator(final DeepMode deepMode, final String[] include, final String[] exclude,
+      final String[] deepInclude) {
     this.deepMode = Objects.requireNonNull(deepMode, "deepMode");
     this.files = new TreeSet<>();
     this.errors = new FileErrors();
     this.tempFiles = new ArrayList<>();
+    this.filter = toPredicate(include, true).and(toPredicate(exclude, false).negate());
+    this.deepInclude = toPredicate(deepInclude, true);
+  }
+
+  // @formatter:off
+  private static Predicate<Path> toPredicate(String[] filters, boolean defaultValue) {
+    if (null == filters || filters.length == 0) {
+      return v -> defaultValue;
+    }
+    Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty()) 
+      .collect(collectingAndThen(joining("|", "(?:", ")"), Pattern::compile))
+      .asPredicate();
+    return path -> sp.test(toString(path));
+  }
+  // @formatter:on
+
+  private static String toString(Path path) {
+    // don't care 'bout Windows path.
+    return path.toString().replace("\\", "/");
   }
 
   public void addFiles(final String[] files) {
@@ -57,7 +85,7 @@ public class JARFileLocator implements AutoCloseable {
         errors.addError(entry, "Not a directory");
       } else {
         try {
-          Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode).forEach(this::deepAdd);
+          Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode).filter(this.filter).forEach(this::deepAdd);
         } catch (final IOException e) {
           errors.addError(entry, e);
         }
@@ -66,33 +94,27 @@ public class JARFileLocator implements AutoCloseable {
   }
 
   private void deepAdd(final Path realPath) {
-    this.files.add(realPath);
+    this.files.add(newJARInformation(realPath));
     if (deepMode.shouldDescendIntoFile(realPath)) {
       processArchive(realPath);
     }
   }
 
-  /**
-   * Process a path as being an archive.
-   * <P>
-   * Each archive will be
-   * 
-   * @param realPath
-   */
   private void processArchive(final Path realPath) {
     try (final FileSystem fs = FileSystems.newFileSystem(realPath, null)) {
       fs.getRootDirectories().forEach(root -> {
         try {
-          Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED).filter(deepMode::isArchivePath).forEach(child -> {
-            try {
-              final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
-              Files.copy(child, tempFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-              tempFiles.add(tempFile);
-              files.add(tempFile);
-            } catch (final IOException e) {
-              errors.addError(root, e);
-            }
-          });
+          Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED).filter(deepMode::isArchivePath).filter(deepInclude)
+              .forEach(child -> {
+                try {
+                  final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
+                  Files.copy(child, tempFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+                  tempFiles.add(tempFile);
+                  files.add(newJARInformation(realPath, child, tempFile));
+                } catch (final IOException e) {
+                  errors.addError(root, e);
+                }
+              });
         } catch (final IOException e) {
           errors.addError(root, e);
         }
@@ -102,7 +124,7 @@ public class JARFileLocator implements AutoCloseable {
     }
   }
 
-  public Set<Path> getFiles() {
+  public Set<JARInformation> getFiles() {
     return files;
   }
 
@@ -169,7 +191,8 @@ public class JARFileLocator implements AutoCloseable {
      * <p>
      * By default, only EAR and WAR may contains additional JAR file to be processed.
      * 
-     * @param file path to be tested (file system dependent)
+     * @param file
+     *          path to be tested (file system dependent)
      * @return <code>true</code> if the file is valid, eg: can be processed.
      */
     protected boolean shouldDescendIntoFile(final String file) {
@@ -180,9 +203,11 @@ public class JARFileLocator implements AutoCloseable {
      * Determine if the file should be accepted.
      * <p>
      * The default method delegate to {@link #shouldDescendIntoFile(String)} and accept by default
-     * any JAR file not being a sources JAR.
+     * any JAR file not
+     * being a sources JAR.
      * 
-     * @param file path to be tested (file system dependent)
+     * @param file
+     *          path to be tested (file system dependent)
      * @return <code>true</code> if the file is valid, eg: can be processed.
      */
     protected boolean isValidFile(final String file) {
@@ -201,4 +226,5 @@ public class JARFileLocator implements AutoCloseable {
     }
 
   }
+
 }

@@ -1,7 +1,6 @@
 package fr.glhez.jtools.jar;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,24 @@ public class Main {
       .desc("Look for JAR in EAR/WAR files. The filter accepts value all (don't care about hierarchy) or the default 'std' (META-INF/lib/ only)")
       .build()
     ;
+    final Option deepFilterOpt = Option.builder("f").longOpt("filter").argName("pattern").hasArg(true)
+      .valueSeparator()
+      .desc("Filter embedded JAR/WAR. Path matched by the Pattern will be included."
+          + "\n The pattern use java.util.regex.Pattern and can be added several times.")
+      .build()
+    ;
+    final Option includeOpt = Option.builder("i").longOpt("include").argName("pattern").hasArg(true)
+        .valueSeparator()
+        .desc("Include file from the file system. File matched by the pattern will be added to any analysis."
+            + "\n The pattern use java.util.regex.Pattern and can be added several times.")
+        .build()
+      ;    
+    final Option excludeOpt = Option.builder("x").longOpt("exclude").argName("pattern").hasArg(true)
+      .valueSeparator()
+      .desc("Exclude file from the file system. File matched by the pattern will be ignored from any analysis.\n"
+          + "The pattern use java.util.regex.Pattern and can be added several times.")
+      .build()
+    ;    
     final Option mavenOpt = Option.builder("m").longOpt("maven").optionalArg(true)
       .desc("For each arg, produce the groupId:artifactId:version if available. The option accept a value, which may be deploy to generate a deploy:deploy-file fragment.")
       .build()
@@ -44,7 +61,7 @@ public class Main {
     final Option serviceOpt = Option.builder("s").longOpt("service").optionalArg(true)
         .desc("Search a service (SPI) file. A list of service (separated by space or ',') can be passed.")
         .build()
-      ;
+    ;
     final Option helpOpt = Option.builder("h").longOpt("help")
       .desc("Display this help")
       .build()
@@ -58,6 +75,9 @@ public class Main {
     options.addOption(mavenOpt);
     options.addOption(helpOpt);
     options.addOption(deepOpt);
+    options.addOption(deepFilterOpt);
+    options.addOption(excludeOpt);
+    options.addOption(includeOpt);
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine cmd = parser.parse(options, args);
@@ -72,7 +92,10 @@ public class Main {
         .parameter(JARFileLocator.DeepMode::valueOf, JARFileLocator.DeepMode::values, JARFileLocator.DeepMode.DISABLED)
         .parse(deepOpt, cmd.getOptionValue(deepOpt.getLongOpt()));
 
-    try (final JARFileLocator locator = new JARFileLocator(deepMode)) {
+    final String[] includes = cmd.getOptionValues(includeOpt.getLongOpt());
+    final String[] excludes = cmd.getOptionValues(excludeOpt.getLongOpt());
+    final String[] deepInclude = cmd.getOptionValues(deepFilterOpt.getLongOpt());
+    try (final JARFileLocator locator = new JARFileLocator(deepMode, includes, excludes, deepInclude)) {
       locator.addFiles(cmd.getOptionValues(jarOpt.getLongOpt()));
       locator.addDirectories(cmd.getOptionValues(directoryOpt.getLongOpt()));
       if (locator.hasErrors()) {
@@ -105,9 +128,10 @@ public class Main {
       final ListJARProcessor processor = new ListJARProcessor(processors);
       final MutableProcessorContext ctx = new MutableProcessorContext();
       processor.init();
-      for (final Path file : locator.getFiles()) {
+      for (final JARInformation file : locator.getFiles()) {
+        System.out.println("Processing file: " + file.source + " / ");
         ctx.setSource(file);
-        try (JarFile jarFile = new JarFile(file.toFile())) {
+        try (JarFile jarFile = new JarFile(file.tmpPath.toFile())) {
           processor.process(ctx, jarFile);
         } catch (final IOException e) {
           ctx.addError(e);
@@ -119,18 +143,19 @@ public class Main {
   }
 
   private static void dumpErrors(final MutableProcessorContext ctx) {
-    final Map<Path, List<String>> errors = ctx.getErrors();
+    final Map<JARInformation, List<String>> errors = ctx.getErrors();
     if (!errors.isEmpty()) {
       System.err.println("There was some errors:");
-      errors.forEach((path, messages) -> {
+      errors.forEach((information, messages) -> {
         final int n = messages.size();
         if (n == 1) {
-          System.err.printf("%s: %s%n", path, messages.get(0));
+          System.err.printf("%s: %s%n", information, messages.get(0));
         } else if (n > 1) {
-          System.err.printf("%s:%n", path);
+          System.err.printf("%s:%n", information);
           messages.forEach(message -> System.err.printf("  %s%n", message));
         }
       });
     }
   }
+
 }

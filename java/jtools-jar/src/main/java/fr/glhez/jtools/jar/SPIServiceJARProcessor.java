@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -60,7 +59,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
       return;
     }
     try (final InputStream is = jarFile.getInputStream(entry)) {
-      services.computeIfAbsent(service, (key) -> new LinkedHashSet<>()).add(AvailableImplementation.parse(context.getSource(), is));
+      services.computeIfAbsent(service, (key) -> new LinkedHashSet<>()).add(AvailableImplementation.parse(context.getJARInformation(), is));
     } catch (final IOException e) {
       context.addError("Failed to read services definition [" + service + "]: " + e.getMessage());
     }
@@ -78,7 +77,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
       }
       System.out.println("Service: " + spiInterface + " -> " + implementations.size() + " IMPLEMENTATIONS FOUND");
       for (final AvailableImplementation availableImplementation : implementations) {
-        System.out.println("  From: " + availableImplementation.source);
+        System.out.println("  From: " + availableImplementation.jarInformation);
         for (final String impl : availableImplementation.implementations) {
           System.out.println("  Implementation: " + impl);
         }
@@ -103,15 +102,15 @@ public class SPIServiceJARProcessor implements JARProcessor {
   }
 
   static final class AvailableImplementation {
-    final Path source;
+    final JARInformation jarInformation;
     final List<String> implementations;
 
-    public AvailableImplementation(final Path source, final List<String> implementation) {
-      this.source = requireNonNull(source, "source");
+    public AvailableImplementation(final JARInformation jarInformation, final List<String> implementation) {
+      this.jarInformation = requireNonNull(jarInformation, "jarInformation");
       this.implementations = Collections.unmodifiableList(requireNonNull(implementation, "implementation"));
     }
 
-    static AvailableImplementation parse(final Path source, final InputStream is) throws IOException {
+    static AvailableImplementation parse(final JARInformation source, final InputStream is) throws IOException {
       final List<String> implementations = new ArrayList<>();
       try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
         for (String line = null; null != (line = reader.readLine());) {
