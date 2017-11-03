@@ -58,6 +58,10 @@ public class Main {
       .desc("For each arg, produce the groupId:artifactId:version if available. The option accept a value, which may be deploy to generate a deploy:deploy-file fragment.")
       .build()
     ;
+    final Option permissionsOpt = Option.builder("p").longOpt("permission").optionalArg(true)
+        .desc("Check for permissions codebase for JNLP")
+        .build()
+    ;
     final Option serviceOpt = Option.builder("s").longOpt("service").optionalArg(true)
         .desc("Search a service (SPI) file. A list of service (separated by space or ',') can be passed.")
         .build()
@@ -75,6 +79,7 @@ public class Main {
     options.addOption(mavenOpt);
     options.addOption(helpOpt);
     options.addOption(deepOpt);
+    options.addOption(permissionsOpt);
     options.addOption(deepFilterOpt);
     options.addOption(excludeOpt);
     options.addOption(includeOpt);
@@ -123,6 +128,10 @@ public class Main {
           spiInterfaces = Collections.emptySet();
         }
         processors.add(new SPIServiceJARProcessor(all, spiInterfaces));
+      }
+
+      if (cmd.hasOption(permissionsOpt.getLongOpt())) {
+        processors.add(new JNLPPermissionsJARProcessor());
       }
 
       final ListJARProcessor processor = new ListJARProcessor(processors);
