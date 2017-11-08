@@ -67,7 +67,7 @@ int main(const int argc, const char* const argv[]) {
     double giga = 0;
     if (device_size_known) {
       convert(device_size, &mega, &giga);
-      printf(        "device size....: %20lu %9.3f MiO %9.3f GiO\n", device_size, mega, giga);      
+      printf(        "device size....: [%12.3f] MiO [%9.3f] GiO\n", mega, giga);      
       fflush(stdout);
     }
 
@@ -80,11 +80,11 @@ int main(const int argc, const char* const argv[]) {
     while (zeroed && (n = read(fd, buffer, count)) > 0) {   
       convert(offset, &mega, &giga);
       if (device_size_known && device_size > 0) {
-        printf("\e\033[Kchecking offset: %20lu %9.3f MiO %9.3f GiO (buffer: %zd) %c %6.2f%%\r", 
-               offset, mega, giga, n, progress_char(offset), progress(offset, device_size) );      
+        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiO [%9.3f] GiO %c %6.2f%%\r", 
+               mega, giga, progress_char(offset), progress(offset, device_size) );      
       } else {
-        printf("\e\033[Kchecking offset: %20lu %9.3f MiO %9.3f GiO (buffer: %zd) %c\r", 
-               offset, mega, giga, n, progress_char(offset));              
+        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiO [%9.3f] GiO %c\r", 
+              mega, giga, progress_char(offset));              
       }
       fflush(stdout);
       for (ssize_t j = 0; j < n; ++j, ++offset) {
@@ -96,11 +96,11 @@ int main(const int argc, const char* const argv[]) {
     }
     convert(offset, &mega, &giga);
     if (device_size_known && device_size > 0) {
-      printf("\e\033[Kchecking offset: %20lu %9.3f MiO %9.3f GiO (buffer: %zd) %c %6.2f%%\r", 
-             offset, mega, giga, n, progress_char(offset), progress(offset, device_size) );      
+      printf(/*"\e\033[K*/"checking offset: [%12.3f] MiO [%9.3f] GiO %c %6.2f%%\r", 
+             mega, giga, progress_char(offset), progress(offset, device_size) );      
     } else {
-      printf("\e\033[Kchecking offset: %20lu %9.3f MiO %9.3f GiO (buffer: %zd) %c\r", 
-              offset, mega, giga, n, progress_char(offset));              
+      printf(/*"\e\033[K"*/"checking offset: [%12.3f MiO [%9.3f] GiO %c\r", 
+             mega, giga, progress_char(offset));              
     }
     fflush(stdout);
 
