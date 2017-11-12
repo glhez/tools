@@ -67,7 +67,7 @@ int main(const int argc, const char* const argv[]) {
     double giga = 0;
     if (device_size_known) {
       convert(device_size, &mega, &giga);
-      printf(        "device size....: [%12.3f] MiO [%9.3f] GiO\n", mega, giga);      
+      printf(        "device size....: [%12.3f] MiB [%9.3f] GiB\n", mega, giga);      
       fflush(stdout);
     }
 
@@ -80,10 +80,10 @@ int main(const int argc, const char* const argv[]) {
     while (zeroed && (n = read(fd, buffer, count)) > 0) {   
       convert(offset, &mega, &giga);
       if (device_size_known && device_size > 0) {
-        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiO [%9.3f] GiO %c %6.2f%%\r", 
+        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiB [%9.3f] GiB %c %6.2f%%\r", 
                mega, giga, progress_char(offset), progress(offset, device_size) );      
       } else {
-        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiO [%9.3f] GiO %c\r", 
+        printf(/*"\e\033[K"*/ "checking offset: [%12.3f] MiB [%9.3f] GiB %c\r", 
               mega, giga, progress_char(offset));              
       }
       fflush(stdout);
@@ -96,10 +96,10 @@ int main(const int argc, const char* const argv[]) {
     }
     convert(offset, &mega, &giga);
     if (device_size_known && device_size > 0) {
-      printf(/*"\e\033[K*/"checking offset: [%12.3f] MiO [%9.3f] GiO %c %6.2f%%\r", 
+      printf(/*"\e\033[K*/"checking offset: [%12.3f] MiB [%9.3f] GiB %c %6.2f%%\r", 
              mega, giga, progress_char(offset), progress(offset, device_size) );      
     } else {
-      printf(/*"\e\033[K"*/"checking offset: [%12.3f MiO [%9.3f] GiO %c\r", 
+      printf(/*"\e\033[K"*/"checking offset: [%12.3f MiB [%9.3f] GiB %c\r", 
              mega, giga, progress_char(offset));              
     }
     fflush(stdout);
