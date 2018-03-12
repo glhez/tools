@@ -25,17 +25,17 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
   }
 
   @Override
-  public void process(ProcessorContext context, JarFile jarFile) {
+  public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
-      Manifest manifest = jarFile.getManifest();
-      Attributes ma = manifest.getMainAttributes();
+      final Manifest manifest = jarFile.getManifest();
+      final Attributes ma = manifest.getMainAttributes();
 
       if (null == ma) {
         put(JNLPPermissions.EMPTY, context);
         return;
       }
 
-      JNLPPermissions permissions = new JNLPPermissions(clean(ma.getValue("Permissions")),
+      final JNLPPermissions permissions = new JNLPPermissions(clean(ma.getValue("Permissions")),
           clean(ma.getValue("Codebase")), clean(ma.getValue("Caller-Allowable-Codebase")));
 
       if (permissions.equals(JNLPPermissions.VALID)) {
@@ -44,7 +44,7 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
 
       put(permissions, context);
 
-    } catch (IOException e) {
+    } catch (final IOException e) {
       put(JNLPPermissions.EMPTY, context);
       context.addError(e);
     }
@@ -64,13 +64,13 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
     });
   }
 
-  private void put(JNLPPermissions permissions, ProcessorContext context) {
+  private void put(final JNLPPermissions permissions, final ProcessorContext context) {
     result.computeIfAbsent(permissions, p -> new TreeMap<>())
         .computeIfAbsent(context.getJARInformation().source, p -> new LinkedHashSet<>())
         .add(context.getJARInformation().realPath);
   }
 
-  private String clean(String s) {
+  private String clean(final String s) {
     return null == s ? "" : s.trim();
   }
 
@@ -82,7 +82,7 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
     public final String codebase;
     public final String callerAllowableCodebase;
 
-    public JNLPPermissions(String permissions, String codebase, String callerAllowableCodebase) {
+    public JNLPPermissions(final String permissions, final String codebase, final String callerAllowableCodebase) {
       this.permissions = permissions;
       this.codebase = codebase;
       this.callerAllowableCodebase = callerAllowableCodebase;
@@ -107,12 +107,14 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
+    public boolean equals(final Object obj) {
+      if (this == obj) {
         return true;
-      if (obj == EMPTY || obj == null || getClass() != obj.getClass())
+      }
+      if (obj == EMPTY || obj == null || getClass() != obj.getClass()) {
         return false;
-      JNLPPermissions other = (JNLPPermissions) obj;
+      }
+      final JNLPPermissions other = (JNLPPermissions) obj;
       return Objects.equals(permissions, other.permissions) && Objects.equals(codebase, other.codebase)
           && Objects.equals(callerAllowableCodebase, other.callerAllowableCodebase);
     }
@@ -137,7 +139,7 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
     ;
     // @formatter:on
     @Override
-    public int compareTo(JNLPPermissions o) {
+    public int compareTo(final JNLPPermissions o) {
       return COMPARATOR.compare(this, o);
     }
 

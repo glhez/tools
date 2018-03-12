@@ -47,13 +47,13 @@ public class Main {
         .desc("Include file from the file system. File matched by the pattern will be added to any analysis."
             + "\n The pattern use java.util.regex.Pattern and can be added several times.")
         .build()
-      ;    
+      ;
     final Option excludeOpt = Option.builder("x").longOpt("exclude").argName("pattern").hasArg(true)
       .valueSeparator()
       .desc("Exclude file from the file system. File matched by the pattern will be ignored from any analysis.\n"
           + "The pattern use java.util.regex.Pattern and can be added several times.")
       .build()
-    ;    
+    ;
     final Option mavenOpt = Option.builder("m").longOpt("maven").optionalArg(true)
       .desc("For each arg, produce the groupId:artifactId:version if available. The option accept a value, which may be deploy to generate a deploy:deploy-file fragment.")
       .build()
@@ -64,6 +64,10 @@ public class Main {
     ;
     final Option serviceOpt = Option.builder("s").longOpt("service").optionalArg(true)
         .desc("Search a service (SPI) file. A list of service (separated by space or ',') can be passed.")
+        .build()
+    ;
+    final Option classPathOpt = Option.builder("c").longOpt("class-path").optionalArg(true)
+        .desc("Check for Class-Path entries.")
         .build()
     ;
     final Option helpOpt = Option.builder("h").longOpt("help")
@@ -83,6 +87,7 @@ public class Main {
     options.addOption(deepFilterOpt);
     options.addOption(excludeOpt);
     options.addOption(includeOpt);
+    options.addOption(classPathOpt);
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine cmd = parser.parse(options, args);
@@ -132,6 +137,10 @@ public class Main {
 
       if (cmd.hasOption(permissionsOpt.getLongOpt())) {
         processors.add(new JNLPPermissionsJARProcessor());
+      }
+
+      if (cmd.hasOption(classPathOpt.getLongOpt())) {
+        processors.add(new ClassPathJARProcessor());
       }
 
       final ListJARProcessor processor = new ListJARProcessor(processors);
