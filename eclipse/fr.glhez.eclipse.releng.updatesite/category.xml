@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+  <feature url="fr.glhez.eclipse.features.all_1.0.0.qualifier.jar" id="fr.glhez.eclipse.features.all" version="1.0.0.qualifier">
+    <category name="fr.glhez.eclipse.releng.updatesite.cat1" />
+  </feature>
+  <category-def name="fr.glhez.eclipse.releng.updatesite.cat1" label="glhez's Eclipse Plugin Features"/>
+</site>
