@@ -32,7 +32,7 @@ public class Main {
       .desc("Add a specific jar")
       .build()
     ;
-    final Option deepOpt = Option.builder("D").longOpt("deep").argName("filter").hasArg(true)
+    final Option deepOpt = Option.builder("D").longOpt("deepsca").argName("filter").hasArg(true)
       .desc("Look for JAR in EAR/WAR files. The filter accepts value all (don't care about hierarchy) or the default 'std' (META-INF/lib/ only)")
       .build()
     ;
@@ -58,7 +58,7 @@ public class Main {
       .desc("For each arg, produce the groupId:artifactId:version if available. The option accept a value, which may be deploy to generate a deploy:deploy-file fragment.")
       .build()
     ;
-    final Option permissionsOpt = Option.builder("p").longOpt("permission").optionalArg(true)
+    final Option permissionsOpt = Option.builder("p").longOpt("permission").hasArg(false)
         .desc("Check for permissions codebase for JNLP")
         .build()
     ;
@@ -66,7 +66,7 @@ public class Main {
         .desc("Search a service (SPI) file. A list of service (separated by space or ',') can be passed.")
         .build()
     ;
-    final Option classPathOpt = Option.builder("c").longOpt("class-path").optionalArg(true)
+    final Option classPathOpt = Option.builder("c").longOpt("class-path").hasArg(false)
         .desc("Check for Class-Path entries.")
         .build()
     ;
