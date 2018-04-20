@@ -41,18 +41,18 @@ public class JARFileLocator implements AutoCloseable {
   }
 
   // @formatter:off
-  private static Predicate<Path> toPredicate(String[] filters, boolean defaultValue) {
+  private static Predicate<Path> toPredicate(final String[] filters, final boolean defaultValue) {
     if (null == filters || filters.length == 0) {
       return v -> defaultValue;
     }
-    Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty()) 
+    final Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty()) 
       .collect(collectingAndThen(joining("|", "(?:", ")"), Pattern::compile))
       .asPredicate();
     return path -> sp.test(toString(path));
   }
   // @formatter:on
 
-  private static String toString(Path path) {
+  private static String toString(final Path path) {
     // don't care 'bout Windows path.
     return path.toString().replace("\\", "/");
   }
@@ -136,7 +136,7 @@ public class JARFileLocator implements AutoCloseable {
     return !errors.isEmpty();
   }
 
-  enum DeepMode implements BiPredicate<Path, BasicFileAttributes> {
+  public enum DeepMode implements BiPredicate<Path, BasicFileAttributes> {
     ALL {
       @Override
       public boolean isArchivePath(final Path path) {

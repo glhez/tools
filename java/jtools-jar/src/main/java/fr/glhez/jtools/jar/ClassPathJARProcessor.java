@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 public class ClassPathJARProcessor implements JARProcessor {
@@ -26,9 +27,9 @@ public class ClassPathJARProcessor implements JARProcessor {
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
-      final String classPath = jarFile.getManifest().getMainAttributes().getValue(Name.CLASS_PATH);
-      classPathEntries.put(context.getJARInformation(),
-          Optional.ofNullable(classPath).map(CLASS_PATH_SPLITTER::split).map(Arrays::asList));
+      final Optional<String> classPath = Optional.ofNullable(jarFile.getManifest()).map(Manifest::getMainAttributes)
+          .map(attr -> attr.getValue(Name.CLASS_PATH));
+      classPathEntries.put(context.getJARInformation(), classPath.map(CLASS_PATH_SPLITTER::split).map(Arrays::asList));
     } catch (final IOException e) {
       context.addError(e);
     }
