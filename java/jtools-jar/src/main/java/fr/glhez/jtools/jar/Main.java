@@ -54,7 +54,7 @@ public class Main {
           + "The pattern use java.util.regex.Pattern and can be added several times.")
       .build()
     ;
-    final Option mavenOpt = Option.builder("m").longOpt("maven").optionalArg(true)
+    final Option mavenOpt = Option.builder("M").longOpt("maven").optionalArg(true)
       .desc("For each arg, produce the groupId:artifactId:version if available. The option accept a value, which may be deploy to generate a deploy:deploy-file fragment.")
       .build()
     ;
@@ -74,6 +74,10 @@ public class Main {
       .desc("Display this help")
       .build()
     ;
+    final Option moduleOpt = Option.builder("m").longOpt("module").hasArg(false)
+      .desc("Scan the JAR for Java 9 module or Java 8 Automatic-Module-Name.")
+      .build()
+    ;    
     // @formatter:on
 
     final Options options = new Options();
@@ -88,6 +92,7 @@ public class Main {
     options.addOption(excludeOpt);
     options.addOption(includeOpt);
     options.addOption(classPathOpt);
+    options.addOption(moduleOpt);
 
     final CommandLineParser parser = new DefaultParser();
     final CommandLine cmd = parser.parse(options, args);
@@ -115,15 +120,35 @@ public class Main {
 
       final List<JARProcessor> processors = new ArrayList<>();
 
+      final boolean isServiceOptionSet = cmd.hasOption(serviceOpt.getLongOpt());
+      final boolean isModuleOptionSet = cmd.hasOption(moduleOpt.getLongOpt());
+      
+      final boolean addModuleProcessor = isModuleOptionSet || isServiceOptionSet;
+
+      final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
       if (cmd.hasOption(mavenOpt.getLongOpt())) {
         final MavenArtifactsJARProcessor.OptionKind kind = EnumParameter
             .parameter(MavenArtifactsJARProcessor.OptionKind::valueOf, MavenArtifactsJARProcessor.OptionKind::values,
                 MavenArtifactsJARProcessor.OptionKind.LIST)
             .parse(mavenOpt, cmd.getOptionValue(mavenOpt.getLongOpt()));
-        processors.add(new MavenArtifactsJARProcessor(kind));
+        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(kind);
+        processors.add(mavenArtifactsJARProcessor);
+      } else if (addModuleProcessor) {
+        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(MavenArtifactsJARProcessor.OptionKind.SILENT);
+        processors.add(mavenArtifactsJARProcessor);
+      } else {
+        mavenArtifactsJARProcessor = null;
       }
 
-      if (cmd.hasOption(serviceOpt.getLongOpt())) {
+      final ModuleJARProcessor moduleJARProcessor;
+      if (addModuleProcessor) {
+        moduleJARProcessor = new ModuleJARProcessor(mavenArtifactsJARProcessor, !isServiceOptionSet);
+        processors.add(moduleJARProcessor);
+      } else {
+        moduleJARProcessor = null;
+      }
+
+      if (isServiceOptionSet) {
         final String userValue = cmd.getOptionValue(serviceOpt.getLongOpt());
         final boolean all = null == userValue;
         Set<String> spiInterfaces;
@@ -132,7 +157,7 @@ public class Main {
         } else {
           spiInterfaces = Collections.emptySet();
         }
-        processors.add(new SPIServiceJARProcessor(all, spiInterfaces));
+        processors.add(new SPIServiceJARProcessor(moduleJARProcessor, all, spiInterfaces));
       }
 
       if (cmd.hasOption(permissionsOpt.getLongOpt())) {
@@ -163,13 +188,14 @@ public class Main {
   private static void dumpErrors(final MutableProcessorContext ctx) {
     final Map<JARInformation, List<String>> errors = ctx.getErrors();
     if (!errors.isEmpty()) {
-      System.err.println("There was some errors:");
+      System.err.println("-------------------------------");
+      System.err.println("There was " + errors.size() + " errors:");
       errors.forEach((information, messages) -> {
         final int n = messages.size();
         if (n == 1) {
-          System.err.printf("%s: %s%n", information, messages.get(0));
+          System.err.printf("  %s: %s%n", information, messages.get(0));
         } else if (n > 1) {
-          System.err.printf("%s:%n", information);
+          System.err.printf("  %s:%n", information);
           messages.forEach(message -> System.err.printf("  %s%n", message));
         }
       });

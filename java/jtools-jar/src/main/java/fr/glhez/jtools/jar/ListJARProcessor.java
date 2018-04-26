@@ -15,9 +15,14 @@ public class ListJARProcessor implements JARProcessor {
 
   @Override
   public void init() {
-    processors.forEach(JARProcessor::init);
+    processors.forEach(this::init);
   }
 
+  private void init(final JARProcessor processor) {
+    System.out.println("initializing " + processor);
+    processor.init();
+  }
+  
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     processors.forEach(processor -> processor.process(context, jarFile));

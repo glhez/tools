@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -25,6 +27,10 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
   @Override
   public void init() {
     mavenArtifacts.clear();
+  }
+
+  Optional<GAV> getGAV(final JARInformation information) {
+    return Optional.ofNullable(mavenArtifacts.get(information));
   }
 
   @Override
@@ -93,21 +99,20 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
   }
 
   public enum OptionKind {
-    LIST {
-      @Override
-      void execute(final Map<JARInformation, GAV> artifacts) {
-        artifacts.forEach((path, gav) -> System.out.printf("%s: %s%n", path, gav));
-      }
-    },
-    SCRIPT {
-      @Override
-      void execute(final Map<JARInformation, GAV> artifacts) {
-        artifacts.forEach((path, gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId,
-            gav.version, path));
-      }
-    };
+    LIST(artifacts -> artifacts.forEach((path, gav) -> System.out.printf("%s: %s%n", path, gav))),
+    SCRIPT(artifacts -> artifacts.forEach((path, gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId,
+        gav.artifactId, gav.version, path))),
+    SILENT(artifact -> {});
 
-    abstract void execute(Map<JARInformation, GAV> artifacts);
+    private final Consumer<Map<JARInformation, GAV>> consumer;
+
+    private OptionKind(final Consumer<Map<JARInformation, GAV>> consumer) {
+      this.consumer = consumer;
+    }
+
+    final void execute(final Map<JARInformation, GAV> artifacts) {
+      consumer.accept(artifacts);
+    }
   }
 
 }

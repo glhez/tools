@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleDescriptor.Provides;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,21 +16,27 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
+import fr.glhez.jtools.jar.MavenArtifactsJARProcessor.GAV;
+
 public class SPIServiceJARProcessor implements JARProcessor {
   private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
+  private final ModuleJARProcessor moduleJARProcessor;
   private final boolean all;
   private final Set<String> spiInterfaces;
   private transient final Set<String> spiInterfacesPath;
   private transient final Map<String, Set<AvailableImplementation>> services;
 
-  public SPIServiceJARProcessor(final boolean all, final Set<String> spiInterfaces) {
+  public SPIServiceJARProcessor(final ModuleJARProcessor moduleJARProcessor, final boolean all,
+      final Set<String> spiInterfaces) {
     Objects.requireNonNull(spiInterfaces, "spiInterfaces");
+    this.moduleJARProcessor = requireNonNull(moduleJARProcessor, "moduleJARProcessor");
     this.all = all;
     this.spiInterfaces = all || spiInterfaces.isEmpty() ? Collections.emptySet() : new LinkedHashSet<>(spiInterfaces);
     this.spiInterfacesPath = spiInterfaces.stream().map(path -> SERVICES_DIRECTORY + path)
@@ -51,6 +59,14 @@ public class SPIServiceJARProcessor implements JARProcessor {
     }
 
     entries.forEach(entry -> process(context, jarFile, entry));
+
+    moduleJARProcessor.getModuleDescriptor(context.getJARInformation())
+        .ifPresent(descriptor -> process(context, descriptor));
+
+  }
+
+  private Set<AvailableImplementation> providersFor(final String service) {
+    return services.computeIfAbsent(service, (key) -> new LinkedHashSet<>());
   }
 
   private void process(final ProcessorContext context, final JarFile jarFile, final JarEntry entry) {
@@ -59,10 +75,21 @@ public class SPIServiceJARProcessor implements JARProcessor {
       return;
     }
     try (final InputStream is = jarFile.getInputStream(entry)) {
-      services.computeIfAbsent(service, (key) -> new LinkedHashSet<>()).add(AvailableImplementation.parse(context.getJARInformation(), is));
+      providersFor(service).add(AvailableImplementation.parse(context.getJARInformation(), is));
     } catch (final IOException e) {
       context.addError("Failed to read services definition [" + service + "]: " + e.getMessage());
     }
+  }
+
+  private boolean isRequestedServices(final Provides provides) {
+    return all || spiInterfaces.contains(provides.service());
+  }
+
+  private void process(final ProcessorContext context, final ModuleDescriptor descriptor) {
+    descriptor.provides().stream().filter(this::isRequestedServices).forEach(provides -> {
+      providersFor(provides.service())
+          .add(new AvailableImplementation(context.getJARInformation(), provides.providers()));
+    });
   }
 
   @Override
@@ -77,7 +104,9 @@ public class SPIServiceJARProcessor implements JARProcessor {
       }
       System.out.println("Service: " + spiInterface + " -> " + implementations.size() + " IMPLEMENTATIONS FOUND");
       for (final AvailableImplementation availableImplementation : implementations) {
-        System.out.println("  From: " + availableImplementation.jarInformation);
+        final Optional<GAV> gav = moduleJARProcessor.getGAV(availableImplementation.jarInformation);
+        System.out
+            .println("  From: " + availableImplementation.jarInformation + gav.map(g -> " " + g.toString()).orElse(""));
         for (final String impl : availableImplementation.implementations) {
           System.out.println("  Implementation: " + impl);
         }

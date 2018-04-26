@@ -24,7 +24,7 @@ else
   exit 1
 fi
 
-declare output=jtools-jar/target/jlink
+declare output="${root}/jtools-jar/target/jlink"
 
 rm -Rfv "$output"
 jlink --module-path "${jmods}${S}${root}/jtools-jar/target/jtools-jar-1.jar${S}${root}/jpms-enabler/org.apache.commons/commons-cli/target/org.apache.commons.commons-cli-1.4-java9.jar" \
