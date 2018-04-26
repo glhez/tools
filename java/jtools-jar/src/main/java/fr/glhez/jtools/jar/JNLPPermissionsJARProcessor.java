@@ -52,13 +52,16 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
 
   @Override
   public void finish() {
-    System.out.println("Status: ");
+    System.out.println("---- [JNLP Permissions] ----");
+    final String l0 = "  ";
+    final String l1 = "    ";
+    final String l2 = "      ";
     result.forEach((permissions, files) -> {
-      System.out.println("Permissions: " + permissions);
+      System.out.println(l0 + "Permissions: " + permissions);
       files.forEach((parent, children) -> {
-        System.out.println("  " + parent);
+        System.out.println(l1 + parent);
         children.forEach(child -> {
-          child.ifPresent(val -> System.out.println("    " + val));
+          child.ifPresent(val -> System.out.println(l2 + val));
         });
       });
     });
@@ -97,8 +100,18 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
       if (this == JNLPPermissions.EMPTY) {
         return "JNLP <missing>";
       }
-      return "JNLP [Permissions: " + permissions + ", Codebase: " + codebase + ", Caller-Allowable-Codebase: "
-          + callerAllowableCodebase + "]";
+      return "JNLP [Permissions: " + reformatAttribute(permissions) + ", Codebase: " + reformatAttribute(codebase)
+          + ", Caller-Allowable-Codebase: " + reformatAttribute(callerAllowableCodebase) + "]";
+    }
+
+    private String reformatAttribute(final String s) {
+      if (s == null) {
+        return "<null>";
+      }
+      if (s.isEmpty()) {
+        return "<empty>";
+      }
+      return s;
     }
 
     @Override

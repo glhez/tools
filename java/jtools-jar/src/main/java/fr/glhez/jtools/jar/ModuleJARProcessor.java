@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.module.ModuleDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -33,6 +34,7 @@ public class ModuleJARProcessor implements JARProcessor {
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
       final ZipEntry moduleInfo = jarFile.getEntry("module-info.class");
+
       if (null != moduleInfo) {
         try (InputStream is = jarFile.getInputStream(moduleInfo);
             BufferedInputStream bis = new BufferedInputStream(is)) {
@@ -49,7 +51,9 @@ public class ModuleJARProcessor implements JARProcessor {
         this.moduleDescriptors.put(context.getJARInformation(), ModuleDescriptor.newAutomaticModule(name).build());
       });
 
-    } catch (final IOException e) {
+    } catch (final IOException | java.lang.module.InvalidModuleDescriptorException
+        | java.lang.IllegalArgumentException e) {
+      // thrown by module info.
       context.addError(e);
     }
   }
@@ -59,13 +63,25 @@ public class ModuleJARProcessor implements JARProcessor {
     if (silent) {
       return;
     }
+    final String isAutomatic = " [automatic]";
+    final String isNotAutomatic = "            ";
+    final int oi = moduleDescriptors.values().stream().mapToInt(module -> module.toNameAndVersion().length()).max()
+        .orElse(0);
+    final int goi = moduleDescriptors.keySet().stream().map(mavenArtifactsProcessor::getGAV).flatMap(Optional::stream)
+        .map(Objects::toString).mapToInt(String::length).max().orElse(0);
+
+    System.out.println("---- [Java Module] ----");
     moduleDescriptors.forEach((jarInformation, module) -> {
-      final Optional<GAV> gav = mavenArtifactsProcessor.getGAV(jarInformation);
-      final StringBuilder sb = new StringBuilder(module.toNameAndVersion());
+      final StringBuilder sb = new StringBuilder("  ").append(StringUtils.rightPad(module.toNameAndVersion(), oi));
       if (module.isAutomatic()) {
-        sb.append(" [automatic]");
+        sb.append(isAutomatic);
+      } else {
+        sb.append(isNotAutomatic);
       }
-      gav.ifPresent(g -> sb.append(" [GAV ").append(gav).append("]"));
+      final Optional<GAV> gav = mavenArtifactsProcessor.getGAV(jarInformation);
+      gav.ifPresentOrElse(g -> sb.append(" [").append(StringUtils.rightPad(g.toString(), goi)).append("]"), //
+          () -> sb.append("  ").append(StringUtils.rightPad("", goi)).append(" "));
+      sb.append(" => ").append(jarInformation);
       System.out.println(sb.toString());
     });
   }

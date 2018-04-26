@@ -25,18 +25,22 @@ public class JARInformation implements Comparable<JARInformation> {
    */
   public final Path tmpPath;
 
-  private JARInformation(Path source, Optional<Path> realPath, Path tmpPath) {
+  private JARInformation(final Path source, final Optional<Path> realPath, final Path tmpPath) {
     this.source = Objects.requireNonNull(source, "jarInformation");
     this.realPath = Objects.requireNonNull(realPath, "realPath");
     this.tmpPath = Objects.requireNonNull(tmpPath, "tmpPath");
   }
 
-  public static JARInformation newJARInformation(Path source) {
+  public static JARInformation newJARInformation(final Path source) {
     return new JARInformation(source, Optional.empty(), source);
   }
 
-  public static JARInformation newJARInformation(Path source, Path realPath, Path tmpPath) {
+  public static JARInformation newJARInformation(final Path source, final Path realPath, final Path tmpPath) {
     return new JARInformation(source, Optional.of(realPath), tmpPath);
+  }
+
+  public Path getFileName() {
+    return realPath.map(Path::getFileName).orElseGet(source::getFileName);
   }
 
   @Override
@@ -45,12 +49,14 @@ public class JARInformation implements Comparable<JARInformation> {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
-    if (null == obj || obj.getClass() != this.getClass())
+    }
+    if (null == obj || obj.getClass() != this.getClass()) {
       return false;
-    JARInformation other = ((JARInformation) obj);
+    }
+    final JARInformation other = (JARInformation) obj;
     return source.equals(other.source) && realPath.equals(other.realPath);
   }
 
@@ -60,11 +66,12 @@ public class JARInformation implements Comparable<JARInformation> {
   }
 
   @Override
-  public int compareTo(JARInformation o) {
-    int n = source.compareTo(o.source);
+  public int compareTo(final JARInformation o) {
+    final int n = source.compareTo(o.source);
     if (n == 0) {
       return realPath.map(Object::toString).orElse("").compareTo(o.realPath.map(Object::toString).orElse(""));
     }
     return n;
   }
+
 }

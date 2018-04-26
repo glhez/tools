@@ -37,16 +37,16 @@ public class ClassPathJARProcessor implements JARProcessor {
 
   @Override
   public void finish() {
-    System.out.println("Class-Path entries per jar: ");
+    System.out.println("---- [Class-Path] ---- ");
     classPathEntries.forEach((jar, classPath) -> {
-      System.out.print("File: " + jar);
+      System.out.print("  File: " + jar);
       if (!classPath.isPresent()) {
         System.out.println(" (no Class-Path entries)");
       }
       classPath.ifPresent(entries -> {
         System.out.println(" (" + entries.size() + ")");
         entries.forEach(entry -> {
-          System.out.println("  " + entry);
+          System.out.println("    " + entry);
         });
       });
     });

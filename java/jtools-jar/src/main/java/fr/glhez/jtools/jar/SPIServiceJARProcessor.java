@@ -32,9 +32,10 @@ public class SPIServiceJARProcessor implements JARProcessor {
   private final Set<String> spiInterfaces;
   private transient final Set<String> spiInterfacesPath;
   private transient final Map<String, Set<AvailableImplementation>> services;
+  private final boolean moduleOnly;
 
   public SPIServiceJARProcessor(final ModuleJARProcessor moduleJARProcessor, final boolean all,
-      final Set<String> spiInterfaces) {
+      final Set<String> spiInterfaces, final boolean moduleOnly) {
     Objects.requireNonNull(spiInterfaces, "spiInterfaces");
     this.moduleJARProcessor = requireNonNull(moduleJARProcessor, "moduleJARProcessor");
     this.all = all;
@@ -42,6 +43,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
     this.spiInterfacesPath = spiInterfaces.stream().map(path -> SERVICES_DIRECTORY + path)
         .collect(toCollection(LinkedHashSet::new));
     this.services = new LinkedHashMap<>();
+    this.moduleOnly = moduleOnly;
   }
 
   @Override
@@ -58,8 +60,9 @@ public class SPIServiceJARProcessor implements JARProcessor {
       entries = spiInterfacesPath.stream().map(jarFile::getJarEntry).filter(Objects::nonNull);
     }
 
-    entries.forEach(entry -> process(context, jarFile, entry));
-
+    if (!moduleOnly) {
+      entries.forEach(entry -> process(context, jarFile, entry));
+    }
     moduleJARProcessor.getModuleDescriptor(context.getJARInformation())
         .ifPresent(descriptor -> process(context, descriptor));
 
@@ -88,7 +91,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
   private void process(final ProcessorContext context, final ModuleDescriptor descriptor) {
     descriptor.provides().stream().filter(this::isRequestedServices).forEach(provides -> {
       providersFor(provides.service())
-          .add(new AvailableImplementation(context.getJARInformation(), provides.providers()));
+          .add(new AvailableImplementation(context.getJARInformation(), provides.providers(), true));
     });
   }
 
@@ -96,21 +99,31 @@ public class SPIServiceJARProcessor implements JARProcessor {
   public void finish() {
     final Set<String> spiInterfaces = all ? services.keySet() : this.spiInterfaces;
 
+    System.out.println("---- [SPI Service] ----");
     for (final String spiInterface : spiInterfaces) {
       final Set<AvailableImplementation> implementations = services.get(spiInterface);
       if (null == implementations) {
-        System.out.println("Service: " + spiInterface + " -> NO IMPLEMENTATION FOUND");
+        System.out.println("Service: " + spiInterface + " [No implementation found]");
         continue;
       }
-      System.out.println("Service: " + spiInterface + " -> " + implementations.size() + " IMPLEMENTATIONS FOUND");
+      System.out.println("Service: " + spiInterface + " -> [Found " + implementations.size() + " implementations]");
       for (final AvailableImplementation availableImplementation : implementations) {
         final Optional<GAV> gav = moduleJARProcessor.getGAV(availableImplementation.jarInformation);
-        System.out
-            .println("  From: " + availableImplementation.jarInformation + gav.map(g -> " " + g.toString()).orElse(""));
+        final Optional<ModuleDescriptor> desc = moduleJARProcessor
+            .getModuleDescriptor(availableImplementation.jarInformation);
+
+        System.out.println("  From: " + availableImplementation.jarInformation + " (source: "
+            + (availableImplementation.fromModuleInfo ? "module" : "META-INF/services") + ")");
+        gav.ifPresent(g -> System.out.println("    +GAV: " + g));
+        desc.ifPresent(d -> System.out.println("    +Module: " + d.toNameAndVersion()));
+
+        int i = 1;
         for (final String impl : availableImplementation.implementations) {
-          System.out.println("  Implementation: " + impl);
+          System.out.printf("    [%2d] %s%n", i, impl);
+          ++i;
         }
       }
+      System.out.println();
     }
   }
 
@@ -133,10 +146,13 @@ public class SPIServiceJARProcessor implements JARProcessor {
   static final class AvailableImplementation {
     final JARInformation jarInformation;
     final List<String> implementations;
+    final boolean fromModuleInfo;
 
-    public AvailableImplementation(final JARInformation jarInformation, final List<String> implementation) {
+    public AvailableImplementation(final JARInformation jarInformation, final List<String> implementation,
+        final boolean fromModuleInfo) {
       this.jarInformation = requireNonNull(jarInformation, "jarInformation");
       this.implementations = Collections.unmodifiableList(requireNonNull(implementation, "implementation"));
+      this.fromModuleInfo = fromModuleInfo;
     }
 
     static AvailableImplementation parse(final JARInformation source, final InputStream is) throws IOException {
@@ -152,7 +168,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
             implementations.add(line);
           }
         }
-        return new AvailableImplementation(source, implementations);
+        return new AvailableImplementation(source, implementations, false);
       }
     }
 

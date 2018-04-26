@@ -21,6 +21,8 @@ import org.apache.commons.cli.ParseException;
 public class Main {
 
   public static void main(final String[] args) throws ParseException {
+    //picocli.CommandLine.run(new fr.glhez.jtools.jar.picocli.MainCommand(), System.out, args);
+    //System.exit(1);
     // @formatter:off
     final Option directoryOpt = Option.builder("d").longOpt("directory").argName("directory")
       .hasArg()
@@ -66,6 +68,10 @@ public class Main {
         .desc("Search a service (SPI) file. A list of service (separated by space or ',') can be passed.")
         .build()
     ;
+    final Option serviceModuleOpt = Option.builder("u").longOpt("service-module").hasArg(false)
+        .desc("Only process module-info with -s option.")
+        .build()
+    ;    
     final Option classPathOpt = Option.builder("c").longOpt("class-path").hasArg(false)
         .desc("Check for Class-Path entries.")
         .build()
@@ -84,6 +90,7 @@ public class Main {
     options.addOption(directoryOpt);
     options.addOption(jarOpt);
     options.addOption(serviceOpt);
+    options.addOption(serviceModuleOpt);
     options.addOption(mavenOpt);
     options.addOption(helpOpt);
     options.addOption(deepOpt);
@@ -131,10 +138,10 @@ public class Main {
             .parameter(MavenArtifactsJARProcessor.OptionKind::valueOf, MavenArtifactsJARProcessor.OptionKind::values,
                 MavenArtifactsJARProcessor.OptionKind.LIST)
             .parse(mavenOpt, cmd.getOptionValue(mavenOpt.getLongOpt()));
-        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(kind);
+        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(kind, false);
         processors.add(mavenArtifactsJARProcessor);
       } else if (addModuleProcessor) {
-        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(MavenArtifactsJARProcessor.OptionKind.SILENT);
+        mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(MavenArtifactsJARProcessor.OptionKind.LIST, true);
         processors.add(mavenArtifactsJARProcessor);
       } else {
         mavenArtifactsJARProcessor = null;
@@ -142,7 +149,7 @@ public class Main {
 
       final ModuleJARProcessor moduleJARProcessor;
       if (addModuleProcessor) {
-        moduleJARProcessor = new ModuleJARProcessor(mavenArtifactsJARProcessor, !isServiceOptionSet);
+        moduleJARProcessor = new ModuleJARProcessor(mavenArtifactsJARProcessor, !isModuleOptionSet);
         processors.add(moduleJARProcessor);
       } else {
         moduleJARProcessor = null;
@@ -157,7 +164,8 @@ public class Main {
         } else {
           spiInterfaces = Collections.emptySet();
         }
-        processors.add(new SPIServiceJARProcessor(moduleJARProcessor, all, spiInterfaces));
+        final boolean moduleOnly = cmd.hasOption(serviceModuleOpt.getLongOpt());
+        processors.add(new SPIServiceJARProcessor(moduleJARProcessor, all, spiInterfaces, moduleOnly));
       }
 
       if (cmd.hasOption(permissionsOpt.getLongOpt())) {
@@ -172,7 +180,7 @@ public class Main {
       final MutableProcessorContext ctx = new MutableProcessorContext();
       processor.init();
       for (final JARInformation file : locator.getFiles()) {
-        System.out.println("Processing file: " + file.source + " / ");
+        System.out.println("Processing file: " + file.source);
         ctx.setSource(file);
         try (JarFile jarFile = new JarFile(file.tmpPath.toFile())) {
           processor.process(ctx, jarFile);
