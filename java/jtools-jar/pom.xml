@@ -15,7 +15,7 @@
 	<name>glhez's java tools :: jar</name>
 	
 	<dependencies>
-    <dependency> <groupId>info.picocli</groupId>     <artifactId>picocli</artifactId>     </dependency>                                      
+    <dependency> <groupId>info.picocli</groupId>     <artifactId>picocli</artifactId>     </dependency>
     <dependency> <groupId>com.github.glhez</groupId> <artifactId>commons-cli</artifactId> </dependency>
 	</dependencies>
 

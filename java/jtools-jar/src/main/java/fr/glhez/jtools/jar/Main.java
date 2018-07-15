@@ -76,6 +76,10 @@ public class Main {
         .desc("Check for Class-Path entries.")
         .build()
     ;
+    final Option versionOpt = Option.builder("w").longOpt("java-version").hasArg(false)
+        .desc("Determine which Java version was used to compile source code (read in byte code).")
+        .build()
+    ;
     final Option helpOpt = Option.builder("h").longOpt("help")
       .desc("Display this help")
       .build()
@@ -99,6 +103,7 @@ public class Main {
     options.addOption(excludeOpt);
     options.addOption(includeOpt);
     options.addOption(classPathOpt);
+    options.addOption(versionOpt);
     options.addOption(moduleOpt);
 
     final CommandLineParser parser = new DefaultParser();
@@ -174,6 +179,10 @@ public class Main {
 
       if (cmd.hasOption(classPathOpt.getLongOpt())) {
         processors.add(new ClassPathJARProcessor());
+      }
+      
+      if (cmd.hasOption(versionOpt.getLongOpt())) {
+        processors.add(new JavaVersionJARProcessor());
       }
 
       final ListJARProcessor processor = new ListJARProcessor(processors);
