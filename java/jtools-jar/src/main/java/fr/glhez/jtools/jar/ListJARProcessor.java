@@ -22,7 +22,7 @@ public class ListJARProcessor implements JARProcessor {
     System.out.println("initializing " + processor);
     processor.init();
   }
-  
+
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     processors.forEach(processor -> processor.process(context, jarFile));

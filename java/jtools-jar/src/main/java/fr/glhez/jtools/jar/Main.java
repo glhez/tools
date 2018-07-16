@@ -71,7 +71,7 @@ public class Main {
     final Option serviceModuleOpt = Option.builder("u").longOpt("service-module").hasArg(false)
         .desc("Only process module-info with -s option.")
         .build()
-    ;    
+    ;
     final Option classPathOpt = Option.builder("c").longOpt("class-path").hasArg(false)
         .desc("Check for Class-Path entries.")
         .build()
@@ -87,7 +87,7 @@ public class Main {
     final Option moduleOpt = Option.builder("m").longOpt("module").hasArg(false)
       .desc("Scan the JAR for Java 9 module or Java 8 Automatic-Module-Name.")
       .build()
-    ;    
+    ;
     // @formatter:on
 
     final Options options = new Options();
@@ -134,7 +134,7 @@ public class Main {
 
       final boolean isServiceOptionSet = cmd.hasOption(serviceOpt.getLongOpt());
       final boolean isModuleOptionSet = cmd.hasOption(moduleOpt.getLongOpt());
-      
+
       final boolean addModuleProcessor = isModuleOptionSet || isServiceOptionSet;
 
       final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
@@ -180,7 +180,7 @@ public class Main {
       if (cmd.hasOption(classPathOpt.getLongOpt())) {
         processors.add(new ClassPathJARProcessor());
       }
-      
+
       if (cmd.hasOption(versionOpt.getLongOpt())) {
         processors.add(new JavaVersionJARProcessor());
       }

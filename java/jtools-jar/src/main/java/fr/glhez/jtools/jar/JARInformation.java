@@ -6,7 +6,7 @@ import java.util.Optional;
 
 /**
  * Information about a JAR file such as its origin and its child content (for deep archive).
- * 
+ *
  * @author gael.lhez
  */
 public class JARInformation implements Comparable<JARInformation> {

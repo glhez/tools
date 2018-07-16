@@ -45,7 +45,7 @@ public class JARFileLocator implements AutoCloseable {
     if (null == filters || filters.length == 0) {
       return v -> defaultValue;
     }
-    final Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty()) 
+    final Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty())
       .collect(collectingAndThen(joining("|", "(?:", ")"), Pattern::compile))
       .asPredicate();
     return path -> sp.test(toString(path));
@@ -171,7 +171,7 @@ public class JARFileLocator implements AutoCloseable {
      * Returns <code>true</code> if the path inside an archive should be considered.
      * <p>
      * The method may for example check if file starts with META-INF/lib.
-     * 
+     *
      * @param file
      * @return
      */
@@ -190,7 +190,7 @@ public class JARFileLocator implements AutoCloseable {
      * Determine if the file should be accepted as a deep file.
      * <p>
      * By default, only EAR and WAR may contains additional JAR file to be processed.
-     * 
+     *
      * @param file
      *          path to be tested (file system dependent)
      * @return <code>true</code> if the file is valid, eg: can be processed.
@@ -205,7 +205,7 @@ public class JARFileLocator implements AutoCloseable {
      * The default method delegate to {@link #shouldDescendIntoFile(String)} and accept by default
      * any JAR file not
      * being a sources JAR.
-     * 
+     *
      * @param file
      *          path to be tested (file system dependent)
      * @return <code>true</code> if the file is valid, eg: can be processed.

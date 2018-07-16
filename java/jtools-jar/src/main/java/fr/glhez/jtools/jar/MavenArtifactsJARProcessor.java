@@ -45,7 +45,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
     if (properties.isEmpty()) {
       return;
-    }      
+    }
 
     for (final JarEntry jarEntry : properties) {
       final Set<GAV> gavs = new LinkedHashSet<>();
@@ -54,23 +54,23 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
       } catch (final IOException e) {
         context.addError("Failed to read GAV definition: " + e.getMessage());
       }
-      
+
       if (gavs.isEmpty()) {
         return; // this would have been a GAV read error.
       } else if (gavs.size() == 1) {
         mavenArtifacts.put(context.getJARInformation(), gavs.iterator().next());
       } else {
-        // filter using the archive name, else fail 
+        // filter using the archive name, else fail
         final String name = context.getJARInformation().getFileName().toString();
         final Set<GAV> newGavs = gavs.stream().filter(gav -> name.contains(gav.getFileNamePrefix())).collect(toSet());
         if (newGavs.isEmpty()) {
-          return; // this would have been a GAV read error. 
+          return; // this would have been a GAV read error.
         } else if (newGavs.size() == 1) {
           mavenArtifacts.put(context.getJARInformation(), newGavs.iterator().next());
         } else {
           context.addError("Multiple " + MAVEN_DIRECTORY + "**" + MAVEN_PROPERTY + " found. Could not determine a GAV with filename either.");
         }
-      }      
+      }
     }
   }
 
