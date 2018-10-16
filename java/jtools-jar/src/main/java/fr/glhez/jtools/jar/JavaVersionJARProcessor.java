@@ -9,13 +9,21 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarFile;
+
+import fr.glhez.jtools.jar.MavenArtifactsJARProcessor.GAV;
 
 public class JavaVersionJARProcessor implements JARProcessor {
   private static final int JAVA_CLASS_MAGIC = 0xCAFEBABE;
 
   private final Map<JARInformation, EnumMap<JavaVersion, Set<String>>> entries = new LinkedHashMap<>();
+  private final Optional<MavenArtifactsJARProcessor> mavenArtifactsJARProcessor;
+
+  public JavaVersionJARProcessor(final MavenArtifactsJARProcessor mavenArtifactsJARProcessor) {
+    this.mavenArtifactsJARProcessor = Optional.ofNullable(mavenArtifactsJARProcessor); // optional
+  }
 
   @Override
   public void init() {
@@ -44,8 +52,10 @@ public class JavaVersionJARProcessor implements JARProcessor {
   public void finish() {
     System.out.println("-- [Java version for JAR] --");
     entries.forEach((jarInfo, versions) -> {
+      Optional<GAV> gav = mavenArtifactsJARProcessor.flatMap(p -> p.getGAV(jarInfo));
       versions.forEach((version, files) -> {
-        System.out.println("  " + jarInfo + ": " + version + " (" + files.size() + " files)");
+        System.out.println("  " + jarInfo + gav.map(g -> " [" + g + "]").orElse("") + ": " + version + " ("
+            + files.size() + " files)");
       });
     });
   }

@@ -68,7 +68,8 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
         } else if (newGavs.size() == 1) {
           mavenArtifacts.put(context.getJARInformation(), newGavs.iterator().next());
         } else {
-          context.addError("Multiple " + MAVEN_DIRECTORY + "**" + MAVEN_PROPERTY + " found. Could not determine a GAV with filename either.");
+          context.addError("Multiple " + MAVEN_DIRECTORY + "**" + MAVEN_PROPERTY
+              + " found. Could not determine a GAV with filename either.");
         }
       }
     }

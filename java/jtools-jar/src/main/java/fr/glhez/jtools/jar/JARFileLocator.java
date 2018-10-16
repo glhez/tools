@@ -1,7 +1,8 @@
 package fr.glhez.jtools.jar;
 
 import static fr.glhez.jtools.jar.JARInformation.newJARInformation;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;

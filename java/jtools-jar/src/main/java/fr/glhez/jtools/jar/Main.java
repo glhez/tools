@@ -21,8 +21,8 @@ import org.apache.commons.cli.ParseException;
 public class Main {
 
   public static void main(final String[] args) throws ParseException {
-    //picocli.CommandLine.run(new fr.glhez.jtools.jar.picocli.MainCommand(), System.out, args);
-    //System.exit(1);
+    // picocli.CommandLine.run(new fr.glhez.jtools.jar.picocli.MainCommand(), System.out, args);
+    // System.exit(1);
     // @formatter:off
     final Option directoryOpt = Option.builder("d").longOpt("directory").argName("directory")
       .hasArg()
@@ -182,7 +182,7 @@ public class Main {
       }
 
       if (cmd.hasOption(versionOpt.getLongOpt())) {
-        processors.add(new JavaVersionJARProcessor());
+        processors.add(new JavaVersionJARProcessor(mavenArtifactsJARProcessor));
       }
 
       final ListJARProcessor processor = new ListJARProcessor(processors);
