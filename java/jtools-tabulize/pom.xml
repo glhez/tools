@@ -10,12 +10,15 @@
     <version>1</version>
   </parent>
 
-  <artifactId>jtools-jar</artifactId>
+  <artifactId>jtools-tabulize</artifactId>
 
-  <name>glhez's java tools :: JAR</name>
+  <name>glhez's java tools :: Tabulize</name>
 
-  <dependencies>
-    <dependency> <groupId>info.picocli</groupId>     <artifactId>picocli</artifactId>     </dependency>
-  </dependencies>
+  <properties>
+    <java.compliance>1.8</java.compliance>
+    <toolchain.javaVersion>[1.8,1.9)</toolchain.javaVersion>
+
+    <maven.compiler.release>8</maven.compiler.release>
+  </properties>
 
 </project>

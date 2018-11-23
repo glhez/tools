@@ -19,13 +19,11 @@ import java.util.jar.JarFile;
 public class MavenArtifactsJARProcessor implements JARProcessor {
   private static final String MAVEN_DIRECTORY = "META-INF/maven/";
   private static final String MAVEN_PROPERTY = "/pom.properties";
-  private final OptionKind kind;
+  private final ExportMode kind;
   private final Map<JARInformation, GAV> mavenArtifacts;
-  private final boolean silent;
 
-  public MavenArtifactsJARProcessor(final OptionKind kind, final boolean silent) {
+  public MavenArtifactsJARProcessor(final ExportMode kind) {
     this.kind = kind;
-    this.silent = silent;
     this.mavenArtifacts = new LinkedHashMap<>();
   }
 
@@ -51,7 +49,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
       final Set<GAV> gavs = new LinkedHashSet<>();
       try (InputStream is = jarFile.getInputStream(jarEntry)) {
         gavs.add(GAV.parse(is));
-      } catch (final IOException e) {
+      } catch (final IOException | java.lang.SecurityException e) {
         context.addError("Failed to read GAV definition: " + e.getMessage());
       }
 
@@ -77,17 +75,17 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
   @Override
   public void finish() {
-    if (silent) {
+    if (kind == ExportMode.NONE) {
       return;
     }
     System.out.println("---- [Maven Metadata] ----");
-    if (kind == OptionKind.LIST) {
+    if (kind == ExportMode.LIST) {
       final int limit = mavenArtifacts.values().stream().map(Objects::toString).mapToInt(String::length).max()
           .orElse(30);
       final String pattern = "  %" + limit + "s => %s%n";
       mavenArtifacts
           .forEach((jar, gav) -> System.out.printf(pattern, StringUtils.rightPad(gav.toString(), limit), jar));
-    } else if (kind == OptionKind.SCRIPT) {
+    } else if (kind == ExportMode.SCRIPT) {
       mavenArtifacts.forEach((jar, gav) -> System.out.printf("  _mvn '%s' '%s' '%s' '%s'%n", gav.groupId,
           gav.artifactId, gav.version, jar));
     } else {
@@ -139,9 +137,10 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
   }
 
-  public enum OptionKind {
+  public enum ExportMode {
     LIST,
-    SCRIPT;
+    SCRIPT,
+    NONE;
   }
 
 }

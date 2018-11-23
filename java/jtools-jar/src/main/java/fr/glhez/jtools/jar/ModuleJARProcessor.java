@@ -40,6 +40,8 @@ public class ModuleJARProcessor implements JARProcessor {
             BufferedInputStream bis = new BufferedInputStream(is)) {
           final java.lang.module.ModuleDescriptor module = java.lang.module.ModuleDescriptor.read(bis);
           this.moduleDescriptors.put(context.getJARInformation(), module);
+        } catch (final IOException | java.lang.SecurityException e) {
+          context.addError("Failed to read module-info definition: " + e.getMessage());
         }
         return;
       }

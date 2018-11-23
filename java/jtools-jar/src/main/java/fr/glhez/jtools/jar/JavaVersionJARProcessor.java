@@ -39,7 +39,7 @@ public class JavaVersionJARProcessor implements JARProcessor {
           final int majorVersion = dis.readUnsignedShort();
           return Map.entry(entry.getName(), JavaVersion.match(majorVersion, minorVersion));
         }
-      } catch (final IOException e) {
+      } catch (final IOException|java.lang.SecurityException e) {
         context.addError("Unable to parse JarEntry: " + entry.getName() + ": " + e.getMessage());
       }
       return Map.entry(entry.getName(), JavaVersion.ERROR);
@@ -52,7 +52,7 @@ public class JavaVersionJARProcessor implements JARProcessor {
   public void finish() {
     System.out.println("-- [Java version for JAR] --");
     entries.forEach((jarInfo, versions) -> {
-      Optional<GAV> gav = mavenArtifactsJARProcessor.flatMap(p -> p.getGAV(jarInfo));
+      final Optional<GAV> gav = mavenArtifactsJARProcessor.flatMap(p -> p.getGAV(jarInfo));
       versions.forEach((version, files) -> {
         System.out.println("  " + jarInfo + gav.map(g -> " [" + g + "]").orElse("") + ": " + version + " ("
             + files.size() + " files)");

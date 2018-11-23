@@ -79,7 +79,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
     }
     try (final InputStream is = jarFile.getInputStream(entry)) {
       providersFor(service).add(AvailableImplementation.parse(context.getJARInformation(), is));
-    } catch (final IOException e) {
+    } catch (final IOException|java.lang.SecurityException e) {
       context.addError("Failed to read services definition [" + service + "]: " + e.getMessage());
     }
   }

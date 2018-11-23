@@ -1,19 +1,16 @@
 package fr.glhez.jtools.jar;
 
 import static fr.glhez.jtools.jar.JARInformation.newJARInformation;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.reducing;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -31,24 +28,30 @@ public class JARFileLocator implements AutoCloseable {
   private final Predicate<Path> filter;
   private final Predicate<Path> deepInclude;
 
-  public JARFileLocator(final DeepMode deepMode, final String[] include, final String[] exclude,
-      final String[] deepInclude) {
+  private JARFileLocator(final DeepMode deepMode, final Predicate<Path> filter, final Predicate<Path> deepInclude) {
     this.deepMode = Objects.requireNonNull(deepMode, "deepMode");
     this.files = new TreeSet<>();
     this.errors = new FileErrors();
     this.tempFiles = new ArrayList<>();
-    this.filter = toPredicate(include, true).and(toPredicate(exclude, false).negate());
-    this.deepInclude = toPredicate(deepInclude, true);
+    this.filter = filter;
+    this.deepInclude = deepInclude;
+  }
+
+  public JARFileLocator(final DeepMode deepMode, final List<Pattern> includes, final List<Pattern> excludes,
+      final List<Pattern> deepInclude) {
+    this(deepMode, toPredicate(includes, true).and(toPredicate(excludes, false).negate()),
+        toPredicate(deepInclude, true));
   }
 
   // @formatter:off
-  private static Predicate<Path> toPredicate(final String[] filters, final boolean defaultValue) {
-    if (null == filters || filters.length == 0) {
+  private static Predicate<Path> toPredicate(final List<Pattern> filters, final boolean defaultValue) {
+    if (null == filters || filters.isEmpty()) {
       return v -> defaultValue;
     }
-    final Predicate<String> sp = Arrays.stream(filters).filter(s -> !s.isEmpty())
-      .collect(collectingAndThen(joining("|", "(?:", ")"), Pattern::compile))
-      .asPredicate();
+    final Predicate<String> sp = filters.stream()
+           .map(Pattern::asPredicate)
+           .collect(reducing(Predicate::or))
+           .orElse(v -> defaultValue);
     return path -> sp.test(toString(path));
   }
   // @formatter:on
@@ -58,38 +61,38 @@ public class JARFileLocator implements AutoCloseable {
     return path.toString().replace("\\", "/");
   }
 
-  public void addFiles(final String[] files) {
-    if (null == files) {
-      return;
+  public void addFiles(final List<Path> files) {
+    if (null != files) {
+      files.forEach(this::addFile);
     }
-    for (final String value : files) {
-      final Path entry = Paths.get(value);
-      if (!Files.isRegularFile(entry)) {
-        errors.addError(entry, "Not a regular file");
-      } else {
-        try {
-          deepAdd(entry.toRealPath());
-        } catch (final IOException e) {
-          errors.addError(entry, e);
-        }
+  }
+
+  public void addDirectories(final List<Path> directories) {
+    if (null != directories) {
+      directories.forEach(this::addDirectory);
+    }
+  }
+
+  private void addFile(final Path entry) {
+    if (!Files.isRegularFile(entry)) {
+      errors.addError(entry, "Not a regular file");
+    } else {
+      try {
+        deepAdd(entry.toRealPath());
+      } catch (final IOException e) {
+        errors.addError(entry, e);
       }
     }
   }
 
-  public void addDirectories(final String[] directories) {
-    if (null == directories) {
-      return;
-    }
-    for (final String value : directories) {
-      final Path entry = Paths.get(value);
-      if (!Files.isDirectory(entry)) {
-        errors.addError(entry, "Not a directory");
-      } else {
-        try {
-          Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode).filter(this.filter).forEach(this::deepAdd);
-        } catch (final IOException e) {
-          errors.addError(entry, e);
-        }
+  private void addDirectory(final Path entry) {
+    if (!Files.isDirectory(entry)) {
+      errors.addError(entry, "Not a directory");
+    } else {
+      try {
+        Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode).filter(this.filter).forEach(this::deepAdd);
+      } catch (final IOException e) {
+        errors.addError(entry, e);
       }
     }
   }
