@@ -10,9 +10,10 @@
     <version>1</version>
   </parent>
 
-  <artifactId>jtools-tabulize</artifactId>
+  <artifactId>jtools-text</artifactId>
 
-  <name>glhez's java tools :: Tabulize</name>
+	<name>glhez's java tools :: Text</name>
+	<description>A simple library providing text related function such as Tabulize, Justify, ...</description>
 
   <properties>
     <java.compliance>1.8</java.compliance>

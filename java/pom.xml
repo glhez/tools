@@ -10,7 +10,7 @@
 
   <modules>
     <module>jtools-jar</module>
-    <module>jtools-tabulize</module>
+    <module>jtools-text</module>
   </modules>
 
   <properties>
