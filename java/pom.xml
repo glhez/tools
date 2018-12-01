@@ -20,7 +20,6 @@
 
     <java.compliance>11</java.compliance>
 
-    <maven.compiler.release>${java.compliance}</maven.compiler.release>
     <maven.compiler.source>${java.compliance}</maven.compiler.source>
     <maven.compiler.target>${java.compliance}</maven.compiler.target>
 
@@ -216,5 +215,19 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Use maven.compiler.release (this is currently no way to disable it) and this makes pre JDK9
+         project fails. -->
+    <profile>
+      <id>maven-compiler-plugin-use-release</id>
+      <activation>
+        <file><exists>maven-compiler-plugin.release-flag</exists></file>
+      </activation>
+      <properties>
+        <maven.compiler.release>${java.compliance}</maven.compiler.release>
+      </properties>
+    </profile>
+
   </profiles>
+
 </project>

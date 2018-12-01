@@ -1,7 +1,8 @@
 package fr.glhez.jtools.text;
 
-import java.util.Set;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Determine options for
@@ -16,24 +17,36 @@ import java.util.Collections;
  *
  */
 public class TabulizeOptions {
+  static final RightAlignNumber DEFAULT_RIGHT_ALIGN_NUMBER = RightAlignNumber.NONE;
+
+  static final int DEFAULT_TABSIZE = 2;
+
   /**
    * Detect multiline comment.
    */
+  @NotImplemented
+  @TabulizeColumnFinder("append a comment match 'rule' to the lexer using multiline delimiters")
   public final BiToken multilineComment;
 
   /**
    * Detect single line comment.
    */
+  @NotImplemented
+  @TabulizeColumnFinder("append a comment match 'rule' to the lexer using line comment")
   public final String lineComment;
 
   /**
    * Detect string using some method (ex: "a").
    */
+  @NotImplemented
+  @TabulizeColumnFinder("append a string match 'rule' to the lexer using string1 delimiters")
   public final BiToken string1;
 
   /**
    * Detect string using some method (ex: 'a').
    */
+  @NotImplemented
+  @TabulizeColumnFinder("append a string match 'rule' to the lexer using string2 delimiters")
   public final BiToken string2;
 
   /**
@@ -42,14 +55,37 @@ public class TabulizeOptions {
    * For example:
    *
    * <pre>
-   * new HashSet<>(asList("groupId", "artifactId", "version"))
+   * Set.of("groupId", "artifactId", "version") // Java 11
    * </pre>
    *
    * The tag must not have an attribute.
    * <p>
    * Case is sensitive.
    */
-  public final Set<String> xmlTags;
+  @NotImplemented
+  @TabulizeColumnFinder("toggle XML tags matcher.")
+  public final Set<? extends String> xmlTags;
+
+  /**
+   * Order XML tags.
+   * <p>
+   * The column will be re-ordered by tag order. For example:
+   *
+   * <pre>
+   * asList("groupId", "artifactId", "version", "classifier", "type", "scope")
+   * </pre>
+   *
+   */
+  @NotImplemented
+  public final List<? extends String> xmlTagsOrder;
+
+  /**
+   * XML Tags will be aligned.
+   * <p>
+   * The tabulizer will create additional column if tag is found in a row, but not in other.
+   */
+  @NotImplemented
+  public final boolean alignXmlTags;
 
   /**
    * Detect keywords.
@@ -57,16 +93,21 @@ public class TabulizeOptions {
    * Space are ignored: matching <code>union all</code> is the same as matching
    * <code>union[TAB]all</code>.
    */
-  public final Set<String> keywords;
+  @NotImplemented
+  @TabulizeColumnFinder("add keywords 'rule' to the lexer.")
+  public final Set<? extends String> keywords;
 
   /**
    * Toggle case insensitivity of keywords.
    */
+  @NotImplemented
+  @TabulizeColumnFinder("toggle (?i) flag to the keywords 'rule' in the lexer.")
   public final boolean keywordCaseInsensitive;
 
   /**
    * Attach single operator such as ',', ';' or ':' to the column on the left of token.
    */
+  @NotImplemented
   public final boolean attachSingleOperator;
 
   /**
@@ -84,11 +125,13 @@ public class TabulizeOptions {
   /**
    * A list of token to align on right for the first column only.
    */
-  public final Set<String> rightAlignFirstColumn;
+  @NotImplemented
+  public final Set<? extends String> rightAlignFirstColumn;
 
   /**
    * Toggle case insensitivity of right alignment.
    */
+  @NotImplemented
   public final boolean rightAlignFirstColumnCaseInsensitive;
 
   /**
@@ -96,6 +139,8 @@ public class TabulizeOptions {
    * <p>
    * Number are matched using the same convention than Java.
    */
+  @NotImplemented
+  @TabulizeColumnFinder("add a number 'rule' to the lexer.")
   public final boolean detectNumber;
 
   /**
@@ -103,7 +148,9 @@ public class TabulizeOptions {
    * <p>
    * This will only work if {@link #detectNumber} is also enabled.
    */
-  public final Set<String> additionalNumberToken;
+  @NotImplemented
+  @TabulizeColumnFinder("these tokens will be added to the lexer.")
+  public final Set<? extends String> additionalNumberToken;
 
   /**
    * Determine if we should align column containing numbers.
@@ -120,17 +167,19 @@ public class TabulizeOptions {
     this.lineComment = builder.lineComment;
     this.string1 = builder.string1;
     this.string2 = builder.string2;
-    this.xmlTags = builder.xmlTags;
-    this.keywords = builder.keywords;
+    this.xmlTags = Collections2.copyAsUnmodifiableSet(builder.xmlTags);
+    this.xmlTagsOrder = Collections2.copyAsUnmodifiableList(builder.xmlTagsOrder);
+    this.alignXmlTags = builder.alignXmlTags;
+    this.keywords = Collections2.copyAsUnmodifiableSet(builder.keywords);
     this.keywordCaseInsensitive = builder.keywordCaseInsensitive;
     this.attachSingleOperator = builder.attachSingleOperator;
     this.detectInitialIndent = builder.detectInitialIndent;
-    this.tabSize = builder.tabSize;
-    this.rightAlignFirstColumn = builder.rightAlignFirstColumn;
+    this.tabSize = builder.tabSize <= 0 ? DEFAULT_TABSIZE : builder.tabSize;
+    this.rightAlignFirstColumn = Collections2.copyAsUnmodifiableSet(builder.rightAlignFirstColumn);
     this.rightAlignFirstColumnCaseInsensitive = builder.rightAlignFirstColumnCaseInsensitive;
     this.detectNumber = builder.detectNumber;
-    this.additionalNumberToken = builder.additionalNumberToken;
-    this.rightAlignNumber = builder.rightAlignNumber;
+    this.additionalNumberToken = Collections2.copyAsUnmodifiableSet(builder.additionalNumberToken);
+    this.rightAlignNumber = builder.rightAlignNumber == null ? DEFAULT_RIGHT_ALIGN_NUMBER : builder.rightAlignNumber;
   }
 
   /**
@@ -143,16 +192,6 @@ public class TabulizeOptions {
   }
 
   /**
-   * Creates a builder to build {@link TabulizeOptions} and initialize it with the given object.
-   *
-   * @param tabulizeOptions to initialize the builder with
-   * @return created builder
-   */
-  public static Builder builderFrom(final TabulizeOptions tabulizeOptions) {
-    return new Builder(tabulizeOptions);
-  }
-
-  /**
    * Builder to build {@link TabulizeOptions}.
    */
   public static final class Builder {
@@ -160,37 +199,21 @@ public class TabulizeOptions {
     private String lineComment;
     private BiToken string1;
     private BiToken string2;
-    private Set<String> xmlTags = Collections.emptySet();
-    private Set<String> keywords = Collections.emptySet();
+    private Set<? extends String> xmlTags = Collections.emptySet();
+    private List<? extends String> xmlTagsOrder = Collections.emptyList();
+    private boolean alignXmlTags;
+    private Set<? extends String> keywords = Collections.emptySet();
     private boolean keywordCaseInsensitive;
     private boolean attachSingleOperator;
     private boolean detectInitialIndent;
     private int tabSize;
-    private Set<String> rightAlignFirstColumn = Collections.emptySet();
+    private Set<? extends String> rightAlignFirstColumn = Collections.emptySet();
     private boolean rightAlignFirstColumnCaseInsensitive;
     private boolean detectNumber;
-    private Set<String> additionalNumberToken = Collections.emptySet();
+    private Set<? extends String> additionalNumberToken = Collections.emptySet();
     private RightAlignNumber rightAlignNumber;
 
     private Builder() {
-    }
-
-    private Builder(final TabulizeOptions tabulizeOptions) {
-      this.multilineComment = tabulizeOptions.multilineComment;
-      this.lineComment = tabulizeOptions.lineComment;
-      this.string1 = tabulizeOptions.string1;
-      this.string2 = tabulizeOptions.string2;
-      this.xmlTags = tabulizeOptions.xmlTags;
-      this.keywords = tabulizeOptions.keywords;
-      this.keywordCaseInsensitive = tabulizeOptions.keywordCaseInsensitive;
-      this.attachSingleOperator = tabulizeOptions.attachSingleOperator;
-      this.detectInitialIndent = tabulizeOptions.detectInitialIndent;
-      this.tabSize = tabulizeOptions.tabSize;
-      this.rightAlignFirstColumn = tabulizeOptions.rightAlignFirstColumn;
-      this.rightAlignFirstColumnCaseInsensitive = tabulizeOptions.rightAlignFirstColumnCaseInsensitive;
-      this.detectNumber = tabulizeOptions.detectNumber;
-      this.additionalNumberToken = tabulizeOptions.additionalNumberToken;
-      this.rightAlignNumber = tabulizeOptions.rightAlignNumber;
     }
 
     public Builder setMultilineComment(final BiToken multilineComment) {
@@ -215,6 +238,16 @@ public class TabulizeOptions {
 
     public Builder setXmlTags(final Set<String> xmlTags) {
       this.xmlTags = xmlTags;
+      return this;
+    }
+
+    public Builder setXmlTagsOrder(final List<String> xmlTagsOrder) {
+      this.xmlTagsOrder = xmlTagsOrder;
+      return this;
+    }
+
+    public Builder setAlignXmlTags(final boolean alignXmlTags) {
+      this.alignXmlTags = alignXmlTags;
       return this;
     }
 
