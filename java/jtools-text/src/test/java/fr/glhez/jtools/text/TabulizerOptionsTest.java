@@ -3,25 +3,21 @@ package fr.glhez.jtools.text;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
-import fr.glhez.jtools.text.TabulizeOptions.Builder;
+import fr.glhez.jtools.text.TabulizerOptions.Builder;
 
-public class TabulizeOptionsTest {
+public class TabulizerOptionsTest {
 
   @Test
   public void test_default_values() {
-    final TabulizeOptions b = TabulizeOptions.builder().build();
+    final TabulizerOptions b = TabulizerOptions.builder().build();
 
     assertThat(b.multilineComment).isNull();
     assertThat(b.lineComment).isNull();
@@ -34,12 +30,13 @@ public class TabulizeOptionsTest {
     assertThat(b.keywordCaseInsensitive).isFalse();
     assertThat(b.attachSingleOperator).isFalse();
     assertThat(b.detectInitialIndent).isFalse();
-    assertThat(b.tabSize).isEqualTo(TabulizeOptions.DEFAULT_TABSIZE);
+    assertThat(b.tabSize).isEqualTo(TabulizerOptions.DEFAULT_TABSIZE);
+    assertThat(b.lineSeparator).isEqualTo(LineSeparator.LF);
     assertThat(b.rightAlignFirstColumn).isEmpty();
     assertThat(b.rightAlignFirstColumnCaseInsensitive).isFalse();
     assertThat(b.detectNumber).isFalse();
     assertThat(b.additionalNumberToken).isEmpty();
-    assertThat(b.rightAlignNumber).isEqualTo(TabulizeOptions.DEFAULT_RIGHT_ALIGN_NUMBER);
+    assertThat(b.rightAlignNumber).isEqualTo(TabulizerOptions.DEFAULT_RIGHT_ALIGN_NUMBER);
 
     assertUnmodifiable(b.xmlTags);
     assertUnmodifiable(b.xmlTagsOrder);
@@ -63,13 +60,14 @@ public class TabulizeOptionsTest {
     final boolean attachSingleOperator = true;
     final boolean detectInitialIndent = true;
     final int tabSize = 4;
+    final LineSeparator lineSeparator = LineSeparator.CRLF;
     final Set<String> rightAlignFirstColumn = singleton(",");
     final boolean rightAlignFirstColumnCaseInsensitive = true;
     final boolean detectNumber = true;
     final Set<String> additionalNumberToken = Collections.singleton("A");
     final RightAlignNumber rightAlignNumber = RightAlignNumber.NUMBERS_ONLY;
 
-    final Builder builder = TabulizeOptions.builder();
+    final Builder builder = TabulizerOptions.builder();
     builder.setMultilineComment(multilineComment);
     builder.setLineComment(lineComment);
     builder.setString1(string1);
@@ -82,13 +80,15 @@ public class TabulizeOptionsTest {
     builder.setAttachSingleOperator(attachSingleOperator);
     builder.setDetectInitialIndent(detectInitialIndent);
     builder.setTabSize(tabSize);
+    builder.setLineSeparator(lineSeparator);
     builder.setRightAlignFirstColumn(rightAlignFirstColumn);
     builder.setRightAlignFirstColumnCaseInsensitive(rightAlignFirstColumnCaseInsensitive);
     builder.setDetectNumber(detectNumber);
     builder.setAdditionalNumberToken(additionalNumberToken);
     builder.setRightAlignNumber(rightAlignNumber);
 
-    final TabulizeOptions b = builder.build();
+
+    final TabulizerOptions b = builder.build();
 
     assertThat(b.multilineComment).isSameAs(multilineComment);
     assertThat(b.lineComment).isSameAs(lineComment);
@@ -102,6 +102,7 @@ public class TabulizeOptionsTest {
     assertThat(b.attachSingleOperator).isEqualTo(attachSingleOperator);
     assertThat(b.detectInitialIndent).isEqualTo(detectInitialIndent);
     assertThat(b.tabSize).isEqualTo(tabSize);
+    assertThat(b.lineSeparator).isEqualTo(lineSeparator);
     assertThat(b.rightAlignFirstColumn).isNotSameAs(rightAlignFirstColumn).isEqualTo(rightAlignFirstColumn);
     assertThat(b.rightAlignFirstColumnCaseInsensitive).isEqualTo(rightAlignFirstColumnCaseInsensitive);
     assertThat(b.detectNumber).isEqualTo(detectNumber);

@@ -16,7 +16,7 @@ import java.util.Set;
  * @author gael.lhez
  *
  */
-public class TabulizeOptions {
+public class TabulizerOptions {
   static final RightAlignNumber DEFAULT_RIGHT_ALIGN_NUMBER = RightAlignNumber.NONE;
 
   static final int DEFAULT_TABSIZE = 2;
@@ -77,6 +77,7 @@ public class TabulizeOptions {
    *
    */
   @NotImplemented
+  @TabulizeOutput
   public final List<? extends String> xmlTagsOrder;
 
   /**
@@ -85,6 +86,7 @@ public class TabulizeOptions {
    * The tabulizer will create additional column if tag is found in a row, but not in other.
    */
   @NotImplemented
+  @TabulizeOutput
   public final boolean alignXmlTags;
 
   /**
@@ -121,6 +123,14 @@ public class TabulizeOptions {
    * Default to 2 if not initialized (0).
    */
   public final int tabSize;
+
+  /**
+   * Change the endline delimiter in the output.
+   * <p>
+   *
+   */
+  @TabulizeOutput
+  public final LineSeparator lineSeparator;
 
   /**
    * A list of token to align on right for the first column only.
@@ -162,7 +172,7 @@ public class TabulizeOptions {
    */
   public final RightAlignNumber rightAlignNumber;
 
-  private TabulizeOptions(final Builder builder) {
+  private TabulizerOptions(final Builder builder) {
     this.multilineComment = builder.multilineComment;
     this.lineComment = builder.lineComment;
     this.string1 = builder.string1;
@@ -175,6 +185,7 @@ public class TabulizeOptions {
     this.attachSingleOperator = builder.attachSingleOperator;
     this.detectInitialIndent = builder.detectInitialIndent;
     this.tabSize = builder.tabSize <= 0 ? DEFAULT_TABSIZE : builder.tabSize;
+    this.lineSeparator = builder.lineSeparator == null ? LineSeparator.LF : builder.lineSeparator;
     this.rightAlignFirstColumn = Collections2.copyAsUnmodifiableSet(builder.rightAlignFirstColumn);
     this.rightAlignFirstColumnCaseInsensitive = builder.rightAlignFirstColumnCaseInsensitive;
     this.detectNumber = builder.detectNumber;
@@ -183,7 +194,16 @@ public class TabulizeOptions {
   }
 
   /**
-   * Creates builder to build {@link TabulizeOptions}.
+   * Create a new {@link Tabulizer}.
+   *
+   * @return a tabulizer (not null).
+   */
+  public Tabulizer toTabulizer() {
+    return new Tabulizer(this);
+  }
+
+  /**
+   * Creates builder to build {@link TabulizerOptions}.
    *
    * @return created builder
    */
@@ -192,7 +212,7 @@ public class TabulizeOptions {
   }
 
   /**
-   * Builder to build {@link TabulizeOptions}.
+   * Builder to build {@link TabulizerOptions}.
    */
   public static final class Builder {
     private BiToken multilineComment;
@@ -207,6 +227,7 @@ public class TabulizeOptions {
     private boolean attachSingleOperator;
     private boolean detectInitialIndent;
     private int tabSize;
+    private LineSeparator lineSeparator;
     private Set<? extends String> rightAlignFirstColumn = Collections.emptySet();
     private boolean rightAlignFirstColumnCaseInsensitive;
     private boolean detectNumber;
@@ -276,6 +297,11 @@ public class TabulizeOptions {
       return this;
     }
 
+    public Builder setLineSeparator(final LineSeparator lineSeparator) {
+      this.lineSeparator = lineSeparator;
+      return this;
+    }
+
     public Builder setRightAlignFirstColumn(final Set<String> rightAlignFirstColumn) {
       this.rightAlignFirstColumn = rightAlignFirstColumn;
       return this;
@@ -301,9 +327,10 @@ public class TabulizeOptions {
       return this;
     }
 
-    public TabulizeOptions build() {
-      return new TabulizeOptions(this);
+    public TabulizerOptions build() {
+      return new TabulizerOptions(this);
     }
+
   }
 
 }
