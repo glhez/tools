@@ -27,4 +27,15 @@ class Row implements Iterable<Column> {
   public Iterator<Column> iterator() {
     return columns.iterator();
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder builder = new StringBuilder();
+    builder.append("Row [");
+    if (columns != null) {
+      builder.append("columns=").append(columns);
+    }
+    builder.append("]");
+    return builder.toString();
+  }
 }

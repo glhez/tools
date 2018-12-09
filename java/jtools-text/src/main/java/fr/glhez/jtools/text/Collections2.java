@@ -22,21 +22,22 @@ class Collections2 {
   private Collections2() {
   }
 
-  public static <E> Set<? extends E> copyAsUnmodifiableSet(final Set<? extends E> set) {
+  public static <E> Set<E> copyAsUnmodifiableSet(final Set<? extends E> set) {
     if (null == set || set.isEmpty()) {
       return emptySet();
     }
     return Collections.unmodifiableSet(new LinkedHashSet<>(set));
   }
 
-  public static <E> NavigableSet<? extends E> copyAsUnmodifiableNavigableSet(final NavigableSet<? extends E> set) {
+  public static <E> NavigableSet<E> copyAsUnmodifiableNavigableSet(final NavigableSet<? extends E> set) {
     if (null == set || set.isEmpty()) {
       return emptyNavigableSet();
     }
-    return Collections.unmodifiableNavigableSet(new TreeSet<>(set));
+    final TreeSet<E> x = new TreeSet<>(set);
+    return Collections.unmodifiableNavigableSet(x);
   }
 
-  public static <E> List<? extends E> copyAsUnmodifiableList(final List<? extends E> list) {
+  public static <E> List<E> copyAsUnmodifiableList(final List<? extends E> list) {
     if (null == list || list.isEmpty()) {
       return emptyList();
     }

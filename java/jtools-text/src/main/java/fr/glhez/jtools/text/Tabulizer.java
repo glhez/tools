@@ -3,8 +3,6 @@ package fr.glhez.jtools.text;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
-import java.util.function.IntPredicate;
-import java.util.regex.Pattern;
 
 /**
  * The {@link Tabulizer} is text tool which produce a text aligned table given some lines.
@@ -14,9 +12,11 @@ import java.util.regex.Pattern;
 public class Tabulizer {
 
   private final TabulizerOptions options;
+  private final XmlTag xmlTag;
 
   Tabulizer(final TabulizerOptions options) {
     this.options = requireNonNull(options, "options");
+    this.xmlTag = new XmlTag(options.xmlTags);
   }
 
   /**
@@ -98,15 +98,15 @@ public class Tabulizer {
    * @return
    */
   Row detectColumns(final String line) {
-    // additionalNumberToken
-    // detectNumber
-    // keywordCaseInsensitive
-    // keywords
-    // lineComment
-    // multilineComment
-    // string1
-    // string2
-    // xmlTags
+    // [ ] additionalNumberToken
+    // [ ] detectNumber
+    // [ ] keywordCaseInsensitive
+    // [ ] keywords
+    // [x] lineComment
+    // [x] multilineComment
+    // [x] string1
+    // [x] string2
+    // [x] xmlTags
     final Row row = new Row();
 
     /*
@@ -116,16 +116,58 @@ public class Tabulizer {
         || options.multilineComment != null || options.string1 != null || options.string1 != null
         || !options.xmlTags.isEmpty()) {
       // NOOP (for now)
+      for (int i = 0, n = line.length(); i < n;) {
+        if (options.multilineComment != null) {
+          final int offset = options.multilineComment.regionMatches(line, i);
+          if (offset != -1) {
+            row.add(new DefaultColumn(line.substring(i, offset)));
+            i = offset;
+            continue;
+          }
+        }
+        if (options.lineComment != null && regionMatches(line, i, options.lineComment)) {
+          row.add(new DefaultColumn(line.substring(i)));
+          break;
+        }
+        if (options.string1 != null) {
+          final int offset = options.string1.regionMatches(line, i);
+          if (offset != -1) {
+            row.add(new DefaultColumn(line.substring(i, offset)));
+            i = offset;
+            continue;
+          }
+        }
+        if (options.string2 != null) {
+          final int offset = options.string2.regionMatches(line, i);
+          if (offset != -1) {
+            row.add(new DefaultColumn(line.substring(i, offset)));
+            i = offset;
+            continue;
+          }
+        }
+
+        if (!xmlTag.isEmpty()) {
+          final int offset = xmlTag.regionMatches(line, i);
+          if (offset != -1) {
+            row.add(new DefaultColumn(line.substring(i, offset)));
+            i = offset;
+            continue;
+          }
+        }
+
+
+        ++i;
+      }
     } else {
-      for (int i = 0, n = line.length(); i < n; ) {
+      for (int i = 0, n = line.length(); i < n;) {
         // advance WS.
-        while ( i < n && Character.isWhitespace(line.charAt(i))) {
+        while (i < n && Character.isWhitespace(line.charAt(i))) {
           ++i;
         }
 
         // advance NWS
         final int start = i;
-        while ( i < n && !Character.isWhitespace(line.charAt(i))) {
+        while (i < n && !Character.isWhitespace(line.charAt(i))) {
           ++i;
         }
 
@@ -135,8 +177,11 @@ public class Tabulizer {
       }
     }
 
-
     return row;
+  }
+
+  private boolean regionMatches(final String source, final int offset, final String find) {
+    return source.regionMatches(offset, find, 0, find.length());
   }
 
   /**

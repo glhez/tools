@@ -54,6 +54,22 @@ public class BiTokenTest {
 
   }
 
+  @Test
+  public void test_regionMatches() {
+    final BiToken c = BiToken.of("/*", "*/");
+
+    assertThat(c.regionMatches("/* THIS IS IT ", 0)).isEqualTo(-1);
+    assertThat(c.regionMatches("   THIS IS IT */", 0)).isEqualTo(-1);
+    //
+    assertThat(c.regionMatches(" /*0123456789*/ ", 1)).isEqualTo(1 + "/*0123456789*/".length());
+
+    final BiToken s = BiToken.string("'-", "@A");
+    assertThat(s.regionMatches(" '- THIS IS IT ", 1)).isEqualTo(-1);
+    assertThat(s.regionMatches(" '-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789'-".length());
+    assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789@A'-0123456789'-".length());
+
+  }
+
   private Predicate<BiToken> expect(final String start, final String end, final String escape) {
     return token -> Objects.equals(start, token.start) && Objects.equals(end, token.end)
         && Objects.equals(escape, token.escape);

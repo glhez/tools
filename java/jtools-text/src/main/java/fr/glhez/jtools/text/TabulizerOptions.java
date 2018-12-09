@@ -24,28 +24,24 @@ public class TabulizerOptions {
   /**
    * Detect multiline comment.
    */
-  @NotImplemented
   @TabulizeColumnFinder("append a comment match 'rule' to the lexer using multiline delimiters")
   public final BiToken multilineComment;
 
   /**
    * Detect single line comment.
    */
-  @NotImplemented
   @TabulizeColumnFinder("append a comment match 'rule' to the lexer using line comment")
   public final String lineComment;
 
   /**
    * Detect string using some method (ex: "a").
    */
-  @NotImplemented
   @TabulizeColumnFinder("append a string match 'rule' to the lexer using string1 delimiters")
   public final BiToken string1;
 
   /**
    * Detect string using some method (ex: 'a').
    */
-  @NotImplemented
   @TabulizeColumnFinder("append a string match 'rule' to the lexer using string2 delimiters")
   public final BiToken string2;
 
@@ -58,13 +54,13 @@ public class TabulizerOptions {
    * Set.of("groupId", "artifactId", "version") // Java 11
    * </pre>
    *
-   * The tag must not have an attribute.
+   * The tag must not have an attribute. The tag might not be nested
+   * ({@code <groupId>1<b>2</b>3</groupId>} is not matched).
    * <p>
    * Case is sensitive.
    */
-  @NotImplemented
   @TabulizeColumnFinder("toggle XML tags matcher.")
-  public final Set<? extends String> xmlTags;
+  public final Set<String> xmlTags;
 
   /**
    * Order XML tags.

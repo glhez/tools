@@ -41,18 +41,33 @@ public class TabulizerTest {
     final Tabulizer noOpt = TabulizerOptions.builder().build().toTabulizer();
 
     {
-    final Row row = noOpt.detectColumns("A B C D");
-    assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"),
-        new DefaultColumn("C"), new DefaultColumn("D"));
-    assertThat(row.columnCount()).isEqualTo(4);
+      final Row row = noOpt.detectColumns("A B C D");
+      assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn("C"),
+          new DefaultColumn("D"));
+      assertThat(row.columnCount()).isEqualTo(4);
     }
     {
       // this should still work (we ignore space before/after)
       final Row row = noOpt.detectColumns("   A B C D    ");
-      assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"),
-          new DefaultColumn("C"), new DefaultColumn("D"));
+      assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn("C"),
+          new DefaultColumn("D"));
       assertThat(row.columnCount()).isEqualTo(4);
-      }
+    }
+
+
+    final Tabulizer stringOpt = TabulizerOptions.builder()
+        .setString1(BiToken.string("\"", "\\"))
+        .setString2(BiToken.string("'", "\\"))
+        .build().toTabulizer();
+    {
+      final String a = "A";
+      final String b = "'B A'";
+      final String c = "'C $' D'".replace("'", "\"").replace("$", "\\");
+      final Row row = stringOpt.detectColumns(a + b + c);
+      assertThat(row).isNotNull().contains(new DefaultColumn(a), new DefaultColumn(b), new DefaultColumn(c));
+      assertThat(row.columnCount()).isEqualTo(3);
+    }
+
   }
 
   @Test
