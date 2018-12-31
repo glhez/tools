@@ -12,8 +12,11 @@ class Row implements Iterable<Column> {
   }
 
   public void add(final Column column) {
-    this.columns.add(column);
+    if (null != column) {
+      this.columns.add(column);
+    }
   }
+
 
   public int columnCount() {
     return columns.size();

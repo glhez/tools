@@ -7,7 +7,7 @@ import java.util.Set;
  *
  * @author gael.lhez
  */
-class XmlTag {
+class XmlTag implements RegionMatcher {
 
   private final Set<String> xmlTags;
 
@@ -15,13 +15,7 @@ class XmlTag {
     this.xmlTags = xmlTags;
   }
 
-  /**
-   * Try to match a tag again line at start point.
-   *
-   * @param line
-   * @param start
-   * @return returns -1 if no tag was matched, or if it was, but was not in {@link #xmlTags}.
-   */
+  @Override
   public int regionMatches(final String line, final int start) {
     if (line.charAt(start) != '<') {
       return -1;

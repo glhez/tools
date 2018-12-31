@@ -107,6 +107,7 @@ public class Tabulizer {
     // [x] string1
     // [x] string2
     // [x] xmlTags
+    // [ ] other token
     final Row row = new Row();
 
     /*
@@ -116,22 +117,30 @@ public class Tabulizer {
         || options.multilineComment != null || options.string1 != null || options.string1 != null
         || !options.xmlTags.isEmpty()) {
       // NOOP (for now)
-      for (int i = 0, n = line.length(); i < n;) {
+      final int n = line.length();
+      // for non WS tokens, the position of the first char being non whitespace
+      final int firstChar = -1;
+
+      final TokenAccumulator accumulator = new TokenAccumulator();
+      for (int i = 0; i < n;) {
         if (options.multilineComment != null) {
           final int offset = options.multilineComment.regionMatches(line, i);
           if (offset != -1) {
+            row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
             i = offset;
             continue;
           }
         }
         if (options.lineComment != null && regionMatches(line, i, options.lineComment)) {
+          row.add(accumulator.reset(line, i));
           row.add(new DefaultColumn(line.substring(i)));
           break;
         }
         if (options.string1 != null) {
           final int offset = options.string1.regionMatches(line, i);
           if (offset != -1) {
+            row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
             i = offset;
             continue;
@@ -140,6 +149,7 @@ public class Tabulizer {
         if (options.string2 != null) {
           final int offset = options.string2.regionMatches(line, i);
           if (offset != -1) {
+            row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
             i = offset;
             continue;
@@ -149,15 +159,22 @@ public class Tabulizer {
         if (!xmlTag.isEmpty()) {
           final int offset = xmlTag.regionMatches(line, i);
           if (offset != -1) {
+            row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
             i = offset;
             continue;
           }
         }
 
+        if (Character.isWhitespace(line.charAt(i))) {
+          row.add(accumulator.reset(line, i));
+        } else {
+          accumulator.start(i);
+        }
 
         ++i;
       }
+      row.add(accumulator.finish(line));
     } else {
       for (int i = 0, n = line.length(); i < n;) {
         // advance WS.

@@ -29,12 +29,17 @@ class Collections2 {
     return Collections.unmodifiableSet(new LinkedHashSet<>(set));
   }
 
-  public static <E> NavigableSet<E> copyAsUnmodifiableNavigableSet(final NavigableSet<? extends E> set) {
+  // no ? extends E because TreeSet does have 2 matching constructors:
+  // TreeSet(Collection<? extends E>)
+  // TreeSet(SortedSet<E>)
+  // it seems that Java pick up the later (because NavigableSet extends SortedSet and is more specific
+  // than Collection), but in a case where it should not.
+  // Since we still want to keep the comparator, we remove the ? extends.
+  public static <E> NavigableSet<E> copyAsUnmodifiableNavigableSet(final NavigableSet<E> set) {
     if (null == set || set.isEmpty()) {
       return emptyNavigableSet();
     }
-    final TreeSet<E> x = new TreeSet<>(set);
-    return Collections.unmodifiableNavigableSet(x);
+    return Collections.unmodifiableNavigableSet(new TreeSet<>(set));
   }
 
   public static <E> List<E> copyAsUnmodifiableList(final List<? extends E> list) {

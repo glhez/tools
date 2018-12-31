@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * @author gael.lhez
  */
-public final class BiToken {
+public final class BiToken implements RegionMatcher {
   public final String start;
   public final String end;
   public final String escape;
@@ -96,14 +96,7 @@ public final class BiToken {
     return Objects.equals(start, other.start) && Objects.equals(end, other.end) && Objects.equals(escape, other.escape);
   }
 
-  /**
-   * Try to matches the region represented by this token.
-   *
-   * @param line line
-   * @param offset starting offset
-   * @return returns -1 if this token is not (fully) matched, the offset at which its ends
-   *         otherwise.
-   */
+  @Override
   public int regionMatches(final String line, final int offset) {
     if (line.regionMatches(offset, start, 0, start.length())) {
       for (int initial = offset + start.length();;) {
