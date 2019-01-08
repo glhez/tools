@@ -1,6 +1,6 @@
-package fr.glhez.jtools.jar;
+package fr.glhez.jtools.jar.internal;
 
-import static fr.glhez.jtools.jar.JARInformation.newJARInformation;
+import static fr.glhez.jtools.jar.internal.JARInformation.newJARInformation;
 import static java.util.stream.Collectors.reducing;
 
 import java.io.IOException;

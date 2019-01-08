@@ -15,7 +15,8 @@
   <name>glhez's java tools :: JAR</name>
 
   <dependencies>
-    <dependency> <groupId>info.picocli</groupId>     <artifactId>picocli</artifactId>     </dependency>
+    <dependency> <groupId>info.picocli</groupId>                 <artifactId>picocli</artifactId>                </dependency>
+    <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId> </dependency>
   </dependencies>
 
 </project>

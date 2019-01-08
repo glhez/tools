@@ -26,3 +26,7 @@ hs_err_pid*
 .project
 .classpath
 target/
+
+# Export
+*.csv
+

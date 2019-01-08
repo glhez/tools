@@ -1,4 +1,4 @@
-package fr.glhez.jtools.jar;
+package fr.glhez.jtools.jar.internal;
 
 public class StringUtils {
 

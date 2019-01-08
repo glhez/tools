@@ -1,4 +1,4 @@
-package fr.glhez.jtools.jar;
+package fr.glhez.jtools.jar.internal;
 
 import static java.util.Objects.requireNonNull;
 

@@ -1,27 +1,53 @@
 package fr.glhez.jtools.jar;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-import fr.glhez.jtools.jar.JARFileLocator.DeepMode;
-import fr.glhez.jtools.jar.MavenArtifactsJARProcessor.ExportMode;
+import org.apache.commons.csv.CSVFormat;
+
+import fr.glhez.jtools.jar.internal.ClassPathJARProcessor;
+import fr.glhez.jtools.jar.internal.JARFileLocator;
+import fr.glhez.jtools.jar.internal.JARFileLocator.DeepMode;
+import fr.glhez.jtools.jar.internal.JARInformation;
+import fr.glhez.jtools.jar.internal.JARProcessor;
+import fr.glhez.jtools.jar.internal.JNLPPermissionsJARProcessor;
+import fr.glhez.jtools.jar.internal.JavaVersionJARProcessor;
+import fr.glhez.jtools.jar.internal.ListJARProcessor;
+import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor;
+import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.ExportMode;
+import fr.glhez.jtools.jar.internal.ModuleJARProcessor;
+import fr.glhez.jtools.jar.internal.MutableProcessorContext;
+import fr.glhez.jtools.jar.internal.ReportFile;
+import fr.glhez.jtools.jar.internal.SPIServiceJARProcessor;
+import fr.glhez.jtools.jar.internal.ShowDuplicateClassJARProcessor;
+import fr.glhez.jtools.jar.internal.ShowPackageJARProcessor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true, version = "JAR Tool")
 public class MainCommand implements Runnable {
 
+  @Option(names = { "-O",
+      "--output-directory" }, description = "Output directory when using reports. Created if it does not exists.")
+  private Path outputDirectory;
+
+  @Option(names = "--csv-separator", description = "CSV Separator to use. Default depends on locale (eg: FRENCH + GERMAN = ; otherwise ,).")
+  private Character csvSeparator;
+
   /*
    * scan option
    */
-  @Option(names = { "-d", "--directory" }, description = "Find all jar in this directory")
+  @Option(names = { "-d", "--directory" }, description = "Add a directory in which to scan for JARs.")
   private List<Path> directories;
 
   @Option(names = { "-j", "--jar" }, description = "Add a specific jar")
@@ -49,36 +75,50 @@ public class MainCommand implements Runnable {
   /*
    * processor options
    */
-  @Option(names = { "-M",
-      "--maven" }, description = "For each arg, produce the groupId:artifactId:version if available. ")
+  @Option(names = "--maven", description = "Try to read information produced by Maven Archiver in /META-INF/maven/**/pom.properties. Might fail if there are multiple pom.properties.")
   private boolean mavenProcessor;
 
-  @Option(names = "--maven-export", description = "Determine kind of export done (LIST or SCRIPT)")
+  @Option(names = "--maven-export", description = "Export GAV information as LIST (for humans), SCRIPT (for example, to upload on a local repository) or NONE")
   private MavenArtifactsJARProcessor.ExportMode mavenExportMode;
 
-  @Option(names = { "-p", "--permission" }, description = "Check for permissions codebase for JNLP")
+  @Option(names = "--permission", description = "Check for permissions codebase for JNLP")
   private boolean manifestPermissionProcessor;
 
-  @Option(names = { "-s", "--service" }, description = "Search a service (SPI) file.")
+  @Option(names = "--service", description = "Search for SPI; looks for file in /META-INF/services or in Java module if available.")
   private boolean serviceProcessor;
 
-  @Option(names = { "-u", "--service-module" }, description = "Ignore SPI file and only process module-info.")
+  @Option(names = "--service-module", description = "Ignore SPI file and only process module-info.")
   private boolean serviceModuleOnly;
 
   private boolean serviceFiltersEnabled;
 
-  @Option(names = "--service-filter", description = "Filter of service to search")
+  @Option(names = "--service-filter", description = "A list of interface to look for unsing SPI.")
   private Set<String> serviceFilters;
 
-  @Option(names = { "-c", "--class-path" }, description = "Search for Class-Path entries in Manifest.")
+  @Option(names = "--class-path", description = "Search for Class-Path entries in Manifest.")
   private boolean manifestClassPathProcessor;
 
-  @Option(names = { "-w",
-      "--java-version" }, description = "Determine which Java version was used to compile source code (read in byte code).")
+  @Option(names = "--java-version", description = "Determine which Java version was used to compile source code (read in bytecode).")
   private boolean javaVersionProcessor;
 
-  @Option(names = { "-m", "--module" }, description = "Scan JAR for Java module-info or Automatic-Module-Name.")
+  @Option(names = { "--module", "--modules" }, description = "Scan JAR for Java module-info or Automatic-Module-Name.")
   private boolean moduleProcessor;
+
+  @Option(names = { "--package", "--packages" }, description = "Show root packages contained in JAR.")
+  private boolean showPackage;
+
+  @Option(names = { "--duplicate-package",
+      "--duplicate-packages" }, description = "Apply --package; show only package found in several JARs meaning probable problems with Java Modules.")
+  private boolean showOnlyDuplicatePackage;
+
+  @Option(names = { "--duplicate-class", "--duplicate-classes" }, description = "Show duplicate classes in JAR.")
+  private boolean showDuplicateClasses;
+
+  private Optional<ReportFile> moduleReportFile;
+  private ReportFile classPathReportFile;
+  private ReportFile javaVersionReportFile;
+  private ReportFile packageReportFile;
+  private ReportFile duplicateClassesReportFile;
 
   public static void main(final String[] args) {
     picocli.CommandLine.run(new fr.glhez.jtools.jar.MainCommand(), System.out, args);
@@ -87,6 +127,7 @@ public class MainCommand implements Runnable {
   @Override
   public void run() {
     prepareParameters();
+
     final ListJARProcessor processor = buildProcessor();
 
     try (final JARFileLocator locator = new JARFileLocator(this.deepScan, includes, excludes, this.deepFilter)) {
@@ -101,7 +142,7 @@ public class MainCommand implements Runnable {
       final MutableProcessorContext ctx = new MutableProcessorContext();
       processor.init();
 
-      int fileIndex = 0;
+      int fileIndex = 1;
       final int fileCount = files.size();
       for (final JARInformation file : files) {
         System.out.printf("Processing file: [%6.2f%%] %s%n", 100 * (fileIndex / (double) fileCount), file.source);
@@ -128,6 +169,30 @@ public class MainCommand implements Runnable {
     this.serviceFiltersEnabled = this.serviceFilters != null;
     this.serviceFilters = getIfNull(this.serviceFilters, Collections::emptySet);
     this.mavenExportMode = getIfNull(mavenExportMode, () -> ExportMode.LIST);
+
+    if (showOnlyDuplicatePackage) {
+      showPackage = true;
+    }
+
+    if (null == csvSeparator) {
+      final Locale locale = Locale.getDefault();
+      if (Locale.FRANCE.equals(locale) || Locale.GERMANY.equals(locale)) {
+        csvSeparator = ';';
+      } else {
+        csvSeparator = ',';
+      }
+    }
+    final CSVFormat format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
+
+    final Path ood = Optional.ofNullable(outputDirectory).orElseGet(() -> Paths.get(""));
+
+    moduleReportFile = moduleProcessor ? Optional.of(new ReportFile(format, ood.resolve("java-modules.csv")))
+        : Optional.empty();
+    classPathReportFile = new ReportFile(format, ood.resolve("class-path.csv"));
+    javaVersionReportFile = new ReportFile(format, ood.resolve("java-version.csv"));
+    packageReportFile = new ReportFile(format,
+        ood.resolve(showOnlyDuplicatePackage ? "duplicate-package.csv" : "package.csv"));
+    duplicateClassesReportFile = new ReportFile(format, ood.resolve("duplicate-classes"));
   }
 
   private <T> T getIfNull(final T value, final Supplier<? extends T> supplier) {
@@ -137,7 +202,8 @@ public class MainCommand implements Runnable {
   private ListJARProcessor buildProcessor() {
     final List<JARProcessor> processors = new ArrayList<>();
 
-    final boolean addModuleProcessor = this.moduleProcessor || this.serviceProcessor;
+    final boolean addModuleProcessor = this.moduleProcessor || this.serviceProcessor || this.showPackage
+        || this.showDuplicateClasses;
 
     final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
     if (mavenProcessor) {
@@ -151,7 +217,7 @@ public class MainCommand implements Runnable {
 
     final ModuleJARProcessor moduleJARProcessor;
     if (addModuleProcessor) {
-      moduleJARProcessor = new ModuleJARProcessor(mavenArtifactsJARProcessor, !this.moduleProcessor);
+      moduleJARProcessor = new ModuleJARProcessor(moduleReportFile, mavenArtifactsJARProcessor);
     } else {
       moduleJARProcessor = null;
     }
@@ -166,11 +232,20 @@ public class MainCommand implements Runnable {
       add(processors, new JNLPPermissionsJARProcessor());
     }
     if (this.manifestClassPathProcessor) {
-      add(processors, new ClassPathJARProcessor());
+      add(processors, new ClassPathJARProcessor(classPathReportFile));
     }
     if (this.javaVersionProcessor) {
-      add(processors, new JavaVersionJARProcessor(mavenArtifactsJARProcessor));
+      add(processors, new JavaVersionJARProcessor(javaVersionReportFile, mavenArtifactsJARProcessor));
     }
+    if (this.showPackage) {
+      add(processors, new ShowPackageJARProcessor(packageReportFile, this.showOnlyDuplicatePackage,
+          mavenArtifactsJARProcessor, moduleJARProcessor));
+    }
+    if (this.showDuplicateClasses) {
+      add(processors, new ShowDuplicateClassJARProcessor(duplicateClassesReportFile, mavenArtifactsJARProcessor,
+          moduleJARProcessor));
+    }
+
     return new ListJARProcessor(processors);
   }
 

@@ -1,4 +1,4 @@
-package fr.glhez.jtools.jar;
+package fr.glhez.jtools.jar.internal;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
@@ -22,7 +22,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
-import fr.glhez.jtools.jar.MavenArtifactsJARProcessor.GAV;
+import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.GAV;
 
 public class SPIServiceJARProcessor implements JARProcessor {
   private static final String SERVICES_DIRECTORY = "META-INF/services/";
@@ -79,7 +79,7 @@ public class SPIServiceJARProcessor implements JARProcessor {
     }
     try (final InputStream is = jarFile.getInputStream(entry)) {
       providersFor(service).add(AvailableImplementation.parse(context.getJARInformation(), is));
-    } catch (final IOException|java.lang.SecurityException e) {
+    } catch (final IOException | java.lang.SecurityException e) {
       context.addError("Failed to read services definition [" + service + "]: " + e.getMessage());
     }
   }

@@ -1,4 +1,4 @@
-package fr.glhez.jtools.jar;
+package fr.glhez.jtools.jar.internal;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -6,23 +6,24 @@ import java.io.InputStream;
 import java.lang.module.ModuleDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import fr.glhez.jtools.jar.MavenArtifactsJARProcessor.GAV;
+import org.apache.commons.csv.CSVPrinter;
 
-public class ModuleJARProcessor implements JARProcessor {
+import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.GAV;
+
+public class ModuleJARProcessor extends ReportFileJARProcessor {
   private final MavenArtifactsJARProcessor mavenArtifactsProcessor;
   private final Map<JARInformation, ModuleDescriptor> moduleDescriptors;
-  private final boolean silent;
 
-  public ModuleJARProcessor(final MavenArtifactsJARProcessor mavenArtifactsProcessor, final boolean silent) {
+  public ModuleJARProcessor(final Optional<ReportFile> reportFile,
+      final MavenArtifactsJARProcessor mavenArtifactsProcessor) {
+    super("Java Module", reportFile);
     this.mavenArtifactsProcessor = mavenArtifactsProcessor;
     this.moduleDescriptors = new LinkedHashMap<>();
-    this.silent = silent;
   }
 
   @Override
@@ -61,31 +62,16 @@ public class ModuleJARProcessor implements JARProcessor {
   }
 
   @Override
-  public void finish() {
-    if (silent) {
-      return;
-    }
-    final String isAutomatic = " [automatic]";
-    final String isNotAutomatic = "            ";
-    final int oi = moduleDescriptors.values().stream().mapToInt(module -> module.toNameAndVersion().length()).max()
-        .orElse(0);
-    final int goi = moduleDescriptors.keySet().stream().map(mavenArtifactsProcessor::getGAV).flatMap(Optional::stream)
-        .map(Objects::toString).mapToInt(String::length).max().orElse(0);
+  protected void finish(final CSVPrinter printer) throws IOException {
+    printer.printRecord("Module and Version", "Automatic", "Maven GAV", "File");
+    for (final var entry : moduleDescriptors.entrySet()) {
+      final var jarInformation = entry.getKey();
+      final var module = entry.getValue();
 
-    System.out.println("---- [Java Module] ----");
-    moduleDescriptors.forEach((jarInformation, module) -> {
-      final StringBuilder sb = new StringBuilder("  ").append(StringUtils.rightPad(module.toNameAndVersion(), oi));
-      if (module.isAutomatic()) {
-        sb.append(isAutomatic);
-      } else {
-        sb.append(isNotAutomatic);
-      }
-      final Optional<GAV> gav = mavenArtifactsProcessor.getGAV(jarInformation);
-      gav.ifPresentOrElse(g -> sb.append(" [").append(StringUtils.rightPad(g.toString(), goi)).append("]"), //
-          () -> sb.append("  ").append(StringUtils.rightPad("", goi)).append(" "));
-      sb.append(" => ").append(jarInformation);
-      System.out.println(sb.toString());
-    });
+      final String gav = mavenArtifactsProcessor.getGAV(jarInformation).map(GAV::toString).orElse("");
+
+      printer.printRecord(module.toNameAndVersion(), module.isAutomatic() ? "Yes" : "No", gav, jarInformation);
+    }
   }
 
   Optional<ModuleDescriptor> getModuleDescriptor(final JARInformation jarInformation) {

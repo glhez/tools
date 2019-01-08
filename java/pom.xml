@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>fr.glhez.jtools</groupId>
   <artifactId>jtools-parent</artifactId>
   <version>1</version>
+
   <packaging>pom</packaging>
 
   <name>glhez's java tools :: parent</name>
 
   <modules>
     <module>jtools-jar</module>
+    <module>jtools-jpms-wrapper</module>
     <module>jtools-text</module>
   </modules>
 
@@ -31,41 +34,46 @@
     <slf4j.version>1.7.25</slf4j.version>    <!-- 1.8.0-beta2  -->
     <junit-jupiter.version>5.3.2</junit-jupiter.version>
     <junit-platform.version>1.3.2</junit-platform.version>
+
+    <apache.commons-csv.version>1.6</apache.commons-csv.version>
   </properties>
 
   <!-- <repositories> <repository> <id>jitpack.io</id> <url>https://jitpack.io</url> </repository> </repositories> -->
 
   <dependencyManagement>
     <dependencies>
+      <!-- jpms wrapper -->
+      <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId>         <version>${apache.commons-csv.version}</version> </dependency>
+
       <!-- logging -->
-      <dependency> <groupId>ch.qos.logback</groupId>       <artifactId>logback-classic</artifactId>                  <version>${logback.version}</version>               </dependency>
-      <dependency> <groupId>ch.qos.logback</groupId>       <artifactId>logback-core</artifactId>                     <version>${logback.version}</version>               </dependency>
-      <dependency> <groupId>org.slf4j</groupId>            <artifactId>slf4j-api</artifactId>                        <version>${slf4j.version}</version>                 </dependency>
-      <dependency> <groupId>org.slf4j</groupId>            <artifactId>jcl-over-slf4j</artifactId>                   <version>${slf4j.version}</version>                 </dependency>
-      <dependency> <groupId>org.slf4j</groupId>            <artifactId>log4j-over-slf4j</artifactId>                 <version>${slf4j.version}</version>                 </dependency>
-      <dependency> <groupId>org.slf4j</groupId>            <artifactId>slf4j-nop</artifactId>                        <version>${slf4j.version}</version>                 </dependency>
+      <dependency> <groupId>ch.qos.logback</groupId>               <artifactId>logback-classic</artifactId>                <version>${logback.version}</version>            </dependency>
+      <dependency> <groupId>ch.qos.logback</groupId>               <artifactId>logback-core</artifactId>                   <version>${logback.version}</version>            </dependency>
+      <dependency> <groupId>org.slf4j</groupId>                    <artifactId>slf4j-api</artifactId>                      <version>${slf4j.version}</version>              </dependency>
+      <dependency> <groupId>org.slf4j</groupId>                    <artifactId>jcl-over-slf4j</artifactId>                 <version>${slf4j.version}</version>              </dependency>
+      <dependency> <groupId>org.slf4j</groupId>                    <artifactId>log4j-over-slf4j</artifactId>               <version>${slf4j.version}</version>              </dependency>
+      <dependency> <groupId>org.slf4j</groupId>                    <artifactId>slf4j-nop</artifactId>                      <version>${slf4j.version}</version>              </dependency>
 
       <!-- unit test -->
-      <dependency> <groupId>org.mockito</groupId>          <artifactId>mockito-core</artifactId>                     <version>2.23.4</version>                           </dependency>
-      <dependency> <groupId>org.assertj</groupId>          <artifactId>assertj-core</artifactId>                     <version>3.11.1</version>                           </dependency>
-      <dependency> <groupId>com.github.marschall</groupId> <artifactId>memoryfilesystem</artifactId>                 <version>1.3.0</version>                            </dependency>
+      <dependency> <groupId>org.mockito</groupId>                  <artifactId>mockito-core</artifactId>                   <version>2.23.4</version>                        </dependency>
+      <dependency> <groupId>org.assertj</groupId>                  <artifactId>assertj-core</artifactId>                   <version>3.11.1</version>                        </dependency>
+      <dependency> <groupId>com.github.marschall</groupId>         <artifactId>memoryfilesystem</artifactId>               <version>1.3.0</version>                         </dependency>
 
-      <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-engine</artifactId>             <version>${junit-jupiter.version}</version>         </dependency>
-      <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-api</artifactId>                <version>${junit-jupiter.version}</version>         </dependency>
-      <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-params</artifactId>             <version>${junit-jupiter.version}</version>         </dependency>
-      <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-migrationsupport</artifactId>   <version>${junit-jupiter.version}</version>         </dependency>
+      <dependency> <groupId>org.junit.jupiter</groupId>            <artifactId>junit-jupiter-engine</artifactId>           <version>${junit-jupiter.version}</version>      </dependency>
+      <dependency> <groupId>org.junit.jupiter</groupId>            <artifactId>junit-jupiter-api</artifactId>              <version>${junit-jupiter.version}</version>      </dependency>
+      <dependency> <groupId>org.junit.jupiter</groupId>            <artifactId>junit-jupiter-params</artifactId>           <version>${junit-jupiter.version}</version>      </dependency>
+      <dependency> <groupId>org.junit.jupiter</groupId>            <artifactId>junit-jupiter-migrationsupport</artifactId> <version>${junit-jupiter.version}</version>      </dependency>
 
-      <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-engine</artifactId>            <version>${junit-platform.version}</version>        </dependency>
-      <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-launcher</artifactId>          <version>${junit-platform.version}</version>        </dependency>
-      <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-suite-api</artifactId>         <version>${junit-platform.version}</version>        </dependency>
+      <dependency> <groupId>org.junit.platform</groupId>           <artifactId>junit-platform-engine</artifactId>          <version>${junit-platform.version}</version>     </dependency>
+      <dependency> <groupId>org.junit.platform</groupId>           <artifactId>junit-platform-launcher</artifactId>        <version>${junit-platform.version}</version>     </dependency>
+      <dependency> <groupId>org.junit.platform</groupId>           <artifactId>junit-platform-suite-api</artifactId>       <version>${junit-platform.version}</version>     </dependency>
 
       <!-- commons utilities -->
-      <dependency> <groupId>org.apache.commons</groupId>   <artifactId>commons-lang3</artifactId>                    <version>3.8.1</version>                            </dependency>
-      <dependency> <groupId>org.apache.commons</groupId>   <artifactId>commons-text</artifactId>                     <version>1.6</version>                              </dependency>
-      <dependency> <groupId>com.google.guava</groupId>     <artifactId>guava</artifactId>                            <version>27.0.1-jre</version>                         </dependency>
-      <dependency> <groupId>com.typesafe</groupId>         <artifactId>config</artifactId>                           <version>1.3.3</version>                            </dependency>
-      <dependency> <groupId>info.picocli</groupId>         <artifactId>picocli</artifactId>                          <version>3.8.2</version>                     </dependency>
-      <dependency> <groupId>fr.glhez.jtools</groupId>      <artifactId>jtools-jar</artifactId>                       <version>1</version>                                </dependency>
+      <dependency> <groupId>org.apache.commons</groupId>           <artifactId>commons-lang3</artifactId>                  <version>3.8.1</version>                         </dependency>
+      <dependency> <groupId>org.apache.commons</groupId>           <artifactId>commons-text</artifactId>                   <version>1.6</version>                           </dependency>
+      <dependency> <groupId>com.google.guava</groupId>             <artifactId>guava</artifactId>                          <version>27.0.1-jre</version>                    </dependency>
+      <dependency> <groupId>com.typesafe</groupId>                 <artifactId>config</artifactId>                         <version>1.3.3</version>                         </dependency>
+      <dependency> <groupId>info.picocli</groupId>                 <artifactId>picocli</artifactId>                        <version>3.9.0</version>                         </dependency>
+      <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>1</version>                             </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -87,7 +95,7 @@
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId>             <version>3.0.0-M3</version> </plugin>
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-report-plugin</artifactId>      <version>3.0.0-M3</version> </plugin>
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-failsafe-plugin</artifactId>             <version>3.0.0-M3</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId>             <version>3.1.0</version>    </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId>             <version>3.1.1</version>    </plugin>
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jxr-plugin</artifactId>                  <version>3.0.0</version>    </plugin>
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-project-info-reports-plugin</artifactId> <version>3.0.0</version>    </plugin>
         <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-toolchains-plugin</artifactId>           <version>1.1</version>      </plugin>
@@ -109,7 +117,9 @@
           <parameters>true</parameters>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
-          <compilerArgs> <arg>-Xlint</arg> </compilerArgs>
+          <compilerArgs>
+            <arg>-Xlint</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>
@@ -161,17 +171,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
-      <plugin>
-        <groupId>org.ec4j.maven</groupId>
-        <artifactId>editorconfig-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>check</id>
-            <phase>verify</phase>
-            <goals> <goal>check</goal> </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
     <resources>
@@ -212,18 +211,59 @@
       </build>
     </profile>
 
-    <!-- Use maven.compiler.release (there is currently no way to disable it) and this makes pre JDK9
-         project fails. -->
+    <!--
+      For Java 11 based project (we don't necessary use a Java 11 runtime for Maven).
+    -->
     <profile>
-      <id>maven-compiler-plugin-use-release</id>
+      <id>maven-compiler-plugin-java11</id>
       <activation>
-        <file><exists>maven-compiler-plugin.release-flag</exists></file>
+        <file><exists>java11</exists></file>
       </activation>
       <properties>
         <maven.compiler.release>${java.compliance}</maven.compiler.release>
       </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <compilerArgs>
+                <arg>-Xlint</arg>
+                <!-- https://stackoverflow.com/questions/49600947/how-to-suppress-the-requires-transitive-directive-for-an-automatic-module-warn -->
+                <!-- <arg>-Xlint:-requires-transitive-automatic</arg> -->
+              </compilerArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
+
+    <profile>
+      <id>not-eclipse</id>
+      <activation>
+        <property> <name>!m2e.version</name> </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.ec4j.maven</groupId>
+            <artifactId>editorconfig-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>check</id>
+                <phase>validate</phase>
+                <goals> <goal>check</goal> </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
+    </profile>
+
 
   </profiles>
 
 </project>
+
