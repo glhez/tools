@@ -6,7 +6,7 @@
 
   <parent>
     <groupId>fr.glhez.jtools</groupId>
-    <artifactId>jtools-parent</artifactId>
+    <artifactId>java8-parent</artifactId>
     <version>1</version>
   </parent>
 
@@ -14,11 +14,6 @@
 
   <name>glhez's java tools :: Text</name>
   <description>A simple library providing text related function such as Tabulize, Justify, ...</description>
-
-  <properties>
-    <java.compliance>1.8</java.compliance>
-    <toolchain.javaVersion>[1.8,1.9)</toolchain.javaVersion>
-  </properties>
 
   <dependencies>
     <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-engine</artifactId>     <scope>test</scope> </dependency>

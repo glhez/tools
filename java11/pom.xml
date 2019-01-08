@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>fr.glhez.jtools</groupId>
+    <artifactId>jtools-parent</artifactId>
+    <version>1</version>
+  </parent>
+
+  <artifactId>java11-parent</artifactId>
+  <packaging>pom</packaging>
+
+  <name>glhez's java tools :: Java 11</name>
+
+  <modules>
+    <module>jtools-jar</module>
+    <module>jtools-jpms-wrapper</module>
+  </modules>
+  
+  <properties>
+    <java.compliance>11</java.compliance>
+    <maven.compiler.release>${java.compliance}</maven.compiler.release>
+    <maven.compiler.source>${java.compliance}</maven.compiler.source>
+    <maven.compiler.target>${java.compliance}</maven.compiler.target>
+  </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-toolchains-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>${toolchain.phase}</phase>
+            <goals> <goal>toolchain</goal> </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <toolchains> <jdk> <version>[11.0.0,12.0.0)</version> </jdk> </toolchains>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- additional conf specific to Java 11 -->
+          <compilerArgs>
+            <arg>-Xlint</arg>
+            <!-- https://stackoverflow.com/questions/49600947/how-to-suppress-the-requires-transitive-directive-for-an-automatic-module-warn -->
+            <!-- <arg>-Xlint:-requires-transitive-automatic</arg> -->
+          </compilerArgs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -10,24 +10,10 @@
 
   <name>glhez's java tools :: parent</name>
 
-  <modules>
-    <module>jtools-jar</module>
-    <module>jtools-jpms-wrapper</module>
-    <module>jtools-text</module>
-  </modules>
-
   <properties>
     <!-- java compilation option -->
     <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
-
-    <java.compliance>11</java.compliance>
-
-    <maven.compiler.source>${java.compliance}</maven.compiler.source>
-    <maven.compiler.target>${java.compliance}</maven.compiler.target>
-
-    <!-- child module should change this. -->
-    <toolchain.javaVersion>[11.0.0,12.0.0)</toolchain.javaVersion>
 
     <!-- version ; only for dependencies whose version is found multiple times. -->
     <logback.version>1.2.3</logback.version> <!-- 1.3.0-alpha4 -->
@@ -156,19 +142,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-toolchains-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals> <goal>toolchain</goal> </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <toolchains> <jdk> <version>${toolchain.javaVersion}</version> </jdk> </toolchains>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
     </plugins>
@@ -215,31 +188,6 @@
       For Java 11 based project (we don't necessary use a Java 11 runtime for Maven).
     -->
     <profile>
-      <id>maven-compiler-plugin-java11</id>
-      <activation>
-        <file><exists>java11</exists></file>
-      </activation>
-      <properties>
-        <maven.compiler.release>${java.compliance}</maven.compiler.release>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <compilerArgs>
-                <arg>-Xlint</arg>
-                <!-- https://stackoverflow.com/questions/49600947/how-to-suppress-the-requires-transitive-directive-for-an-automatic-module-warn -->
-                <!-- <arg>-Xlint:-requires-transitive-automatic</arg> -->
-              </compilerArgs>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <id>not-eclipse</id>
       <activation>
         <property> <name>!m2e.version</name> </property>
@@ -259,10 +207,40 @@
           </plugin>
         </plugins>
       </build>
-
     </profile>
-
-
+    
+    <profile>
+      <id>not-travis</id>
+      <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
+      <properties> <toolchain.phase>validate</toolchain.phase> </properties>
+      <modules>
+        <module>java8</module>
+        <module>java11</module>
+      </modules>
+    </profile>
+    
+    <profile>
+      <id>travis-common</id>
+      <activation> <property> <name>env.TRAVIS</name> </property> </activation>
+      <properties> <toolchain.phase>none</toolchain.phase> </properties>
+    </profile>
+    
+    <profile>
+      <id>travis-jdk8</id>
+      <activation> <property> <name>env.TRAVIS</name> </property> <jdk>1.8</jdk> </activation>
+      <modules>
+        <module>java8</module>
+      </modules>
+    </profile>
+    
+    <profile>
+      <id>travis-jdk11</id>
+      <activation> <property> <name>env.TRAVIS</name> </property> <jdk>11</jdk> </activation>
+      <modules>
+        <module>java11</module>
+      </modules>
+    </profile>
+    
   </profiles>
 
 </project>
