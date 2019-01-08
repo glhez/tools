@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# vim: tabstop=2 expandtab shiftwidth=2 fileencoding=utf-8 
+# vim: tabstop=2 expandtab shiftwidth=2 fileencoding=utf-8
 # coding=utf-8
 # generate {SHA1} {CRC32} {executionTime} {elapsedTime} <{path}>
 #
@@ -106,7 +106,7 @@ def parse(screen):
       for data in last:
         screen.addstr(sy  , 0, '  {}'.format(data['path']))
         if data['ok']:
-          screen.addstr(sy+1, 0, 
+          screen.addstr(sy+1, 0,
             '    --> Elapsed Time: {0:,}ms Avg. Speed: {3}/s SHA1: {1} CRC32: {2}'.format(
             data['elapsedTime'], data['sha1'], data['crc32'], convertBytes(data['speed'])))
         else:
@@ -152,10 +152,10 @@ def parse(screen):
         crc32Str='%08X' % (crc32 & 0xffffffff)
         sha1Str=sha1.hexdigest()
         last.appendleft({
-          'path': path, 
-          'ok' : True, 
-          'elapsedTime': elapsedTime, 
-          'sha1': sha1Str, 
+          'path': path,
+          'ok' : True,
+          'elapsedTime': elapsedTime,
+          'sha1': sha1Str,
           'crc32': crc32Str,
           'speed': speed
         })
@@ -209,7 +209,7 @@ while len(fileset) > 0:
     print("I don't know what kind of file <{}> is".format(path))
 
 print("found {} files".format(len(fullfileset)))
-if len(fullfileset) > 0: 
+if len(fullfileset) > 0:
   fullfileset.sort(key = str.lower)
   curses.wrapper(parse)
 

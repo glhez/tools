@@ -17,14 +17,14 @@
     <module>jtools-jar</module>
     <module>jtools-jpms-wrapper</module>
   </modules>
-  
+
   <properties>
     <java.compliance>11</java.compliance>
     <maven.compiler.release>${java.compliance}</maven.compiler.release>
     <maven.compiler.source>${java.compliance}</maven.compiler.source>
     <maven.compiler.target>${java.compliance}</maven.compiler.target>
   </properties>
-  
+
   <build>
     <plugins>
       <plugin>

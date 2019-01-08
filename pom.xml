@@ -208,7 +208,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>not-travis</id>
       <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
@@ -218,13 +218,13 @@
         <module>java11</module>
       </modules>
     </profile>
-    
+
     <profile>
       <id>travis-common</id>
       <activation> <property> <name>env.TRAVIS</name> </property> </activation>
       <properties> <toolchain.phase>none</toolchain.phase> </properties>
     </profile>
-    
+
     <profile>
       <id>travis-jdk8</id>
       <activation> <property> <name>env.TRAVIS</name> </property> <jdk>1.8</jdk> </activation>
@@ -232,7 +232,7 @@
         <module>java8</module>
       </modules>
     </profile>
-    
+
     <profile>
       <id>travis-jdk11</id>
       <activation> <property> <name>env.TRAVIS</name> </property> <jdk>11</jdk> </activation>
@@ -240,7 +240,7 @@
         <module>java11</module>
       </modules>
     </profile>
-    
+
   </profiles>
 
 </project>
