@@ -14,9 +14,17 @@ public class ReportFile {
   private final CSVFormat format;
   private final Path path;
 
-  public ReportFile(final CSVFormat format, final Path path) {
-    this.format = Objects.requireNonNull(format, "format");
-    this.path = Objects.requireNonNull(path, "path");
+  private ReportFile(final CSVFormat format, final Path path) {
+    this.format = format;
+    this.path = path;
+  }
+
+  public static ReportFile newReportFile(final CSVFormat format, final Path outputDirectory, final String filename) {
+    Objects.requireNonNull(format, "format");
+    Objects.requireNonNull(outputDirectory, "outputDirectory");
+    Objects.requireNonNull(filename, "filename");
+    final var fn = !filename.toLowerCase().endsWith(".csv") ? filename + ".csv":filename;
+    return new ReportFile(format, outputDirectory.resolve(fn));
   }
 
   public CSVPrinter toCsvPrinter() throws IOException {

@@ -1,7 +1,6 @@
 package fr.glhez.jtools.jar.internal;
 
 import java.io.IOException;
-import java.lang.module.ModuleDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -47,9 +46,8 @@ public class ShowDuplicateClassJARProcessor extends ReportFileJARProcessor {
 
       if (jars.size() > 1) {
         for (final var jar : jars) {
-          final String gav = mavenArtifactsJARProcessor.getGAV(jar).map(Object::toString).orElse("");
-          final String module = moduleJARProcessor.getModuleDescriptor(jar).map(ModuleDescriptor::toNameAndVersion)
-              .orElse("");
+          final String gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
+          final String module = moduleJARProcessor.getModuleDescriptorAsString(jar);
           final String info = jar.toString();
           printer.printRecord(info, gav, module, className, jars.size());
         }

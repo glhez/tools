@@ -13,8 +13,6 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.GAV;
-
 public class ModuleJARProcessor extends ReportFileJARProcessor {
   private final MavenArtifactsJARProcessor mavenArtifactsProcessor;
   private final Map<JARInformation, ModuleDescriptor> moduleDescriptors;
@@ -67,8 +65,7 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
     for (final var entry : moduleDescriptors.entrySet()) {
       final var jarInformation = entry.getKey();
       final var module = entry.getValue();
-
-      final String gav = mavenArtifactsProcessor.getGAV(jarInformation).map(GAV::toString).orElse("");
+      final String gav = mavenArtifactsProcessor.getGAVAsString(jarInformation);
 
       printer.printRecord(module.toNameAndVersion(), module.isAutomatic() ? "Yes" : "No", gav, jarInformation);
     }
@@ -78,7 +75,13 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
     return Optional.ofNullable(moduleDescriptors.get(jarInformation));
   }
 
-  Optional<GAV> getGAV(final JARInformation jarInformation) {
-    return mavenArtifactsProcessor.getGAV(jarInformation);
+  String getModuleDescriptorAsString(final JARInformation jar) {
+    return getModuleDescriptor(jar)
+        .map(module -> module.toNameAndVersion() + (module.isAutomatic() ? " (automatic)" : "")).orElse("");
   }
+
+  String getGAVAsString(final JARInformation jarInformation) {
+    return mavenArtifactsProcessor.getGAVAsString(jarInformation);
+  }
+
 }

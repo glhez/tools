@@ -13,10 +13,13 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-public class JNLPPermissionsJARProcessor implements JARProcessor {
+import org.apache.commons.csv.CSVPrinter;
+
+public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
   private final Map<JNLPPermissions, Map<Path, Set<Optional<Path>>>> result = new TreeMap<>();
 
-  public JNLPPermissionsJARProcessor() {
+  public JNLPPermissionsJARProcessor(final ReportFile reportFile) {
+    super("JNLP Permissiosn", reportFile);
   }
 
   @Override
@@ -28,7 +31,7 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
       final Manifest manifest = jarFile.getManifest();
-      final Attributes ma = manifest.getMainAttributes();
+      final Attributes ma = null == manifest ? null : manifest.getMainAttributes();
 
       if (null == ma) {
         put(JNLPPermissions.EMPTY, context);
@@ -50,23 +53,6 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
     }
   }
 
-  @Override
-  public void finish() {
-    System.out.println("---- [JNLP Permissions] ----");
-    final String l0 = "  ";
-    final String l1 = "    ";
-    final String l2 = "      ";
-    result.forEach((permissions, files) -> {
-      System.out.println(l0 + "Permissions: " + permissions);
-      files.forEach((parent, children) -> {
-        System.out.println(l1 + parent);
-        children.forEach(child -> {
-          child.ifPresent(val -> System.out.println(l2 + val));
-        });
-      });
-    });
-  }
-
   private void put(final JNLPPermissions permissions, final ProcessorContext context) {
     result.computeIfAbsent(permissions, p -> new TreeMap<>())
         .computeIfAbsent(context.getJARInformation().source, p -> new LinkedHashSet<>())
@@ -75,6 +61,27 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
 
   private String clean(final String s) {
     return null == s ? "" : s.trim();
+  }
+
+  @Override
+  protected void finish(final CSVPrinter printer) throws IOException {
+    printer.printRecord("Permissions", "Codebase", "Caller-Allowable-Codebase", "Parent", "Child");
+
+    for (final var entry : result.entrySet()) {
+      final var jnlpPermissions = entry.getKey();
+
+      final var permissions = jnlpPermissions.getReformattedPermissions();
+      final var codebase = jnlpPermissions.getReformattedCodebase();
+      final var callerAllowableCodebase = jnlpPermissions.getReformattedCallerAllowableCodebase();
+
+      for (final var parentAndChildren : entry.getValue().entrySet()) {
+        final var parent = parentAndChildren.getKey();
+        for (final var child : parentAndChildren.getValue()) {
+          printer.printRecord(permissions, codebase, callerAllowableCodebase, parent,
+              child.map(Path::toString).orElse(""));
+        }
+      }
+    }
   }
 
   static class JNLPPermissions implements Comparable<JNLPPermissions> {
@@ -142,6 +149,18 @@ public class JNLPPermissionsJARProcessor implements JARProcessor {
 
     public String getCallerAllowableCodebase() {
       return callerAllowableCodebase;
+    }
+
+    public String getReformattedPermissions() {
+      return this == JNLPPermissions.EMPTY ? "<missing>" : reformatAttribute(permissions);
+    }
+
+    public String getReformattedCodebase() {
+      return this == JNLPPermissions.EMPTY ? "<missing>" : reformatAttribute(codebase);
+    }
+
+    public String getReformattedCallerAllowableCodebase() {
+      return this == JNLPPermissions.EMPTY ? "<missing>" : reformatAttribute(callerAllowableCodebase);
     }
 
     // @formatter:off

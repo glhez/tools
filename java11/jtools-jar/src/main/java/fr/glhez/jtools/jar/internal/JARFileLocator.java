@@ -19,16 +19,17 @@ import java.util.TreeSet;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class JARFileLocator implements AutoCloseable {
   private final SortedSet<JARInformation> files;
   private final FileErrors errors;
   private final DeepMode deepMode;
   private final List<Path> tempFiles;
-  private final Predicate<Path> filter;
-  private final Predicate<Path> deepInclude;
+  private final Predicate<NPath> filter;
+  private final Predicate<NPath> deepInclude;
 
-  private JARFileLocator(final DeepMode deepMode, final Predicate<Path> filter, final Predicate<Path> deepInclude) {
+  private JARFileLocator(final DeepMode deepMode, final Predicate<NPath> filter, final Predicate<NPath> deepInclude) {
     this.deepMode = Objects.requireNonNull(deepMode, "deepMode");
     this.files = new TreeSet<>();
     this.errors = new FileErrors();
@@ -37,28 +38,33 @@ public class JARFileLocator implements AutoCloseable {
     this.deepInclude = deepInclude;
   }
 
-  public JARFileLocator(final DeepMode deepMode, final List<Pattern> includes, final List<Pattern> excludes,
-      final List<Pattern> deepInclude) {
+  public JARFileLocator(final DeepMode deepMode, final List<String> includes, final List<String> excludes,
+      final List<String> deepInclude) {
     this(deepMode, toPredicate(includes, true).and(toPredicate(excludes, false).negate()),
         toPredicate(deepInclude, true));
   }
 
-  // @formatter:off
-  private static Predicate<Path> toPredicate(final List<Pattern> filters, final boolean defaultValue) {
+  private static Predicate<NPath> toPredicate(final List<String> filters, final boolean defaultValue) {
     if (null == filters || filters.isEmpty()) {
       return v -> defaultValue;
     }
-    final Predicate<String> sp = filters.stream()
-           .map(Pattern::asPredicate)
+    return filters.stream()
+           .map(JARFileLocator::pathPredicate)
            .collect(reducing(Predicate::or))
            .orElse(v -> defaultValue);
-    return path -> sp.test(toString(path));
   }
-  // @formatter:on
 
-  private static String toString(final Path path) {
-    // don't care 'bout Windows path.
-    return path.toString().replace("\\", "/");
+  private static Predicate<NPath> pathPredicate(final String pattern) {
+    if (pattern.startsWith("path:")) {
+      final var c = Pattern.compile(pattern.substring("path:".length())).asPredicate();
+      return npath -> c.test(npath.getFullPath());
+    }
+    if (pattern.startsWith("name:")) {
+      final var c = Pattern.compile(pattern.substring("name:".length())).asPredicate();
+      return npath -> c.test(npath.getFileName());
+    }
+    final var c = Pattern.compile(pattern).asPredicate();
+    return npath -> c.test(npath.getFileName());
   }
 
   public void addFiles(final List<Path> files) {
@@ -90,17 +96,21 @@ public class JARFileLocator implements AutoCloseable {
       errors.addError(entry, "Not a directory");
     } else {
       try {
-        Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode).filter(this.filter).forEach(this::deepAdd);
+        filter(this.filter, Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode)).forEach(this::deepAdd);
       } catch (final IOException e) {
         errors.addError(entry, e);
       }
     }
   }
 
-  private void deepAdd(final Path realPath) {
-    this.files.add(newJARInformation(realPath));
-    if (deepMode.shouldDescendIntoFile(realPath)) {
-      processArchive(realPath);
+  private Stream<Path> filter(final Predicate<NPath> filter, final Stream<Path> source) {
+    return source.map(NPath::new).filter(filter).map(NPath::getPath);
+  }
+
+  private void deepAdd(final Path path) {
+    this.files.add(newJARInformation(path));
+    if (deepMode.shouldDescendIntoFile(path)) {
+      processArchive(path);
     }
   }
 
@@ -108,7 +118,7 @@ public class JARFileLocator implements AutoCloseable {
     try (final FileSystem fs = FileSystems.newFileSystem(realPath, null)) {
       fs.getRootDirectories().forEach(root -> {
         try {
-          Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED).filter(deepMode::isArchivePath).filter(deepInclude)
+          filter(deepInclude, Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED).filter(deepMode::isArchivePath))
               .forEach(child -> {
                 try {
                   final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
@@ -227,6 +237,36 @@ public class JARFileLocator implements AutoCloseable {
       } catch (@SuppressWarnings("unused") final IOException e) {
         // ignored.
       }
+    }
+
+  }
+
+  /**
+   * Normalized path, for use with filters.
+   *
+   * @author gael.lhez
+   */
+  static class NPath {
+    private final Path path;
+    private final String fullPath;
+    private final String fileName;
+
+    public NPath(final Path path) {
+      this.path = path;
+      this.fullPath = path.toString().replace("\\", "/");
+      this.fileName = path.getFileName().toString();
+    }
+
+    public Path getPath() {
+      return path;
+    }
+
+    public String getFullPath() {
+      return fullPath;
+    }
+
+    public String getFileName() {
+      return fileName;
     }
 
   }

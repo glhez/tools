@@ -16,15 +16,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
-import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.GAV;
+import org.apache.commons.csv.CSVPrinter;
 
-public class SPIServiceJARProcessor implements JARProcessor {
+public class SPIServiceJARProcessor extends ReportFileJARProcessor {
   private static final String SERVICES_DIRECTORY = "META-INF/services/";
 
   private final ModuleJARProcessor moduleJARProcessor;
@@ -34,8 +33,9 @@ public class SPIServiceJARProcessor implements JARProcessor {
   private transient final Map<String, Set<AvailableImplementation>> services;
   private final boolean moduleOnly;
 
-  public SPIServiceJARProcessor(final ModuleJARProcessor moduleJARProcessor, final boolean all,
-      final Set<String> spiInterfaces, final boolean moduleOnly) {
+  public SPIServiceJARProcessor(final ReportFile reportFile, final ModuleJARProcessor moduleJARProcessor,
+      final boolean all, final Set<String> spiInterfaces, final boolean moduleOnly) {
+    super("SPI Service", reportFile);
     Objects.requireNonNull(spiInterfaces, "spiInterfaces");
     this.moduleJARProcessor = requireNonNull(moduleJARProcessor, "moduleJARProcessor");
     this.all = all;
@@ -96,34 +96,29 @@ public class SPIServiceJARProcessor implements JARProcessor {
   }
 
   @Override
-  public void finish() {
+  protected void finish(final CSVPrinter printer) throws IOException {
     final Set<String> spiInterfaces = all ? services.keySet() : this.spiInterfaces;
 
-    System.out.println("---- [SPI Service] ----");
+    printer.printRecord("Interface", "Implementation count (Fileset)", "Implementation count (JAR)", "Implementation",
+        "Maven", "Java Module", "JAR");
+
     for (final String spiInterface : spiInterfaces) {
       final Set<AvailableImplementation> implementations = services.get(spiInterface);
       if (null == implementations) {
-        System.out.println("Service: " + spiInterface + " [No implementation found]");
+        printer.printRecord(spiInterface, "0", "0", "(none)", "", "", "");
         continue;
       }
-      System.out.println("Service: " + spiInterface + " -> [Found " + implementations.size() + " implementations]");
+
+      final int implementationFound = implementations.stream().mapToInt(ai -> ai.implementations.size()).sum();
       for (final AvailableImplementation availableImplementation : implementations) {
-        final Optional<GAV> gav = moduleJARProcessor.getGAV(availableImplementation.jarInformation);
-        final Optional<ModuleDescriptor> desc = moduleJARProcessor
-            .getModuleDescriptor(availableImplementation.jarInformation);
-
-        System.out.println("  From: " + availableImplementation.jarInformation + " (source: "
-            + (availableImplementation.fromModuleInfo ? "module" : "META-INF/services") + ")");
-        gav.ifPresent(g -> System.out.println("    +GAV: " + g));
-        desc.ifPresent(d -> System.out.println("    +Module: " + d.toNameAndVersion()));
-
-        int i = 1;
+        final String gav = moduleJARProcessor.getGAVAsString(availableImplementation.jarInformation);
+        final String desc = moduleJARProcessor.getModuleDescriptorAsString(availableImplementation.jarInformation);
+        final var jarImplementationFound = availableImplementation.implementations.size();
         for (final String impl : availableImplementation.implementations) {
-          System.out.printf("    [%2d] %s%n", i, impl);
-          ++i;
+          printer.printRecord(spiInterface, implementationFound, jarImplementationFound, impl, gav, desc,
+              availableImplementation.jarInformation);
         }
       }
-      System.out.println();
     }
   }
 

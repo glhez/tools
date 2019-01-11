@@ -24,6 +24,11 @@ public interface ProcessorContext {
    */
   default void addError(final Exception exception) {
     requireNonNull(exception, "exception");
-    addError(exception.getMessage());
+    final var message = exception.getMessage();
+    if (null == message) {
+      addError(exception.toString());
+    } else {
+      addError(message);
+    }
   }
 }

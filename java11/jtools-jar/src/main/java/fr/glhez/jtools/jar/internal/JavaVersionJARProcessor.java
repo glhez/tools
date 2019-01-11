@@ -14,8 +14,6 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.GAV;
-
 public class JavaVersionJARProcessor extends ReportFileJARProcessor {
   private static final int JAVA_CLASS_MAGIC = 0xCAFEBABE;
 
@@ -56,7 +54,7 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
     printer.printRecord("JAR", "Maven GAV", "Java Version", "Files in JAR");
     for (final var entry : entries.entrySet()) {
       final JARInformation jarInfo = entry.getKey();
-      final String gav = mavenArtifactsJARProcessor.flatMap(p -> p.getGAV(jarInfo)).map(GAV::toString).orElse("");
+      final String gav = mavenArtifactsJARProcessor.map(p -> p.getGAVAsString(jarInfo)).orElse("");
       final var versions = entry.getValue();
 
       for (final var versionEntry : versions.entrySet()) {

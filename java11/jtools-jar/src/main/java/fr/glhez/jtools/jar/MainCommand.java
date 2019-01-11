@@ -1,5 +1,9 @@
 package fr.glhez.jtools.jar;
 
+import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newCSVMavenArtifactsJARProcessor;
+import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newMavenArtifactsJARProcessor;
+import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newShellScriptMavenArtifactsJARProcessor;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -11,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.jar.JarFile;
-import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 
@@ -24,7 +27,6 @@ import fr.glhez.jtools.jar.internal.JNLPPermissionsJARProcessor;
 import fr.glhez.jtools.jar.internal.JavaVersionJARProcessor;
 import fr.glhez.jtools.jar.internal.ListJARProcessor;
 import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor;
-import fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.ExportMode;
 import fr.glhez.jtools.jar.internal.ModuleJARProcessor;
 import fr.glhez.jtools.jar.internal.MutableProcessorContext;
 import fr.glhez.jtools.jar.internal.ReportFile;
@@ -55,13 +57,17 @@ public class MainCommand implements Runnable {
 
   @Option(names = { "-i", "--include" }, description = {
       "Include file from the file system. File matched by the pattern will be added to any analysis.",
-      "The pattern use java.util.regex.Pattern and can be added several times." })
-  private List<Pattern> includes;
+      "The pattern use java.util.regex.Pattern and can be added several times.",
+      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+  private List<String> includes;
 
   @Option(names = { "-x", "--exclude" }, description = {
       "Exclude file from the file system. File matched by the pattern will be ignored from any analysis.",
-      "The pattern use java.util.regex.Pattern and can be added several times." })
-  private List<Pattern> excludes;
+      "The pattern use java.util.regex.Pattern and can be added several times.",
+      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'"
+
+  })
+  private List<String> excludes;
 
   @Option(names = { "-D",
       "--deep-scan" }, description = "Look for JAR in EAR/WAR files. The filter accepts value ALL (don't care about hierarchy) or the default STD (META-INF/lib/ only)")
@@ -69,22 +75,29 @@ public class MainCommand implements Runnable {
 
   @Option(names = { "-f", "--deep-filter" }, description = {
       "Filter embedded JAR/WAR. Path matched by the Pattern will be included.",
-      "The pattern use java.util.regex.Pattern and can be added several times." })
-  private List<Pattern> deepFilter;
+      "The pattern use java.util.regex.Pattern and can be added several times.",
+      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+  private List<String> deepFilter;
 
   /*
    * processor options
    */
-  @Option(names = "--maven", description = "Try to read information produced by Maven Archiver in /META-INF/maven/**/pom.properties. Might fail if there are multiple pom.properties.")
+  @Option(names = "--maven", description = {
+      "Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.",
+      "The processor will ignore JAR with multiple pom.properties (probably über jar)." })
   private boolean mavenProcessor;
 
-  @Option(names = "--maven-export", description = "Export GAV information as LIST (for humans), SCRIPT (for example, to upload on a local repository) or NONE")
-  private MavenArtifactsJARProcessor.ExportMode mavenExportMode;
+  @Option(names = { "--maven-bash", "--maven-shellscript" }, description = {
+      "Export Maven information as a shell script (bash oriented; other sh may work or need to be adapted).",
+      "The scriplet can be used to import the dependency to a local repository.", })
+  private boolean mavenShellScriptExport;
 
-  @Option(names = "--permission", description = "Check for permissions codebase for JNLP")
+  @Option(names = { "--jnlp-permission",
+      "--jnlp-permissions" }, description = "Check for permissions codebase for JNLP")
   private boolean manifestPermissionProcessor;
 
-  @Option(names = "--service", description = "Search for SPI; looks for file in /META-INF/services or in Java module if available.")
+  @Option(names = { "--service", "--services",
+      "--spi" }, description = "Search for SPI; looks for file in /META-INF/services or in Java module if available.")
   private boolean serviceProcessor;
 
   @Option(names = "--service-module", description = "Ignore SPI file and only process module-info.")
@@ -114,11 +127,7 @@ public class MainCommand implements Runnable {
   @Option(names = { "--duplicate-class", "--duplicate-classes" }, description = "Show duplicate classes in JAR.")
   private boolean showDuplicateClasses;
 
-  private Optional<ReportFile> moduleReportFile;
-  private ReportFile classPathReportFile;
-  private ReportFile javaVersionReportFile;
-  private ReportFile packageReportFile;
-  private ReportFile duplicateClassesReportFile;
+  private CSVFormat format;
 
   public static void main(final String[] args) {
     picocli.CommandLine.run(new fr.glhez.jtools.jar.MainCommand(), System.out, args);
@@ -149,6 +158,8 @@ public class MainCommand implements Runnable {
         ctx.setSource(file);
         try (JarFile jarFile = new JarFile(file.tmpPath.toFile())) {
           processor.process(ctx, jarFile);
+        } catch (final NullPointerException e) {
+          throw e; // rethrow: this is probably OUR error.
         } catch (final Exception e) {
           ctx.addError(e);
         }
@@ -168,7 +179,7 @@ public class MainCommand implements Runnable {
     this.deepFilter = getIfNull(deepFilter, Collections::emptyList);
     this.serviceFiltersEnabled = this.serviceFilters != null;
     this.serviceFilters = getIfNull(this.serviceFilters, Collections::emptySet);
-    this.mavenExportMode = getIfNull(mavenExportMode, () -> ExportMode.LIST);
+    this.outputDirectory = getIfNull(outputDirectory, () -> Paths.get(""));
 
     if (showOnlyDuplicatePackage) {
       showPackage = true;
@@ -182,17 +193,7 @@ public class MainCommand implements Runnable {
         csvSeparator = ',';
       }
     }
-    final CSVFormat format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
-
-    final Path ood = Optional.ofNullable(outputDirectory).orElseGet(() -> Paths.get(""));
-
-    moduleReportFile = moduleProcessor ? Optional.of(new ReportFile(format, ood.resolve("java-modules.csv")))
-        : Optional.empty();
-    classPathReportFile = new ReportFile(format, ood.resolve("class-path.csv"));
-    javaVersionReportFile = new ReportFile(format, ood.resolve("java-version.csv"));
-    packageReportFile = new ReportFile(format,
-        ood.resolve(showOnlyDuplicatePackage ? "duplicate-package.csv" : "package.csv"));
-    duplicateClassesReportFile = new ReportFile(format, ood.resolve("duplicate-classes"));
+    this.format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
   }
 
   private <T> T getIfNull(final T value, final Supplier<? extends T> supplier) {
@@ -206,47 +207,58 @@ public class MainCommand implements Runnable {
         || this.showDuplicateClasses;
 
     final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
-    if (mavenProcessor) {
-      mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(mavenExportMode);
+    if (mavenShellScriptExport) {
+      mavenArtifactsJARProcessor = newShellScriptMavenArtifactsJARProcessor();
+    } else if (mavenProcessor) {
+      mavenArtifactsJARProcessor = newCSVMavenArtifactsJARProcessor(newReportFile("maven"));
     } else if (addModuleProcessor) {
-      mavenArtifactsJARProcessor = new MavenArtifactsJARProcessor(ExportMode.NONE);
+      mavenArtifactsJARProcessor = newMavenArtifactsJARProcessor();
     } else {
       mavenArtifactsJARProcessor = null;
     }
     add(processors, mavenArtifactsJARProcessor);
 
     final ModuleJARProcessor moduleJARProcessor;
-    if (addModuleProcessor) {
-      moduleJARProcessor = new ModuleJARProcessor(moduleReportFile, mavenArtifactsJARProcessor);
+    if (moduleProcessor) {
+      moduleJARProcessor = new ModuleJARProcessor(Optional.of(newReportFile("java-modules")),
+          mavenArtifactsJARProcessor);
+    } else if (addModuleProcessor) {
+      moduleJARProcessor = new ModuleJARProcessor(Optional.empty(), mavenArtifactsJARProcessor);
     } else {
       moduleJARProcessor = null;
     }
     add(processors, moduleJARProcessor);
 
     if (this.serviceProcessor) {
-      add(processors,
-          new SPIServiceJARProcessor(moduleJARProcessor, !serviceFiltersEnabled, serviceFilters, serviceModuleOnly));
+      final var reportFile = newReportFile(serviceModuleOnly ? "services-module-only" : "services");
+      add(processors, new SPIServiceJARProcessor(reportFile, moduleJARProcessor, !serviceFiltersEnabled, serviceFilters,
+          serviceModuleOnly));
     }
 
     if (this.manifestPermissionProcessor) {
-      add(processors, new JNLPPermissionsJARProcessor());
+      add(processors, new JNLPPermissionsJARProcessor(newReportFile("jnlp-permissions")));
     }
     if (this.manifestClassPathProcessor) {
-      add(processors, new ClassPathJARProcessor(classPathReportFile));
+      add(processors, new ClassPathJARProcessor(newReportFile("class-path")));
     }
     if (this.javaVersionProcessor) {
-      add(processors, new JavaVersionJARProcessor(javaVersionReportFile, mavenArtifactsJARProcessor));
+      add(processors, new JavaVersionJARProcessor(newReportFile("java-version"), mavenArtifactsJARProcessor));
     }
     if (this.showPackage) {
-      add(processors, new ShowPackageJARProcessor(packageReportFile, this.showOnlyDuplicatePackage,
-          mavenArtifactsJARProcessor, moduleJARProcessor));
+      add(processors,
+          new ShowPackageJARProcessor(newReportFile(showOnlyDuplicatePackage ? "duplicate-package.csv" : "package"),
+              this.showOnlyDuplicatePackage, mavenArtifactsJARProcessor, moduleJARProcessor));
     }
     if (this.showDuplicateClasses) {
-      add(processors, new ShowDuplicateClassJARProcessor(duplicateClassesReportFile, mavenArtifactsJARProcessor,
+      add(processors, new ShowDuplicateClassJARProcessor(newReportFile("duplicate-classes"), mavenArtifactsJARProcessor,
           moduleJARProcessor));
     }
 
     return new ListJARProcessor(processors);
+  }
+
+  private ReportFile newReportFile(final String fileName) {
+    return ReportFile.newReportFile(format, outputDirectory, fileName);
   }
 
   private void add(final List<JARProcessor> processors, final JARProcessor processor) {

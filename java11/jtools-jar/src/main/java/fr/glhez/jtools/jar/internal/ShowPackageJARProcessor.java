@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 
 import java.io.IOException;
-import java.lang.module.ModuleDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -82,9 +81,8 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
     for (final var entry : this.packagesPerJar.entrySet()) {
       final JARInformation jar = entry.getKey();
       final NavigableSet<String> packages = entry.getValue();
-      final String gav = mavenArtifactsJARProcessor.getGAV(jar).map(Object::toString).orElse("");
-      final String module = moduleJARProcessor.getModuleDescriptor(jar).map(ModuleDescriptor::toNameAndVersion)
-          .orElse("");
+      final String gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
+      final String module = moduleJARProcessor.getModuleDescriptorAsString(jar);
       final String info = jar.toString();
 
       for (final var packageName : packages) {
