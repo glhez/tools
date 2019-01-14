@@ -48,10 +48,8 @@ public class JARFileLocator implements AutoCloseable {
     if (null == filters || filters.isEmpty()) {
       return v -> defaultValue;
     }
-    return filters.stream()
-           .map(JARFileLocator::pathPredicate)
-           .collect(reducing(Predicate::or))
-           .orElse(v -> defaultValue);
+    return filters.stream().map(JARFileLocator::pathPredicate).collect(reducing(Predicate::or))
+        .orElse(v -> defaultValue);
   }
 
   private static Predicate<NPath> pathPredicate(final String pattern) {
@@ -117,18 +115,17 @@ public class JARFileLocator implements AutoCloseable {
   private void processArchive(final Path realPath) {
     try (final FileSystem fs = FileSystems.newFileSystem(realPath, null)) {
       fs.getRootDirectories().forEach(root -> {
-        try {
-          filter(deepInclude, Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED).filter(deepMode::isArchivePath))
-              .forEach(child -> {
-                try {
-                  final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
-                  Files.copy(child, tempFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-                  tempFiles.add(tempFile);
-                  files.add(newJARInformation(realPath, child, tempFile));
-                } catch (final IOException e) {
-                  errors.addError(root, e);
-                }
-              });
+        try (var fileset = Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED)) {
+          filter(deepInclude, fileset.filter(deepMode::isArchivePath)).forEach(child -> {
+            try {
+              final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
+              Files.copy(child, tempFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+              tempFiles.add(tempFile);
+              files.add(newJARInformation(realPath, child, tempFile));
+            } catch (final IOException e) {
+              errors.addError(root, e);
+            }
+          });
         } catch (final IOException e) {
           errors.addError(root, e);
         }
@@ -254,7 +251,7 @@ public class JARFileLocator implements AutoCloseable {
     public NPath(final Path path) {
       this.path = path;
       this.fullPath = path.toString().replace("\\", "/");
-      this.fileName = path.getFileName().toString();
+      this.fileName = Objects.toString(path.getFileName(), "");
     }
 
     public Path getPath() {

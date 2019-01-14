@@ -2,6 +2,7 @@ package fr.glhez.jtools.jar.internal;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.stream.Stream;
 
 import org.apache.commons.csv.CSVPrinter;
 
@@ -53,14 +53,15 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    Stream<JarEntry> entries;
-    if (all) {
-      entries = jarFile.stream().filter(SPIServiceJARProcessor::isCandidateForServices);
-    } else {
-      entries = spiInterfacesPath.stream().map(jarFile::getJarEntry).filter(Objects::nonNull);
-    }
-
     if (!moduleOnly) {
+      List<JarEntry> entries;
+      if (all) {
+        try (final var ss = jarFile.stream()) {
+          entries = ss.filter(SPIServiceJARProcessor::isCandidateForServices).collect(toList());
+        }
+      } else {
+        entries = spiInterfacesPath.stream().map(jarFile::getJarEntry).filter(Objects::nonNull).collect(toList());
+      }
       entries.forEach(entry -> process(context, jarFile, entry));
     }
     moduleJARProcessor.getModuleDescriptor(context.getJARInformation())

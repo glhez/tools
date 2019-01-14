@@ -31,9 +31,11 @@ public class ShowDuplicateClassJARProcessor extends ReportFileJARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    jarFile.stream().filter(ShowPackageJARProcessor::isClassFileEntry).map(JarEntry::getName).forEach(name -> {
-      classesPerJAR.computeIfAbsent(name, n -> new TreeSet<>()).add(context.getJARInformation());
-    });
+    try (final var ss = jarFile.stream()) {
+      ss.filter(ShowPackageJARProcessor::isClassFileEntry).map(JarEntry::getName).forEach(name -> {
+        classesPerJAR.computeIfAbsent(name, n -> new TreeSet<>()).add(context.getJARInformation());
+      });
+    }
 
   }
 

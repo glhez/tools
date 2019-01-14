@@ -13,21 +13,21 @@ public class JARInformation implements Comparable<JARInformation> {
   /**
    * Path of the archive being opened.
    */
-  public final Path source;
+  public final Path archivePath;
 
   /**
    * Path in the archive being opened.
    */
-  public final Optional<Path> realPath;
+  public final Optional<Path> pathInArchive;
 
   /**
-   * Path to the content. Same as jarInformation unless there is a {@link #realPath}.
+   * Path to the content. Same as jarInformation unless there is a {@link #pathInArchive}.
    */
   public final Path tmpPath;
 
-  private JARInformation(final Path source, final Optional<Path> realPath, final Path tmpPath) {
-    this.source = Objects.requireNonNull(source, "jarInformation");
-    this.realPath = Objects.requireNonNull(realPath, "realPath");
+  private JARInformation(final Path archivePath, final Optional<Path> pathInArchive, final Path tmpPath) {
+    this.archivePath = Objects.requireNonNull(archivePath, "archivePath");
+    this.pathInArchive = Objects.requireNonNull(pathInArchive, "pathInArchive");
     this.tmpPath = Objects.requireNonNull(tmpPath, "tmpPath");
   }
 
@@ -40,12 +40,12 @@ public class JARInformation implements Comparable<JARInformation> {
   }
 
   public Path getFileName() {
-    return realPath.map(Path::getFileName).orElseGet(source::getFileName);
+    return pathInArchive.map(Path::getFileName).orElseGet(archivePath::getFileName);
   }
 
   @Override
   public int hashCode() {
-    return source.hashCode();
+    return archivePath.hashCode();
   }
 
   @Override
@@ -57,19 +57,19 @@ public class JARInformation implements Comparable<JARInformation> {
       return false;
     }
     final JARInformation other = (JARInformation) obj;
-    return source.equals(other.source) && realPath.equals(other.realPath);
+    return archivePath.equals(other.archivePath) && pathInArchive.equals(other.pathInArchive);
   }
 
   @Override
   public String toString() {
-    return source.toString() + realPath.filter(p -> !p.equals(source)).map(p -> " [" + p + "]").orElse("");
+    return archivePath.toString() + pathInArchive.filter(p -> !p.equals(archivePath)).map(p -> " [" + p + "]").orElse("");
   }
 
   @Override
   public int compareTo(final JARInformation o) {
-    final int n = source.compareTo(o.source);
+    final int n = archivePath.compareTo(o.archivePath);
     if (n == 0) {
-      return realPath.map(Object::toString).orElse("").compareTo(o.realPath.map(Object::toString).orElse(""));
+      return pathInArchive.map(Object::toString).orElse("").compareTo(o.pathInArchive.map(Object::toString).orElse(""));
     }
     return n;
   }

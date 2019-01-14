@@ -39,9 +39,11 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    final TreeSet<String> packages = jarFile.stream().filter(ShowPackageJARProcessor::isClassFileEntry)
-        .map(this::splitName).collect(toCollection(TreeSet::new));
-    packagesPerJar.put(context.getJARInformation(), packages);
+    try (final var ss = jarFile.stream()) {
+      final TreeSet<String> packages = ss.filter(ShowPackageJARProcessor::isClassFileEntry).map(this::splitName)
+          .collect(toCollection(TreeSet::new));
+      packagesPerJar.put(context.getJARInformation(), packages);
+    }
   }
 
   /**

@@ -55,8 +55,8 @@ public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
 
   private void put(final JNLPPermissions permissions, final ProcessorContext context) {
     result.computeIfAbsent(permissions, p -> new TreeMap<>())
-        .computeIfAbsent(context.getJARInformation().source, p -> new LinkedHashSet<>())
-        .add(context.getJARInformation().realPath);
+        .computeIfAbsent(context.getJARInformation().archivePath, p -> new LinkedHashSet<>())
+        .add(context.getJARInformation().pathInArchive);
   }
 
   private String clean(final String s) {

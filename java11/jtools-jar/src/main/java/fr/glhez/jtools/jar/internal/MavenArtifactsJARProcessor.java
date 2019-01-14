@@ -61,8 +61,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    final List<JarEntry> properties = jarFile.stream().filter(MavenArtifactsJARProcessor::isCandidateForMaven)
-        .collect(toList());
+    final List<JarEntry> properties = getCandidateProperties(jarFile);
 
     if (properties.isEmpty()) {
       return;
@@ -93,6 +92,12 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
               + " found. Could not determine a GAV with filename either.");
         }
       }
+    }
+  }
+
+  private List<JarEntry> getCandidateProperties(final JarFile jarFile) {
+    try (final var ss = jarFile.stream()) {
+      return ss.filter(MavenArtifactsJARProcessor::isCandidateForMaven).collect(toList());
     }
   }
 

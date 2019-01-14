@@ -10,6 +10,8 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.csv.CSVPrinter;
@@ -33,7 +35,23 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    final var val = jarFile.stream().filter(entry -> entry.getName().endsWith(".class")).map(entry -> {
+    try (var ss = jarFile.stream()) {
+      final var jvd = javaVersionDetector(context, jarFile);
+      final var val = ss.filter(this::isValidEntry) //
+          .map(jvd)  //
+          .collect(groupingBy(Map.Entry::getValue, () -> new EnumMap<>(JavaVersion.class),
+              mapping(Map.Entry::getKey, counting())));
+      entries.put(context.getJARInformation(), val);
+    }
+  }
+
+  private boolean isValidEntry(final JarEntry entry) {
+    return entry.getName().endsWith(".class");
+  }
+
+  private Function<JarEntry, Map.Entry<String, JavaVersion>> javaVersionDetector(final ProcessorContext context,
+      final JarFile jarFile) {
+    return entry -> {
       try (DataInputStream dis = new DataInputStream(jarFile.getInputStream(entry))) {
         if (JAVA_CLASS_MAGIC == dis.readInt()) {
           final int minorVersion = dis.readUnsignedShort();
@@ -44,9 +62,7 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
         context.addError("Unable to parse JarEntry: " + entry.getName() + ": " + e.getMessage());
       }
       return Map.entry(entry.getName(), JavaVersion.ERROR);
-    }).collect(groupingBy(Map.Entry::getValue, () -> new EnumMap<>(JavaVersion.class),
-        mapping(Map.Entry::getKey, counting())));
-    entries.put(context.getJARInformation(), val);
+    };
   }
 
   @Override

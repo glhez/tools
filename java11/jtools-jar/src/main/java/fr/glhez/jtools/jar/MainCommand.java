@@ -82,6 +82,9 @@ public class MainCommand implements Runnable {
   /*
    * processor options
    */
+  @Option(names = "--all", description = { "Enable all processor." })
+  private boolean allProcessor;
+
   @Option(names = "--maven", description = {
       "Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.",
       "The processor will ignore JAR with multiple pom.properties (probably über jar)." })
@@ -154,9 +157,9 @@ public class MainCommand implements Runnable {
       int fileIndex = 1;
       final int fileCount = files.size();
       for (final JARInformation file : files) {
-        System.out.printf("Processing file: [%6.2f%%] %s%n", 100 * (fileIndex / (double) fileCount), file.source);
+        System.out.printf("Processing file: [%6.2f%%] %s%n", 100 * (fileIndex / (double) fileCount), file.archivePath);
         ctx.setSource(file);
-        try (JarFile jarFile = new JarFile(file.tmpPath.toFile())) {
+        try (JarFile jarFile = new JarFile(file.tmpPath.toFile(), false)) {
           processor.process(ctx, jarFile);
         } catch (final NullPointerException e) {
           throw e; // rethrow: this is probably OUR error.
@@ -180,6 +183,24 @@ public class MainCommand implements Runnable {
     this.serviceFiltersEnabled = this.serviceFilters != null;
     this.serviceFilters = getIfNull(this.serviceFilters, Collections::emptySet);
     this.outputDirectory = getIfNull(outputDirectory, () -> Paths.get(""));
+
+    if (allProcessor) {
+      if (!this.mavenShellScriptExport && !this.mavenProcessor) {
+        this.mavenProcessor = true;
+        this.mavenShellScriptExport = false;
+      }
+      this.moduleProcessor = true;
+      this.serviceProcessor = true;
+      this.manifestPermissionProcessor = true;
+      this.manifestClassPathProcessor = true;
+      this.javaVersionProcessor = true;
+      if (!this.showPackage && !this.showOnlyDuplicatePackage) {
+        this.showPackage = false;
+        this.showOnlyDuplicatePackage = true;
+      }
+      this.showDuplicateClasses = true;
+
+    }
 
     if (showOnlyDuplicatePackage) {
       showPackage = true;
