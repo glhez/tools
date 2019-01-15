@@ -4,11 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>fr.glhez.jtools</groupId>
-    <artifactId>java8-parent</artifactId>
-    <version>1</version>
-  </parent>
+  <parent> <groupId>fr.glhez.jtools</groupId> <artifactId>java8-parent</artifactId> <version>1</version> </parent>
 
   <artifactId>jtools-text</artifactId>
 

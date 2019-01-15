@@ -2,11 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>fr.glhez.jtools</groupId>
-    <artifactId>jtools-parent</artifactId>
-    <version>1</version>
-  </parent>
+  <parent> <groupId>fr.glhez.jtools</groupId> <artifactId>jtools-parent</artifactId> <version>1</version> </parent>
 
   <artifactId>java11-parent</artifactId>
   <packaging>pom</packaging>
@@ -14,8 +10,11 @@
   <name>glhez's java tools :: Java 11</name>
 
   <modules>
+    <module>jpms-wrapper</module>
+    <module>jlink-parent</module>
+
+    <!-- real modules -->
     <module>jtools-jar</module>
-    <module>jtools-jpms-wrapper</module>
   </modules>
 
   <properties>

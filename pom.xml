@@ -22,6 +22,7 @@
     <junit-platform.version>1.3.2</junit-platform.version>
 
     <apache.commons-csv.version>1.6</apache.commons-csv.version>
+    <info.picocli.version>3.9.1</info.picocli.version>
   </properties>
 
   <!-- <repositories> <repository> <id>jitpack.io</id> <url>https://jitpack.io</url> </repository> </repositories> -->
@@ -30,6 +31,9 @@
     <dependencies>
       <!-- jpms wrapper -->
       <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId>         <version>${apache.commons-csv.version}</version> </dependency>
+      <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>                   <version>${info.picocli.version}</version>       </dependency>
+
+      <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>${project.version}</version>            </dependency>
 
       <!-- logging -->
       <dependency> <groupId>ch.qos.logback</groupId>               <artifactId>logback-classic</artifactId>                <version>${logback.version}</version>            </dependency>
@@ -58,8 +62,9 @@
       <dependency> <groupId>org.apache.commons</groupId>           <artifactId>commons-text</artifactId>                   <version>1.6</version>                           </dependency>
       <dependency> <groupId>com.google.guava</groupId>             <artifactId>guava</artifactId>                          <version>27.0.1-jre</version>                    </dependency>
       <dependency> <groupId>com.typesafe</groupId>                 <artifactId>config</artifactId>                         <version>1.3.3</version>                         </dependency>
-      <dependency> <groupId>info.picocli</groupId>                 <artifactId>picocli</artifactId>                        <version>3.9.0</version>                         </dependency>
-      <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>1</version>                             </dependency>
+      <dependency> <groupId>info.picocli</groupId>                 <artifactId>picocli</artifactId>                        <version>${info.picocli.version}</version>       </dependency>
+      <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm</artifactId>                            <version>7.0</version>                           </dependency>
+      <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm-util</artifactId>                       <version>7.0</version>                           </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -67,31 +72,33 @@
   <build>
     <pluginManagement>
       <plugins>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-site-plugin</artifactId>                 <version>3.7.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId>             <version>3.8.0</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-javadoc-plugin</artifactId>              <version>3.0.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-source-plugin</artifactId>               <version>3.0.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-clean-plugin</artifactId>                <version>3.1.0</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-install-plugin</artifactId>              <version>3.0.0-M1</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-deploy-plugin</artifactId>               <version>3.0.0-M1</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>           <version>3.1.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId>                  <version>3.1.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-resources-plugin</artifactId>            <version>3.1.0</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-enforcer-plugin</artifactId>             <version>3.0.0-M2</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId>             <version>3.0.0-M3</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-report-plugin</artifactId>      <version>3.0.0-M3</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-failsafe-plugin</artifactId>             <version>3.0.0-M3</version> </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId>             <version>3.1.1</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jxr-plugin</artifactId>                  <version>3.0.0</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-project-info-reports-plugin</artifactId> <version>3.0.0</version>    </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-toolchains-plugin</artifactId>           <version>1.1</version>      </plugin>
-        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-shade-plugin</artifactId>                <version>3.2.1</version>    </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-site-plugin</artifactId>                 <version>3.7.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-compiler-plugin</artifactId>             <version>3.8.0</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-javadoc-plugin</artifactId>              <version>3.0.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-source-plugin</artifactId>               <version>3.0.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-clean-plugin</artifactId>                <version>3.1.0</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-install-plugin</artifactId>              <version>3.0.0-M1</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-deploy-plugin</artifactId>               <version>3.0.0-M1</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>           <version>3.1.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId>                  <version>3.1.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-resources-plugin</artifactId>            <version>3.1.0</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-enforcer-plugin</artifactId>             <version>3.0.0-M2</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-plugin</artifactId>             <version>3.0.0-M3</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-surefire-report-plugin</artifactId>      <version>3.0.0-M3</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-failsafe-plugin</artifactId>             <version>3.0.0-M3</version>               </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-assembly-plugin</artifactId>             <version>3.1.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jxr-plugin</artifactId>                  <version>3.0.0</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-project-info-reports-plugin</artifactId> <version>3.0.0</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-toolchains-plugin</artifactId>           <version>1.1</version>                    </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-shade-plugin</artifactId>                <version>3.2.1</version>                  </plugin>
+        <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jlink-plugin</artifactId>                <version>3.0.0-alpha-2-SNAPSHOT</version> </plugin>
 
-        <plugin> <groupId>org.jacoco</groupId>               <artifactId>jacoco-maven-plugin</artifactId>               <version>0.8.2</version>    </plugin>
-        <plugin> <groupId>org.ec4j.maven</groupId>           <artifactId>editorconfig-maven-plugin</artifactId>         <version>0.0.10</version>    </plugin>
-        <plugin> <groupId>org.codehaus.mojo</groupId>        <artifactId>versions-maven-plugin</artifactId>             <version>2.7</version>      </plugin>
-        <plugin> <groupId>org.codehaus.mojo</groupId>        <artifactId>appassembler-maven-plugin</artifactId>         <version>2.0.0</version>    </plugin>
-        <plugin> <groupId>org.codehaus.mojo</groupId>        <artifactId>build-helper-maven-plugin</artifactId>         <version>3.0.0</version>    </plugin>
+        <plugin> <groupId>org.jacoco</groupId>        <artifactId>jacoco-maven-plugin</artifactId>       <version>0.8.2</version>       </plugin>
+        <plugin> <groupId>org.ec4j.maven</groupId>    <artifactId>editorconfig-maven-plugin</artifactId> <version>0.0.10</version>      </plugin>
+        <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>versions-maven-plugin</artifactId>     <version>2.7</version>         </plugin>
+        <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>appassembler-maven-plugin</artifactId> <version>2.0.0</version>       </plugin>
+        <plugin> <groupId>org.codehaus.mojo</groupId> <artifactId>build-helper-maven-plugin</artifactId> <version>3.0.0</version>       </plugin>
+        <plugin> <groupId>org.moditect</groupId>      <artifactId>moditect-maven-plugin</artifactId>     <version>1.0.0.Beta2</version> </plugin>
       </plugins>
     </pluginManagement>
 

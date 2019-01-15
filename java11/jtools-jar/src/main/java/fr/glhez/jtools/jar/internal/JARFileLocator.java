@@ -9,6 +9,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,39 +66,43 @@ public class JARFileLocator implements AutoCloseable {
     return npath -> c.test(npath.getFileName());
   }
 
-  public void addFiles(final List<Path> files) {
+  public void addFileset(final List<Path> files) {
     if (null != files) {
-      files.forEach(this::addFile);
+      for (final var file : files) {
+        try {
+          final var attributes = Files.getFileAttributeView(file, BasicFileAttributeView.class).readAttributes();
+          addEntry(attributes, file);
+        } catch (final IOException e) {
+          errors.addError(file, e);
+          continue;
+        }
+      }
     }
   }
 
-  public void addDirectories(final List<Path> directories) {
-    if (null != directories) {
-      directories.forEach(this::addDirectory);
+  private void addEntry(final BasicFileAttributes attributes, final Path file) {
+    if (attributes.isRegularFile()) {
+      addFile(file);
+    } else if (attributes.isDirectory()) {
+      addDirectory(file);
+    } else {
+      errors.addError(file, "Not a regular file or directory");
     }
   }
 
   private void addFile(final Path entry) {
-    if (!Files.isRegularFile(entry)) {
-      errors.addError(entry, "Not a regular file");
-    } else {
-      try {
-        deepAdd(entry.toRealPath());
-      } catch (final IOException e) {
-        errors.addError(entry, e);
-      }
+    try {
+      deepAdd(entry.toRealPath());
+    } catch (final IOException e) {
+      errors.addError(entry, e);
     }
   }
 
   private void addDirectory(final Path entry) {
-    if (!Files.isDirectory(entry)) {
-      errors.addError(entry, "Not a directory");
-    } else {
-      try {
-        filter(this.filter, Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode)).forEach(this::deepAdd);
-      } catch (final IOException e) {
-        errors.addError(entry, e);
-      }
+    try {
+      filter(this.filter, Files.find(entry.toRealPath(), Integer.MAX_VALUE, deepMode)).forEach(this::deepAdd);
+    } catch (final IOException e) {
+      errors.addError(entry, e);
     }
   }
 

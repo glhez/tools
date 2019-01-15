@@ -3,6 +3,7 @@ package fr.glhez.jtools.jar;
 import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newCSVMavenArtifactsJARProcessor;
 import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newMavenArtifactsJARProcessor;
 import static fr.glhez.jtools.jar.internal.MavenArtifactsJARProcessor.newShellScriptMavenArtifactsJARProcessor;
+import static java.util.stream.Collectors.joining;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +36,7 @@ import fr.glhez.jtools.jar.internal.ShowDuplicateClassJARProcessor;
 import fr.glhez.jtools.jar.internal.ShowPackageJARProcessor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(mixinStandardHelpOptions = true, version = "JAR Tool")
 public class MainCommand implements Runnable {
@@ -49,11 +51,8 @@ public class MainCommand implements Runnable {
   /*
    * scan option
    */
-  @Option(names = { "-d", "--directory" }, description = "Add a directory in which to scan for JARs.")
-  private List<Path> directories;
-
-  @Option(names = { "-j", "--jar" }, description = "Add a specific jar")
-  private List<Path> jars;
+  @Parameters(description = "Add a directory/files; directories are searched for JAR/WAR/EAR.")
+  private List<Path> fileset;
 
   @Option(names = { "-i", "--include" }, description = {
       "Include file from the file system. File matched by the pattern will be added to any analysis.",
@@ -138,13 +137,14 @@ public class MainCommand implements Runnable {
 
   @Override
   public void run() {
-    prepareParameters();
+    if (!canRun()) {
+      return;
+    }
 
     final ListJARProcessor processor = buildProcessor();
 
     try (final JARFileLocator locator = new JARFileLocator(this.deepScan, includes, excludes, this.deepFilter)) {
-      locator.addFiles(this.jars);
-      locator.addDirectories(this.directories);
+      locator.addFileset(this.fileset);
       if (locator.hasErrors()) {
         System.err.println("Some file or directories could not be fetched:");
         locator.getErrors().forEach(System.err::println);
@@ -173,9 +173,28 @@ public class MainCommand implements Runnable {
     }
   }
 
+  private boolean canRun() {
+    prepareParameters();
+
+    final List<String> problems = new ArrayList<>();
+    if (!this.mavenShellScriptExport && !this.mavenProcessor && !this.moduleProcessor && !this.serviceProcessor
+        && !this.manifestPermissionProcessor && !this.manifestClassPathProcessor && !this.javaVersionProcessor
+        && !this.showPackage && !this.showOnlyDuplicatePackage) {
+      problems.add("no processors registered");
+    }
+    if (this.fileset.isEmpty()) {
+      problems.add("no files registered");
+    }
+
+    if (!problems.isEmpty()) {
+      System.err.println(problems.stream().collect(joining(" and ")) + "; use --help for usage.");
+      return false;
+    }
+    return true;
+  }
+
   private void prepareParameters() {
-    this.directories = getIfNull(directories, Collections::emptyList);
-    this.jars = getIfNull(jars, Collections::emptyList);
+    this.fileset = getIfNull(fileset, Collections::emptyList);
     this.includes = getIfNull(includes, Collections::emptyList);
     this.excludes = getIfNull(excludes, Collections::emptyList);
     this.deepScan = getIfNull(deepScan, () -> DeepMode.DISABLED);

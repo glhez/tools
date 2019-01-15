@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent> <groupId>fr.glhez.jtools</groupId> <artifactId>java11-parent</artifactId> <version>1</version> </parent>
+
+  <groupId>fr.glhez.jtools.jlink</groupId>
+  <artifactId>jtools-jlink-parent</artifactId>
+  <packaging>pom</packaging>
+
+  <name>glhez's java tools :: JLink Parent</name>
+  <description>A parent module allowing us to disable jlink child module.</description>
+
+  <profiles>
+    <profile>
+      <id>jlink-build-module</id>
+      <!-- for Travis, we'll need more work, also maven-jlink-plugin 3.0.0-alpha2-SNAPSHOT is not yet available
+           beside, this is useful only for devs. -->
+      <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
+      <modules>
+        <module>../jtools-jar-jlink</module>
+      </modules>
+    </profile>
+  </profiles>
+</project>
