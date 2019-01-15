@@ -14,9 +14,8 @@
   <profiles>
     <profile>
       <id>jlink-build-module</id>
-      <!-- for Travis, we'll need more work, also maven-jlink-plugin 3.0.0-alpha2-SNAPSHOT is not yet available
-           beside, this is useful only for devs. -->
-      <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
+      <!-- don't do that every time (require a snapshot plugin, ...) -->
+      <activation> <property> <name>enableJlink</name> </property> </activation>
       <modules>
         <module>../jtools-jar-jlink</module>
       </modules>

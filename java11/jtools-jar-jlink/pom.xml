@@ -4,7 +4,7 @@
 
   <parent> <groupId>fr.glhez.jtools.jlink</groupId> <artifactId>jtools-jlink-parent</artifactId> <version>1</version> <relativePath>../jlink-parent</relativePath> </parent>
 
-  <artifactId>jtools-jar</artifactId>
+  <artifactId>jtools-jar-jlink</artifactId>
   <packaging>jlink</packaging>
 
   <name>glhez's java tools :: JAR (jlink)</name>

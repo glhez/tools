@@ -13,6 +13,8 @@
   <modules>
     <module>org.apache.commons.csv</module>
     <module>info.picocli</module>
+    <module>org.apache.commons.lang3</module>
+    <module>org.apache.commons.text</module>
   </modules>
 
 </project>

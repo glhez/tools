@@ -1,11 +1,12 @@
+
 <?xml version="1.0" encoding="utf-8" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>jpms-parent</artifactId> <version>1</version> </parent>
 
-  <artifactId>info.picocli</artifactId>
-  <version>3.9.1</version>
+  <artifactId>org.apache.commons.lang3</artifactId>
+  <version>3.8.1</version>
 
   <properties>
     <source.directory>${project.build.directory}/sources</source.directory>
@@ -22,16 +23,16 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
-                  <groupId>info.picocli</groupId>
-                  <artifactId>picocli</artifactId>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-lang3</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                   <overWrite>true</overWrite>
                   <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>info.picocli</groupId>
-                  <artifactId>picocli</artifactId>
+                  <groupId>org.apache.commons</groupId>
+                  <artifactId>commons-lang3</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
                   <classifier>sources</classifier>
@@ -71,8 +72,8 @@
         </executions>
         <configuration>
           <excludes>
-            <exclude>picocli/__Cheat__.class</exclude>
-            <exclude>picocli/__Cheat__.java</exclude>
+            <exclude>org/apache/commons/lang3/__Cheat__.class</exclude>
+            <exclude>org/apache/commons/lang3/__Cheat__.java</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -80,3 +81,4 @@
   </build>
 
 </project>
+
