@@ -37,7 +37,8 @@
       <dependency>            <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.lang3</artifactId>       <version>${apache.commons-lang3.version}</version> </dependency>
       <dependency>            <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.text</artifactId>        <version>${apache.commons-text.version}</version>  </dependency>
 
-      <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>${project.version}</version>            </dependency>
+      <dependency>            <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>${project.version}</version>              </dependency>
+      <dependency>            <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-warextractor</artifactId>            <version>${project.version}</version>              </dependency>
 
       <!-- logging -->
       <dependency>            <groupId>ch.qos.logback</groupId>               <artifactId>logback-classic</artifactId>                <version>${logback.version}</version>              </dependency>

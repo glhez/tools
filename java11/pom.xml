@@ -15,6 +15,7 @@
 
     <!-- real modules -->
     <module>jtools-jar</module>
+    <module>jtools-warextractor</module>
   </modules>
 
   <properties>
