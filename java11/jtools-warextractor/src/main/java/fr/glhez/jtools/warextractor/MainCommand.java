@@ -102,7 +102,7 @@ public class MainCommand implements Runnable {
     if (Files.exists(output)) {
       if (force) {
         ctx.cmd("rm", "-Rv", output);
-        ctx.execute(() -> Files.walkFileTree(output, new FileDeletor()));
+        ctx.execute(() -> Files.walkFileTree(output, new FileDeletor(ctx)));
       } else {
         throw new IOException("Output [" + output + "] already exists; try --force");
       }

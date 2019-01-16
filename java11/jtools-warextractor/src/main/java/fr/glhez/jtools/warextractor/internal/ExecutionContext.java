@@ -75,6 +75,7 @@ public class ExecutionContext implements Iterable<ExecutionContext.Error> {
    * @throws IOException thrown by operation.
    */
   public void execute(final IOOperation operation) throws IOException {
+    Objects.requireNonNull(operation, "operation");
     if (!dryRun) {
       operation.execute();
     }
@@ -89,6 +90,8 @@ public class ExecutionContext implements Iterable<ExecutionContext.Error> {
    * @throws IOException thrown by operation.
    */
   public void execute(final IOOperation operation, final Runnable shadowOperation) throws IOException {
+    Objects.requireNonNull(operation, "operation");
+    Objects.requireNonNull(shadowOperation, "shadowOperation");
     if (dryRun) {
       shadowOperation.run();
     } else {
