@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.jar.JarFile;
 
 import org.apache.commons.csv.CSVFormat;
@@ -194,14 +194,14 @@ public class MainCommand implements Runnable {
   }
 
   private void prepareParameters() {
-    this.fileset = getIfNull(fileset, Collections::emptyList);
-    this.includes = getIfNull(includes, Collections::emptyList);
-    this.excludes = getIfNull(excludes, Collections::emptyList);
-    this.deepScan = getIfNull(deepScan, () -> DeepMode.DISABLED);
-    this.deepFilter = getIfNull(deepFilter, Collections::emptyList);
+    this.fileset = Objects.requireNonNullElseGet(fileset, Collections::emptyList);
+    this.includes = Objects.requireNonNullElseGet(includes, Collections::emptyList);
+    this.excludes = Objects.requireNonNullElseGet(excludes, Collections::emptyList);
+    this.deepScan = Objects.requireNonNullElseGet(deepScan, () -> DeepMode.DISABLED);
+    this.deepFilter = Objects.requireNonNullElseGet(deepFilter, Collections::emptyList);
     this.serviceFiltersEnabled = this.serviceFilters != null;
-    this.serviceFilters = getIfNull(this.serviceFilters, Collections::emptySet);
-    this.outputDirectory = getIfNull(outputDirectory, () -> Paths.get(""));
+    this.serviceFilters = Objects.requireNonNullElseGet(this.serviceFilters, Collections::emptySet);
+    this.outputDirectory = Objects.requireNonNullElseGet(outputDirectory, () -> Paths.get(""));
 
     if (allProcessor) {
       if (!this.mavenShellScriptExport && !this.mavenProcessor) {
@@ -234,10 +234,6 @@ public class MainCommand implements Runnable {
       }
     }
     this.format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
-  }
-
-  private <T> T getIfNull(final T value, final Supplier<? extends T> supplier) {
-    return null == value ? supplier.get() : value;
   }
 
   private ListJARProcessor buildProcessor() {

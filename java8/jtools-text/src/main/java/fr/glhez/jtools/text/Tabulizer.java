@@ -114,7 +114,7 @@ public class Tabulizer {
      * if we selected something, use a big fat algorithm; otherwise, use non whitespace transition.
      */
     if (options.detectNumber || !options.keywords.isEmpty() || options.lineComment != null
-        || options.multilineComment != null || options.string1 != null || options.string1 != null
+        || options.multilineComment != null || options.string1 != null || options.string2 != null
         || !options.xmlTags.isEmpty()) {
       // NOOP (for now)
       final int n = line.length();
