@@ -2,7 +2,6 @@ package fr.glhez.jtools.warextractor.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;

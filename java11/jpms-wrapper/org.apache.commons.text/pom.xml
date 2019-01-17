@@ -11,6 +11,10 @@
     <source.directory>${project.build.directory}/sources</source.directory>
   </properties>
 
+  <dependencies>
+    <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.lang3</artifactId> </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
