@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -49,8 +51,8 @@ public abstract class Extractor implements AutoCloseable {
    * @return a path in local fs
    * @throws IOException if we could not copy path to tmpfs
    */
-  protected Path getArchiveFile(final Path path) throws IOException {
-    return path;
+  protected Path getArchiveFile(final PathWrapper path) throws IOException {
+    return path.getPath();
   }
 
   public static Extractor newExtractor(final ExecutionContext ctx, final Path source, final Path target)
@@ -92,29 +94,34 @@ public abstract class Extractor implements AutoCloseable {
     return target.resolve(s);
   }
 
-  private void copyFiles(final Path root, final Path target, final SortedSet<Path> files, final Path archive) {
+  private void copyFiles(final Path root, final Path target, final SortedSet<PathWrapper> files, final Path archive) {
     ctx.msg(() -> String.format("found %d files to copy from %s", files.size(), archive));
-    for (final var file : files) {
+    for (final var wrapper : files) {
+      final var file = wrapper.getPath();
       final var relFile = root.relativize(file);
       final var relOutput = relativeOutput(target, relFile);
       try {
         ctx.execute(() -> this.createParentDirectories(relOutput, archive),
             () -> this.createParentDirectoriesShadow(relOutput, archive));
-        ctx.execute(() -> this.copy(relFile, relOutput, archive), () -> this.copyShadow(relFile, relOutput, archive));
+        ctx.execute(() -> this.copy(wrapper, relOutput, archive), () -> this.copyShadow(relFile, relOutput, archive));
       } catch (final IOException e) {
         ctx.addError("Unable to copy file to [" + relOutput + "]", a2s(archive, file), e);
       }
     }
   }
 
-  private void copyArchives(final Path root, final Path target, final SortedSet<Path> archives) {
+  private void copyArchives(final Path root, final Path target, final SortedSet<PathWrapper> archives) {
     ctx.msg(() -> String.format("found %d files to extract and copy", archives.size()));
-    for (final var file : archives) {
+    for (final var wrapper : archives) {
+      final var file = wrapper.getPath();
       try {
         final var relFile = root.relativize(file);
-        final var relTarget = relativeOutput(target, ctx.isInPlace() ? relFile : relFile.getParent());
+        var relTarget = relativeOutput(target, relFile.getParent());
+        if (ctx.isInPlace()) {
+          relTarget = relTarget.resolve(ctx.rename(wrapper));
+        }
 
-        final Path archive = this.getArchiveFile(file);
+        final Path archive = this.getArchiveFile(wrapper);
         try (var fs = FileSystems.newFileSystem(URI.create("jar:" + archive.toUri()), Map.of())) {
           final var archiveRoot = fs.getPath("/");
 
@@ -128,9 +135,10 @@ public abstract class Extractor implements AutoCloseable {
     }
   }
 
-  private void copy(final Path source, final Path target, final Path archive) throws IOException {
+  private void copy(final PathWrapper wrapper, final Path target, final Path archive) throws IOException {
+    final var source = wrapper.getPath();
     if (Files.notExists(target)) {
-      final FileFilter fileFilter = ctx.getFilter(source);
+      final FileFilter fileFilter = ctx.getFilter(wrapper);
       if (null == fileFilter) {
         ctx.verbose(() -> String.format("copying unfiltered %s to %s.", a2s(archive, source), target));
         Files.copy(source, target);
@@ -209,11 +217,26 @@ public abstract class Extractor implements AutoCloseable {
 
   static class ArchiveFileSystemExtractor extends Extractor {
     private final FileSystem fileSystem;
+    private final MessageDigest digest;
+    private final byte[] buffer;
+    private final Path cacheDirectory;
 
     protected ArchiveFileSystemExtractor(final ExecutionContext ctx, final Path source, final Path target)
         throws IOException {
       super(ctx, source, target);
       this.fileSystem = FileSystems.newFileSystem(URI.create("jar:" + source.toUri()), Map.of());
+      this.cacheDirectory = ctx.getCacheDirectory();
+      if (null != cacheDirectory) {
+        try {
+          this.digest = MessageDigest.getInstance("SHA-1");
+        } catch (final NoSuchAlgorithmException e) {
+          throw new IllegalStateException("missing SHA-1 algo", e);
+        }
+        this.buffer = new byte[2 * 1024 * 1024];
+      } else {
+        this.digest = null;
+        this.buffer = null;
+      }
     }
 
     @Override
@@ -227,14 +250,58 @@ public abstract class Extractor implements AutoCloseable {
     }
 
     @Override
-    protected Path getArchiveFile(final Path path) throws IOException {
-      final var s = Objects.toString(path.getFileName(), "");
-      final Path tempFile = Files.createTempFile(s + "_", ".zip");
-      this.ctx.verbose(() -> String.format("copying archive %s to %s", path, tempFile));
-      Files.copy(path, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      return tempFile;
+    protected Path getArchiveFile(final PathWrapper wrapper) throws IOException {
+      final var path = wrapper.getPath();
+      final var fileName = removeArchiveExtension(Objects.toString(wrapper.getFileName(), ""));
+
+      if (null == cacheDirectory) {
+        final Path tempFile = Files.createTempFile(fileName + "-", ".zip");
+        this.ctx.verbose(() -> String.format("copying archive %s to %s", path, tempFile));
+        Files.copy(path, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        return tempFile;
+      }
+
+      this.ctx.verbose(() -> String.format("computing archive %s checksum", path));
+      digest.reset();
+      try (var is = Files.newInputStream(path); var bis = new BufferedInputStream(is)) {
+        for (int n = 0; -1 != (n = is.read(buffer, 0, buffer.length));) {
+          digest.update(buffer, 0, n);
+        }
+      }
+      final var sha1 = bytesToHex(digest.digest());
+
+      final var result = cacheDirectory.resolve(fileName + "-" + sha1 + ".zip");
+
+      this.ctx.verbose(() -> String.format("checksum is %s: file=%s.", sha1, result));
+
+      if (Files.notExists(result)) {
+        this.ctx.verbose(() -> String.format("creating parent directories: %s", result.getParent()));
+        Files.createDirectories(result.getParent());
+        this.ctx.verbose(() -> String.format("copying archive %s to %s", path, result));
+        Files.copy(path, result, StandardCopyOption.REPLACE_EXISTING);
+      }
+      return result;
     }
 
+    private final static char[] hexArray = "0123456789abcdef".toCharArray();
+
+    public static String bytesToHex(final byte[] bytes) {
+      final char[] hexChars = new char[bytes.length * 2];
+      for (int j = 0; j < bytes.length; j++) {
+        final int v = bytes[j] & 0xFF;
+        hexChars[j * 2] = hexArray[v >>> 4];
+        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+      }
+      return new String(hexChars);
+    }
+
+    private String removeArchiveExtension(final String filename) {
+      final int n = filename.lastIndexOf(".");
+      if (n == -1 || !".jar".equals(filename.substring(n))) {
+        return filename;
+      }
+      return filename.substring(0, n);
+    }
   }
 
 }

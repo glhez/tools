@@ -3,7 +3,6 @@ package fr.glhez.jtools.warextractor;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,7 +58,17 @@ public class MainCommand implements Runnable {
   private boolean noFiltering;
 
   @Option(names = { "-v", "--verbose" }, description = { "Print extra message." })
-  protected boolean verbose;
+  private boolean verbose;
+
+  @Option(names = { "-c", "--cache" }, description = { "Cache directory for embedded JARs.",
+      "The default value is the system temporary directory." })
+  private Path cacheDirectory;
+
+  @Option(names = { "--rename-lib" }, description = { "sed like pattern to rename libraries when --in-place is used.",
+      "The expression s/-SNAPSHOT//i will rename the archive a-SNAPSHOT.jar to a.jar.",
+      "The '/' is the only possible delimiter (but filename does not contains /).",
+      "The expression accept two option: i for case insensitivity and g to replace all." })
+  private List<String> renameLib;
 
   public static void main(final String[] args) {
     picocli.CommandLine.run(new fr.glhez.jtools.warextractor.MainCommand(), System.out, args);
@@ -67,7 +76,6 @@ public class MainCommand implements Runnable {
 
   @Override
   public void run() {
-    prepareParameters();
     boolean multipleInput = true;
     if (output == null) {
       if (this.input.size() != 2) {
@@ -78,9 +86,20 @@ public class MainCommand implements Runnable {
       multipleInput = false;
     }
 
-    final ExecutionContext ctx = new ExecutionContext(dryRun, inPlace, verbose, includes, excludes, filtering);
+    final var builder = ExecutionContext.builder();
+    builder.setDryRun(dryRun);
+    builder.setInPlace(inPlace);
+    builder.setVerbose(verbose);
+    builder.setIncludes(includes);
+    builder.setExcludes(excludes);
+    builder.setFiltering(filtering);
+    builder.setRenameLib(renameLib);
+    builder.setCacheDirectory(cacheDirectory);
+
+    final ExecutionContext ctx = builder.build();
     for (final var src : input) {
-      final var output = multipleInput ? this.output.resolve(Objects.toString(src.getFileName(), "--XX--")) : this.output;
+      final var output = multipleInput ? this.output.resolve(Objects.toString(src.getFileName(), "--XX--"))
+          : this.output;
 
       try (var extractor = Extractor.newExtractor(ctx, src, output)) {
         prepareOutputDirectory(ctx, output);
@@ -107,13 +126,6 @@ public class MainCommand implements Runnable {
         throw new IOException("Output [" + output + "] already exists; try --force");
       }
     }
-  }
-
-  private void prepareParameters() {
-    this.includes = Objects.requireNonNullElseGet(includes, Collections::emptyList);
-    this.excludes = Objects.requireNonNullElseGet(excludes, Collections::emptyList);
-    this.filtering = Objects.requireNonNullElseGet(filtering,
-        () -> noFiltering ? Set.of() : Set.of("class", "properties"));
   }
 
 }

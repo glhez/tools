@@ -11,8 +11,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class FileCollector implements FileVisitor<Path> {
-  private final SortedSet<Path> files;
-  private final SortedSet<Path> archives;
+  private final SortedSet<PathWrapper> files;
+  private final SortedSet<PathWrapper> archives;
   private final ExecutionContext context;
 
   private final Path archiveDirectory;
@@ -38,11 +38,11 @@ public class FileCollector implements FileVisitor<Path> {
     return new FileCollector(ctx, null, Set.of(root.resolve("license"), root.resolve("META-INF/maven")));
   }
 
-  public SortedSet<Path> getFiles() {
+  public SortedSet<PathWrapper> getFiles() {
     return files;
   }
 
-  public SortedSet<Path> getArchives() {
+  public SortedSet<PathWrapper> getArchives() {
     return archives;
   }
 
@@ -55,7 +55,7 @@ public class FileCollector implements FileVisitor<Path> {
     return FileVisitResult.CONTINUE;
   }
 
-  private boolean isArchive(final Path file) {
+  private boolean isArchive(final PathWrapper file) {
     if (archiveDirectory == null) {
       return false;
     }
@@ -71,12 +71,13 @@ public class FileCollector implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-    if (context.accept(file)) {
-      if (isArchive(file)) {
+    final PathWrapper wrapper = new PathWrapper(file);
+    if (context.accept(wrapper)) {
+      if (isArchive(wrapper)) {
         context.verbose(() -> String.format("adding new archive: %s", file));
-        archives.add(file);
+        archives.add(wrapper);
       } else {
-        files.add(file);
+        files.add(wrapper);
       }
     } else {
       context.verbose(() -> String.format("ignoring file: %s", file));
