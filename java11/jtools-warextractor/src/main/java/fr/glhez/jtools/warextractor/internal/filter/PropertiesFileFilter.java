@@ -1,47 +1,51 @@
-package fr.glhez.jtools.warextractor.internal;
+package fr.glhez.jtools.warextractor.internal.filter;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.TreeMap;
 
-public class PropertiesFileFilter implements FileFilter {
-  private final ExecutionContext context;
-  private final Path source;
+import fr.glhez.jtools.warextractor.internal.ExecutionContext;
 
-  public PropertiesFileFilter(final ExecutionContext context, final Path source) {
-    this.context = context;
-    this.source = source;
-  }
-
+/**
+ * Filter file as {@link Properties}.
+ * <p>
+ * The file will be read as a Java {@link Properties} and rendered as a UTF-8 properties with keys
+ * alphabetically sorted.
+ *
+ * @author gael.lhez
+ *
+ */
+public class PropertiesFileFilter implements InputStreamFilter {
   @Override
-  public InputStream getFilteredInputStream() throws IOException {
-    context.verbose(() -> String.format("filtering [%s] using properties", source));
-    final StringBuilder bos = new StringBuilder(8192);
-    final String ls = System.lineSeparator();
-    try (var is = Files.newInputStream(source); var bis = new BufferedInputStream(is)) {
-      final Properties properties = new Properties();
-      properties.load(bis);
+  public InputStreamWithCharset filter(final ExecutionContext context, final InputStreamWithCharset stream)
+      throws IOException {
+    context.verbose(() -> String.format("filtering [%s] using properties", stream.getSource()));
 
-      // avoid comment and the annoying "date" String; also ensure that key are sorted
-      final var map = new TreeMap<String, String>();
-      properties.forEach((key, value) -> map.put((String) key, (String) value));
-
-      bos.append("# filtered").append(ls);
-      for (final var entry : map.entrySet()) {
-        appendConvert(bos, entry.getKey(), true);
-        bos.append('=');
-        appendConvert(bos, entry.getValue(), false);
-        bos.append(ls);
+    final Properties properties = new Properties();
+    if (stream.getCharset() == null) {
+      properties.load(stream.getStream());
+    } else {
+      try (InputStreamReader reader = stream.toReader()) {
+        properties.load(reader);
       }
-
     }
-    return new ByteArrayInputStream(bos.toString().getBytes(StandardCharsets.UTF_8));
+
+    final StringBuilder sb = new StringBuilder(8192);
+    // avoid comment and the annoying "date" String; also ensure that key are sorted
+    final var map = new TreeMap<String, String>();
+    properties.forEach((key, value) -> map.put((String) key, (String) value));
+
+    final String ls = System.lineSeparator();
+    sb.append("# filtered").append(ls);
+    for (final var entry : map.entrySet()) {
+      appendConvert(sb, entry.getKey(), true);
+      sb.append('=');
+      appendConvert(sb, entry.getValue(), false);
+      sb.append(ls);
+    }
+
+    return stream.filter(sb);
   }
 
   // copied from Properties::saveConvert, modified to use StringBuilder

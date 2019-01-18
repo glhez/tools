@@ -15,6 +15,7 @@
     <module>info.picocli</module>
     <module>org.apache.commons.lang3</module>
     <module>org.apache.commons.text</module>
+    <module>org.benf.cfr</module>
   </modules>
 
 </project>

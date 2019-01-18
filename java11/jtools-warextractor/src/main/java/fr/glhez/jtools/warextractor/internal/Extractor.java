@@ -1,7 +1,6 @@
 package fr.glhez.jtools.warextractor.internal;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -138,17 +137,14 @@ public abstract class Extractor implements AutoCloseable {
   private void copy(final PathWrapper wrapper, final Path target, final Path archive) throws IOException {
     final var source = wrapper.getPath();
     if (Files.notExists(target)) {
-      final FileFilter fileFilter = ctx.getFilter(wrapper);
-      if (null == fileFilter) {
+      final var isc = ctx.filter(wrapper);
+      if (null == isc) {
         ctx.verbose(() -> String.format("copying unfiltered %s to %s.", a2s(archive, source), target));
         Files.copy(source, target);
       } else {
-        try (var is = fileFilter.getFilteredInputStream()) {
-          // try to buffer if not already done
-          final var k = is instanceof BufferedInputStream || is instanceof ByteArrayInputStream ? is
-              : new BufferedInputStream(is);
+        try (var is = isc) {
           ctx.verbose(() -> String.format("copying filtered %s to %s.", a2s(archive, source), target));
-          Files.copy(k, target);
+          Files.copy(is.getBufferedStream(), target);
         }
       }
     } else {
@@ -264,7 +260,7 @@ public abstract class Extractor implements AutoCloseable {
       this.ctx.verbose(() -> String.format("computing archive %s checksum", path));
       digest.reset();
       try (var is = Files.newInputStream(path); var bis = new BufferedInputStream(is)) {
-        for (int n = 0; -1 != (n = is.read(buffer, 0, buffer.length));) {
+        for (int n = 0; -1 != (n = bis.read(buffer, 0, buffer.length));) {
           digest.update(buffer, 0, n);
         }
       }

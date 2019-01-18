@@ -6,4 +6,6 @@
  */
 module info.picocli {
   exports picocli;
+
+  requires java.base;
 }

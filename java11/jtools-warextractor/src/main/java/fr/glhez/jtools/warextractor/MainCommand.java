@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import fr.glhez.jtools.warextractor.internal.ExecutionContext;
 import fr.glhez.jtools.warextractor.internal.Extractor;
@@ -48,10 +47,17 @@ public class MainCommand implements Runnable {
       "Export WEB-INF/lib/ archives to their own directory rather than WEB-INF/lib/" })
   private boolean inPlace;
 
-  @Option(names = { "--filtering" }, description = { "Run filtering on resource",
-      "class: use ASM TextPrinter to reformat class file. Applies on *.class only.",
-      "properties: use Java 11 to provide consistent properties (remove comments). Applies on *.properties only.", })
-  private Set<String> filtering;
+  @Option(names = { "--filtering" }, description = {
+      "Run filtering on resource (rewrite resource in such a way that differences are lessened)",
+      "This option takes a parameter which is split in two part: a filter to apply on a file (order matters!) and a pattern to select files to filter.",
+      " - asm: use ASM TextPrinter to reformat class file. Applies on *.class by default.",
+      " - cfr: use CFR decompiler to decompile class file. Applies on *.class by default.",
+      " - properties: use Java 11 to provide consistent properties (remove comments). Applies on *.properties by default.",
+      " - sql: remove ` from mysql queries",
+      "properties=name:.*[.](properties): apply filtering on a complex mapping using a regex as seen in includes/excludes."
+
+  })
+  private List<String> filtering;
 
   @Option(names = { "--no-filtering" }, description = {
       "Disable all filtering (by default, class and properties are enabled)", })

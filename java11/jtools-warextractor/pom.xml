@@ -11,10 +11,12 @@
   <dependencies>
     <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>             </dependency>
     <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId>   </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm</artifactId>                      </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm-util</artifactId>                 </dependency>
     <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.lang3</artifactId> </dependency>
     <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.text</artifactId>  </dependency>
+    <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.benf.cfr</artifactId>             </dependency>
+
+    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm</artifactId>                      </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm-util</artifactId>                 </dependency>
   </dependencies>
 
 </project>

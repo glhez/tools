@@ -10,7 +10,7 @@ import java.util.Objects;
  *
  * @author gael.lhez
  */
-class PathWrapper implements Comparable<PathWrapper> {
+public class PathWrapper implements Comparable<PathWrapper> {
   private final Path path;
   private final String fullPath;
   private final String fileName;

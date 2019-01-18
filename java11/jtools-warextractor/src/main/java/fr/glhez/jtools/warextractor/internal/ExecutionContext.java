@@ -2,27 +2,27 @@ package fr.glhez.jtools.warextractor.internal;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.reducing;
-import static java.util.stream.Collectors.toCollection;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
 
+import fr.glhez.jtools.warextractor.internal.filter.InputStreamFilterChain;
+import fr.glhez.jtools.warextractor.internal.filter.InputStreamWithCharset;
+
 public class ExecutionContext implements Iterable<Error> {
-  private static final Set<FileFilterBuilder> DEFAULT_FILTERING = EnumSet.allOf(FileFilterBuilder.class);
+  private static final List<String> DEFAULT_FILTERING = List.of("cfr", "properties", "sql");
   private static final List<String> DEFAULT_INCLUDES = List.of();
   private static final List<String> DEFAULT_EXCLUDES = List.of();
 
@@ -34,40 +34,35 @@ public class ExecutionContext implements Iterable<Error> {
   private final boolean verbose;
   private final Path cacheDirectory;
   private final Predicate<PathWrapper> fileMatcher;
-  private final Set<FileFilterBuilder> fileFilterBuilders;
+  private final InputStreamFilterChain filterChain;
   private final SimpleEd archiveRenamer;
 
   private final List<Error> errors;
 
   public ExecutionContext(final boolean dryRun, final boolean inPlace, final boolean verbose, final Path cacheDirectory,
-      final Predicate<PathWrapper> fileMatcher, final Set<FileFilterBuilder> fileFilterBuilders,
+      final Predicate<PathWrapper> fileMatcher, final InputStreamFilterChain filterChain,
       final SimpleEd archiveRenamer) {
     this.dryRun = dryRun;
     this.inPlace = inPlace;
     this.verbose = verbose;
     this.cacheDirectory = cacheDirectory;
     this.fileMatcher = fileMatcher;
-    this.fileFilterBuilders = fileFilterBuilders;
+    this.filterChain = filterChain;
     this.archiveRenamer = archiveRenamer;
     this.errors = new ArrayList<>();
   }
 
   private static ExecutionContext build(final ExecutionContext.Builder builder) {
     // do some validation before
-    final var fileFilterBuilders = Optional.ofNullable(builder.filtering).map(ExecutionContext::fileFilterBuilderMapper)
-        .orElse(DEFAULT_FILTERING);
+    final var filtering = InputStreamFilterChain
+        .newInputStreamChain(Optional.ofNullable(builder.filtering).orElse(DEFAULT_FILTERING));
     final var includes = Objects.requireNonNullElse(builder.includes, DEFAULT_INCLUDES);
     final var excludes = Objects.requireNonNullElse(builder.excludes, DEFAULT_EXCLUDES);
     final var fileMatcher = toPredicate(includes, true).and(toPredicate(excludes, false).negate());
     final var archiveRenamer = SimpleEd.newSimpleEd(Objects.requireNonNullElseGet(builder.renameLib, List::of));
 
     return new ExecutionContext(builder.dryRun, builder.inPlace, builder.verbose, builder.cacheDirectory, fileMatcher,
-        fileFilterBuilders, archiveRenamer);
-  }
-
-  private static Set<FileFilterBuilder> fileFilterBuilderMapper(final Set<String> s) {
-    return s.stream().map(FileFilterBuilder::newBuilder)
-        .collect(toCollection(() -> EnumSet.noneOf(FileFilterBuilder.class)));
+        filtering, archiveRenamer);
   }
 
   public boolean accept(final PathWrapper path) {
@@ -79,9 +74,15 @@ public class ExecutionContext implements Iterable<Error> {
 
   }
 
-  public FileFilter getFilter(final PathWrapper source) {
-    return fileFilterBuilders.stream().map(entry -> entry.accept(this, source)).filter(Objects::nonNull).findFirst()
-        .orElse(null);
+  /**
+   * Try to filter the source.
+   *
+   * @param source
+   * @return return {@code null} if no filtering is in effect.
+   * @throws IOException
+   */
+  public InputStreamWithCharset filter(final PathWrapper source) throws IOException {
+    return filterChain.filter(this, source);
   }
 
   public Path getCacheDirectory() {
@@ -192,7 +193,7 @@ public class ExecutionContext implements Iterable<Error> {
         .orElse(v -> defaultValue);
   }
 
-  private static Predicate<PathWrapper> pathPredicate(final String pattern) {
+  public static Predicate<PathWrapper> pathPredicate(final String pattern) {
     if (pattern.startsWith("path:")) {
       final var c = Pattern.compile(pattern.substring("path:".length())).asPredicate();
       return npath -> c.test(npath.getFullPath());
@@ -226,7 +227,7 @@ public class ExecutionContext implements Iterable<Error> {
     private boolean dryRun;
     private boolean inPlace;
     private boolean verbose;
-    private Set<String> filtering;
+    private List<String> filtering;
     private List<String> includes;
     private List<String> excludes;
     private Path cacheDirectory;
@@ -250,7 +251,7 @@ public class ExecutionContext implements Iterable<Error> {
       return this;
     }
 
-    public Builder setFiltering(final Set<String> filtering) {
+    public Builder setFiltering(final List<String> filtering) {
       this.filtering = filtering;
       return this;
     }
