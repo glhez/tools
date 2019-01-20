@@ -31,9 +31,7 @@ public class InputStreamWithCharset implements AutoCloseable {
   }
 
   public static InputStreamWithCharset open(final Path path) throws IOException {
-    final var is = Files.newInputStream(path);
-    final var bis = new BufferedInputStream(is);
-    return new InputStreamWithCharset(path, bis, null);
+    return new InputStreamWithCharset(path, new ByteArrayInputStream(Files.readAllBytes(path)), null);
   }
 
   public InputStreamWithCharset filter(final byte[] data, final Charset charset) {

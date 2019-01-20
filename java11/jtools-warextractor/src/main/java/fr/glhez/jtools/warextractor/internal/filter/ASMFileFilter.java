@@ -8,24 +8,18 @@ import java.nio.charset.StandardCharsets;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import fr.glhez.jtools.warextractor.internal.ExecutionContext;
-
 /**
  * Filter files using ASM {@link org.objectweb.asm.util.Textifier}.
  *
  * @author gael.lhez
  */
-public class ASMFileFilter implements InputStreamFilter {
+public enum ASMFileFilter implements Filter {
+  INSTANCE;
 
   @Override
-  public InputStreamWithCharset filter(final ExecutionContext context, final InputStreamWithCharset stream)
-      throws IOException {
-    context.verbose(() -> String.format("filtering [%s] using asm", stream.getSource()));
-
+  public InputStreamWithCharset filter(final InputStreamWithCharset stream) throws IOException {
     final var cs = stream.getCharset();
     if (null != cs) {
-      context.msg(
-          () -> String.format("file [%s] was already filtering using binary to %s filter.", stream.getSource(), cs));
       return stream;
     }
 
@@ -40,4 +34,8 @@ public class ASMFileFilter implements InputStreamFilter {
     return stream.filter(bos, charset);
   }
 
+  @Override
+  public String toString() {
+    return "ASM";
+  }
 }

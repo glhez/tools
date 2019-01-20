@@ -3,8 +3,6 @@ package fr.glhez.jtools.warextractor.internal.filter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import fr.glhez.jtools.warextractor.internal.ExecutionContext;
-
 /**
  * Filter files using a SQL filter.
  * <p>
@@ -14,12 +12,16 @@ import fr.glhez.jtools.warextractor.internal.ExecutionContext;
  * @author gael.lhez
  *
  */
-public class SQLFileFilter implements InputStreamFilter {
+public enum SQLFileFilter implements Filter {
+  INSTANCE;
 
   @Override
-  public InputStreamWithCharset filter(final ExecutionContext context, final InputStreamWithCharset stream)
-      throws IOException {
+  public InputStreamWithCharset filter(final InputStreamWithCharset stream) throws IOException {
     return stream.filter(stream.getString(StandardCharsets.UTF_8).replace("`", ""));
   }
 
+  @Override
+  public String toString() {
+    return "SQL";
+  }
 }

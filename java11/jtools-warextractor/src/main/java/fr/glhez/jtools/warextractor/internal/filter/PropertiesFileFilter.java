@@ -5,23 +5,21 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import fr.glhez.jtools.warextractor.internal.ExecutionContext;
-
 /**
  * Filter file as {@link Properties}.
  * <p>
  * The file will be read as a Java {@link Properties} and rendered as a UTF-8 properties with keys
- * alphabetically sorted.
+ * alphabetically
+ * sorted.
  *
  * @author gael.lhez
  *
  */
-public class PropertiesFileFilter implements InputStreamFilter {
-  @Override
-  public InputStreamWithCharset filter(final ExecutionContext context, final InputStreamWithCharset stream)
-      throws IOException {
-    context.verbose(() -> String.format("filtering [%s] using properties", stream.getSource()));
+public enum PropertiesFileFilter implements Filter {
+  INSTANCE;
 
+  @Override
+  public InputStreamWithCharset filter(final InputStreamWithCharset stream) throws IOException {
     final Properties properties = new Properties();
     if (stream.getCharset() == null) {
       properties.load(stream.getStream());
@@ -46,6 +44,11 @@ public class PropertiesFileFilter implements InputStreamFilter {
     }
 
     return stream.filter(sb);
+  }
+
+  @Override
+  public String toString() {
+    return "Properties";
   }
 
   // copied from Properties::saveConvert, modified to use StringBuilder

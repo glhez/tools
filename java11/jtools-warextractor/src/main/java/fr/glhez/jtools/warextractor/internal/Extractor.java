@@ -11,24 +11,28 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.SortedSet;
 
 public abstract class Extractor implements AutoCloseable {
-  protected final ExecutionContext ctx;
+  /** Logger */
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
+      .getLogger(Extractor.class);
+
+  protected final ExecutionContext context;
+  protected final FilesProxy filesProxy;
+  protected final SimpleEd renamer;
   private final Path source;
   private final Path target;
 
-  private final Set<Path> createdFiles;
-
   protected Extractor(final ExecutionContext ctx, final Path source, final Path target) {
-    this.ctx = ctx;
+    this.context = ctx;
+    this.filesProxy = ctx.getFilesProxy();
+    this.renamer = ctx.getArchiveRenamer();
+
     this.source = source;
     this.target = target;
-    this.createdFiles = new HashSet<>(); // for shadow operation
   }
 
   @Override
@@ -40,15 +44,17 @@ public abstract class Extractor implements AutoCloseable {
    * @return
    */
   protected Path getRoot() {
-    return source;
+    return this.source;
   }
 
   /**
    * Get the archive file. Will not be in local fs if archive.
    *
-   * @param path path in jarfs or localfs
+   * @param path
+   *          path in jarfs or localfs
    * @return a path in local fs
-   * @throws IOException if we could not copy path to tmpfs
+   * @throws IOException
+   *           if we could not copy path to tmpfs
    */
   protected Path getArchiveFile(final PathWrapper path) throws IOException {
     return path.getPath();
@@ -69,134 +75,104 @@ public abstract class Extractor implements AutoCloseable {
   public void execute() {
     final var root = getRoot();
 
+    final FileCollector collector = FileCollector.rootFileCollector(this.context, root);
     try {
-      final FileCollector collector = FileCollector.rootFileCollector(ctx, root);
       // walkFileTree() is a little bit more efficient than find when filtering.
       Files.walkFileTree(root, collector);
-
-      copyFiles(root, target, collector.getFiles(), source);
-      copyArchives(root, target, collector.getArchives());
-
     } catch (final IOException e) {
-      ctx.addError("Unable to read content of root [" + root + "]", source, e);
+      logger.error("Unable to read content of [{}]", this.source, e);
+      return;
     }
+
+    createDirectories(root, this.target, collector.getDirectories(), this.source);
+    copyFiles(root, this.target, collector.getFiles(), this.source);
+    copyArchives(root, this.target, collector.getArchives());
+    applyFiltering();
+    logger.info("done processing file: {}",  this.source);
   }
 
-  protected Path relativeOutput(final Path target, final Path relativeFile) {
-    if (null == relativeFile) {
+  protected Path relativeTarget(final Path target, final Path relativePath) {
+    if (null == relativePath) {
       return target; // if in place and parent is null
     }
-    final String s = relativeFile.toString();
+    final String s = relativePath.toString();
     if (s.startsWith("/")) {
       return target.resolve(s.substring(1));
     }
     return target.resolve(s);
   }
 
+  private void createDirectories(final Path root, final Path target, final Collection<Path> directories,
+      final Path archive) {
+    logger.info("{}: found {} directories to create", archive.toUri(), directories.size());
+    for (final var directory : directories) {
+      final var relativePath = root.relativize(directory);
+      final var targetDirectory = relativeTarget(target, relativePath);
+      try {
+        filesProxy.createDirectoriesUpTo(targetDirectory, this.target);
+      } catch (final IOException e) {
+        logger.error("unable to create directory [{}]", targetDirectory, e);
+      }
+    }
+  }
+
   private void copyFiles(final Path root, final Path target, final SortedSet<PathWrapper> files, final Path archive) {
-    ctx.msg(() -> String.format("found %d files to copy from %s", files.size(), archive));
+    logger.info("{}: found {} files to create", archive.toUri(), files.size());
     for (final var wrapper : files) {
       final var file = wrapper.getPath();
-      final var relFile = root.relativize(file);
-      final var relOutput = relativeOutput(target, relFile);
+      final var relativePath = root.relativize(file);
+      final var targetFile = relativeTarget(target, relativePath);
+
+      if (filesProxy.fileWasCreated(targetFile)) {
+        logger.debug("ignored [{}] (already exists at [{}])", relativePath, targetFile);
+        continue;
+      }
+
+      final var parent = targetFile.getParent();
+      if (!filesProxy.directoryWasCreated(parent)) {
+        logger.debug("ignoring [{}] (parent directory could not be created)", targetFile);
+        continue;
+      }
+
       try {
-        ctx.execute(() -> this.createParentDirectories(relOutput, archive),
-            () -> this.createParentDirectoriesShadow(relOutput, archive));
-        ctx.execute(() -> this.copy(wrapper, relOutput, archive), () -> this.copyShadow(relFile, relOutput, archive));
+        logger.trace("copying [{}] to [{}]", () -> file.toUri(), () -> targetFile);
+        filesProxy.copy(file, targetFile);
       } catch (final IOException e) {
-        ctx.addError("Unable to copy file to [" + relOutput + "]", a2s(archive, file), e);
+        logger.error("unable to copy [{}] to [{}]", file.toUri(), targetFile, e);
       }
     }
   }
 
   private void copyArchives(final Path root, final Path target, final SortedSet<PathWrapper> archives) {
-    ctx.msg(() -> String.format("found %d files to extract and copy", archives.size()));
-    for (final var wrapper : archives) {
-      final var file = wrapper.getPath();
+    logger.info("{}: found {} archives to scan", root.toUri(), archives.size());
+    for (final var archiveWrapper : archives) {
+      final var file = archiveWrapper.getPath();
       try {
         final var relFile = root.relativize(file);
-        var relTarget = relativeOutput(target, relFile.getParent());
-        if (ctx.isInPlace()) {
-          relTarget = relTarget.resolve(ctx.rename(wrapper));
+        var relTarget = relativeTarget(target, relFile.getParent());
+        if (this.context.isInPlace()) {
+          relTarget = relTarget.resolve(this.renamer.apply(archiveWrapper.getFileName().fileNameWithoutExtension));
         }
 
-        final Path archive = this.getArchiveFile(wrapper);
+        final Path archive = getArchiveFile(archiveWrapper);
         try (var fs = FileSystems.newFileSystem(URI.create("jar:" + archive.toUri()), Map.of())) {
           final var archiveRoot = fs.getPath("/");
 
-          final FileCollector collector = FileCollector.jarFileCollector(ctx, archiveRoot);
+          final FileCollector collector = FileCollector.jarFileCollector(this.context, archiveRoot);
           Files.walkFileTree(archiveRoot, collector);
+          createDirectories(archiveRoot, relTarget, collector.getDirectories(), file);
           copyFiles(archiveRoot, relTarget, collector.getFiles(), file);
         }
       } catch (final IOException e) {
-        ctx.addError("Unable to open archive", file, e);
+        logger.error("unable to open archive [{}] to [{}]", file.toUri(), e);
       }
     }
   }
 
-  private void copy(final PathWrapper wrapper, final Path target, final Path archive) throws IOException {
-    final var source = wrapper.getPath();
-    if (Files.notExists(target)) {
-      final var isc = ctx.filter(wrapper);
-      if (null == isc) {
-        ctx.verbose(() -> String.format("copying unfiltered %s to %s.", a2s(archive, source), target));
-        Files.copy(source, target);
-      } else {
-        try (var is = isc) {
-          ctx.verbose(() -> String.format("copying filtered %s to %s.", a2s(archive, source), target));
-          Files.copy(is.getBufferedStream(), target);
-        }
-      }
-    } else {
-      ctx.verbose(() -> String.format("ignoring %s (already existing at %s)", a2s(archive, source), target));
-    }
-  }
-
-  private void copyShadow(final Path source, final Path target, final Path archive) {
-    if (!createdFiles.contains(target)) {
-      ctx.cmd("cp", "-v", a2s(archive, source), target);
-    }
-  }
-
-  /**
-   * Return archive to source path.
-   *
-   * @param archive
-   * @param source
-   * @return some path with a common delimiter.
-   */
-  private String a2s(final Path archive, final Path source) {
-    return ExecutionContext.pathToString(archive + "/" + source);
-  }
-
-  /**
-   * Return archive to target path.
-   *
-   * @param archive
-   * @param target
-   * @return some path with a common delimiter.
-   */
-  private String a2t(final Path archive, final Path target) {
-    return ExecutionContext.pathToString(archive + "->" + target);
-  }
-
-  private void createParentDirectories(final Path file, final Path archive) throws IOException {
-    final Path parent = file.getParent();
-    // we don't test using isDirectory() : there might be some file.
-    if (null != parent && Files.notExists(parent)) {
-      ctx.verbose(() -> String.format("creating directory %s", a2t(archive, parent)));
-      Files.createDirectories(parent);
-    }
-  }
-
-  private void createParentDirectoriesShadow(final Path file, final Path archive) {
-    Path parent = file.getParent();
-    if (null != parent && !createdFiles.contains(parent)) {
-      ctx.cmd("mkdir", "-pv", a2t(archive, parent));
-      for (; parent != null; parent = parent.getParent()) {
-        createdFiles.add(parent);
-      }
-    }
+  private void applyFiltering() {
+    final var copiedFiles = filesProxy.getCopiedFiles();
+    logger.info("{}: applying filtering on {} files.", () -> source.toUri(), () -> copiedFiles.size());
+    context.getFilterChain().filter(copiedFiles);
   }
 
   static class LocalFileSystemExtractor extends Extractor {
@@ -222,7 +198,7 @@ public abstract class Extractor implements AutoCloseable {
       super(ctx, source, target);
       this.fileSystem = FileSystems.newFileSystem(URI.create("jar:" + source.toUri()), Map.of());
       this.cacheDirectory = ctx.getCacheDirectory();
-      if (null != cacheDirectory) {
+      if (null != this.cacheDirectory) {
         try {
           this.digest = MessageDigest.getInstance("SHA-1");
         } catch (final NoSuchAlgorithmException e) {
@@ -237,43 +213,44 @@ public abstract class Extractor implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-      fileSystem.close();
+      this.fileSystem.close();
     }
 
     @Override
     protected Path getRoot() {
-      return fileSystem.getPath("/");
+      return this.fileSystem.getPath("/");
     }
 
     @Override
     protected Path getArchiveFile(final PathWrapper wrapper) throws IOException {
       final var path = wrapper.getPath();
-      final var fileName = removeArchiveExtension(Objects.toString(wrapper.getFileName(), ""));
+      final var fileName = wrapper.getFileName().fileNameWithoutExtension;
 
-      if (null == cacheDirectory) {
+      if (null == this.cacheDirectory) {
         final Path tempFile = Files.createTempFile(fileName + "-", ".zip");
-        this.ctx.verbose(() -> String.format("copying archive %s to %s", path, tempFile));
+        logger.debug("copying archive {} to {}", path, tempFile);
         Files.copy(path, tempFile, StandardCopyOption.REPLACE_EXISTING);
         return tempFile;
       }
 
-      this.ctx.verbose(() -> String.format("computing archive %s checksum", path));
-      digest.reset();
+      logger.debug("computing archive {} checksum", path);
+      this.digest.reset();
       try (var is = Files.newInputStream(path); var bis = new BufferedInputStream(is)) {
-        for (int n = 0; -1 != (n = bis.read(buffer, 0, buffer.length));) {
-          digest.update(buffer, 0, n);
+        for (int n = 0; -1 != (n = bis.read(this.buffer, 0, this.buffer.length));) {
+          this.digest.update(this.buffer, 0, n);
         }
       }
-      final var sha1 = bytesToHex(digest.digest());
+      final var sha1 = bytesToHex(this.digest.digest());
 
-      final var result = cacheDirectory.resolve(fileName + "-" + sha1 + ".zip");
+      final var result = this.cacheDirectory.resolve(fileName + "-" + sha1 + ".zip");
 
-      this.ctx.verbose(() -> String.format("checksum is %s: file=%s.", sha1, result));
+      logger.debug("checksum is {}, cache file is {}", sha1, result);
 
       if (Files.notExists(result)) {
-        this.ctx.verbose(() -> String.format("creating parent directories: %s", result.getParent()));
+        final var parent = result.getParent();
+        logger.debug("creating parent directory tree: {}", parent);
         Files.createDirectories(result.getParent());
-        this.ctx.verbose(() -> String.format("copying archive %s to %s", path, result));
+        logger.debug("copying archive {} to {}", path, result);
         Files.copy(path, result, StandardCopyOption.REPLACE_EXISTING);
       }
       return result;
@@ -289,14 +266,6 @@ public abstract class Extractor implements AutoCloseable {
         hexChars[j * 2 + 1] = hexArray[v & 0x0F];
       }
       return new String(hexChars);
-    }
-
-    private String removeArchiveExtension(final String filename) {
-      final int n = filename.lastIndexOf(".");
-      if (n == -1 || !".jar".equals(filename.substring(n))) {
-        return filename;
-      }
-      return filename.substring(0, n);
     }
   }
 

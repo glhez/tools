@@ -4,17 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
 import fr.glhez.jtools.warextractor.internal.ExecutionContext;
 import fr.glhez.jtools.warextractor.internal.Extractor;
-import fr.glhez.jtools.warextractor.internal.FileDeletor;
+import fr.glhez.jtools.warextractor.internal.PathWrapper;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(mixinStandardHelpOptions = true, version = "JAR Tool")
 public class MainCommand implements Runnable {
+  /** Logger */
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
+      .getLogger(MainCommand.class);
 
   @Parameters(description = "Input directories or archives (if supported by Java zip/jar FileSystemProvider). If there is no --output directory, there must be exactly two parameters, the second being the output directory.")
   private List<Path> input;
@@ -26,13 +28,17 @@ public class MainCommand implements Runnable {
   @Option(names = { "-i", "--include" }, description = {
       "Include file from the file system. File matched by the pattern will be added to any analysis.",
       "The pattern use java.util.regex.Pattern and can be added several times.",
-      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+      "The pattern may be prefix by a selector:", //
+      "- name: filter will apply on filename (default)", //
+      "- path: filter will apply on full path", //
+      "- ext: filter will apply on extension", //
+      "- noext: filter will apply on filename without extension"//
+  })
   private List<String> includes;
 
   @Option(names = { "-x", "--exclude" }, description = {
       "Exclude file from the file system. File matched by the pattern will be ignored from any analysis.",
-      "The pattern use java.util.regex.Pattern and can be added several times.",
-      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'"
+      "The pattern use java.util.regex.Pattern and can be added several times.", "See --include for pattern format."
 
   })
   private List<String> excludes;
@@ -40,7 +46,12 @@ public class MainCommand implements Runnable {
   @Option(names = { "-f", "--force" }, description = { "Clean output directory before." })
   private boolean force;
 
-  @Option(names = { "-n", "--dry-run" }, description = { "Do nothing; print operation on stdout." })
+  @Option(names = { "-n", "--dry-run" }, description = { //
+      "Do not copy or filter anything.", //
+      "This will not:", //
+      "- clean the output directory if it exists and --force is used", //
+      "- copy any files", //
+      "- filter any files" })
   private boolean dryRun;
 
   @Option(names = { "-N", "--in-place" }, description = {
@@ -48,13 +59,18 @@ public class MainCommand implements Runnable {
   private boolean inPlace;
 
   @Option(names = { "--filtering" }, description = {
-      "Run filtering on resource (rewrite resource in such a way that differences are lessened)",
+      "Rewrite copied resource in such a way that differences are mitigated", //
+      "The filtering is run on a copied files, in the same order than defined: some filter will only work with binary files, while other expect some charset.",
       "This option takes a parameter which is split in two part: a filter to apply on a file (order matters!) and a pattern to select files to filter.",
       " - asm: use ASM TextPrinter to reformat class file. Applies on *.class by default.",
       " - cfr: use CFR decompiler to decompile class file. Applies on *.class by default.",
       " - properties: use Java 11 to provide consistent properties (remove comments). Applies on *.properties by default.",
       " - sql: remove ` from mysql queries",
-      "properties=name:.*[.](properties): apply filtering on a complex mapping using a regex as seen in includes/excludes."
+      "properties=name:.*[.](properties): apply filtering on a complex mapping using a regex as seen in includes/excludes.",
+      "asm and cfr read binary content and produce UTF-8 content.",
+      "properties produce UTF-8 content but read ISO-8859-1 content unless it was already filtered, in which case it expect UTF-8.",
+      "sql read and produce utf-8 content.",
+      "NOTE: filter are applied in memory."
 
   })
   private List<String> filtering;
@@ -62,9 +78,6 @@ public class MainCommand implements Runnable {
   @Option(names = { "--no-filtering" }, description = {
       "Disable all filtering (by default, class and properties are enabled)", })
   private boolean noFiltering;
-
-  @Option(names = { "-v", "--verbose" }, description = { "Print extra message." })
-  private boolean verbose;
 
   @Option(names = { "-c", "--cache" }, description = { "Cache directory for embedded JARs.",
       "The default value is the system temporary directory." })
@@ -83,55 +96,49 @@ public class MainCommand implements Runnable {
   @Override
   public void run() {
     boolean multipleInput = true;
-    if (output == null) {
+    if (this.output == null) {
       if (this.input.size() != 2) {
         throw new IllegalArgumentException("missing output directory; use --help to see usage.");
       }
-      this.output = input.get(1);
-      this.input = List.of(input.get(0));
+      this.output = this.input.get(1);
+      this.input = List.of(this.input.get(0));
       multipleInput = false;
     }
 
     final var builder = ExecutionContext.builder();
-    builder.setDryRun(dryRun);
-    builder.setInPlace(inPlace);
-    builder.setVerbose(verbose);
-    builder.setIncludes(includes);
-    builder.setExcludes(excludes);
-    builder.setFiltering(filtering);
-    builder.setRenameLib(renameLib);
-    builder.setCacheDirectory(cacheDirectory);
+    builder.setDryRun(this.dryRun);
+    builder.setInPlace(this.inPlace);
+    builder.setIncludes(this.includes);
+    builder.setExcludes(this.excludes);
+    builder.setFiltering(this.filtering);
+    builder.setRenameLib(this.renameLib);
+    builder.setCacheDirectory(this.cacheDirectory);
 
     final ExecutionContext ctx = builder.build();
-    for (final var src : input) {
-      final var output = multipleInput ? this.output.resolve(Objects.toString(src.getFileName(), "--XX--"))
-          : this.output;
+
+    for (final var src : this.input) {
+      final var output = multipleInput ? this.output.resolve(PathWrapper.getFileNameNoExtension(src)) : this.output;
 
       try (var extractor = Extractor.newExtractor(ctx, src, output)) {
         prepareOutputDirectory(ctx, output);
         extractor.execute();
 
       } catch (final IOException e) {
-        ctx.addError("Could not process input file", src, e);
+        logger.error("Could not process input file: {}", src, e);
       }
-    }
-
-    for (final var error : ctx) {
-      System.err.println("Error: " + error.toString());
-      error.printStackTrace(System.err);
     }
 
   }
 
   private void prepareOutputDirectory(final ExecutionContext ctx, final Path output) throws IOException {
     if (Files.exists(output)) {
-      if (force) {
-        ctx.cmd("rm", "-Rv", output);
-        ctx.execute(() -> Files.walkFileTree(output, new FileDeletor(ctx)));
+      if (this.force) {
+        ctx.getFilesProxy().recursiveDelete(output);
       } else {
         throw new IOException("Output [" + output + "] already exists; try --force");
       }
     }
+    ctx.getFilesProxy().createDirectories(output);
   }
 
 }

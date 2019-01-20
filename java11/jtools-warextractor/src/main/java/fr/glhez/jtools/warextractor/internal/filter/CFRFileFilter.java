@@ -19,8 +19,6 @@ import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
 
-import fr.glhez.jtools.warextractor.internal.ExecutionContext;
-
 /**
  * Filter class file using CFR.
  * <p>
@@ -29,18 +27,19 @@ import fr.glhez.jtools.warextractor.internal.ExecutionContext;
  * @author gael.lhez
  *
  */
-public class CFRFileFilter implements InputStreamFilter {
+public enum CFRFileFilter implements Filter {
+  INSTANCE;
+
+  /** Logger */
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
+      .getLogger(CFRFileFilter.class);
+
   private static final Map<String, String> CFR_DEFAULT_OPTIONS = Map.of("usenametable", "false", "analyseas", "CLASS");
 
   @Override
-  public InputStreamWithCharset filter(final ExecutionContext context, final InputStreamWithCharset stream)
-      throws IOException {
-    context.verbose(() -> String.format("filtering [%s] using cfr", stream.getSource()));
-
+  public InputStreamWithCharset filter(final InputStreamWithCharset stream) throws IOException {
     final var cs = stream.getCharset();
     if (null != cs) {
-      context.msg(
-          () -> String.format("file [%s] was already filtering using binary to %s filter.", stream.getSource(), cs));
       return stream;
     }
 
@@ -61,10 +60,14 @@ public class CFRFileFilter implements InputStreamFilter {
     try {
       return stream.filter(future.get(30, TimeUnit.SECONDS));
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
-      context.addError("Could not filter using CFR; will try ASM.", stream.getSource(), e);
-      return InputStreamFilterChain.KnownFileFilters.ASM.getFilter().filter(context,
-          stream.filter(byteClassSource.bytes));
+      logger.warn("invokation of CFR failed, invoking ASM instead", e);
+      return ASMFileFilter.INSTANCE.filter(stream.filter(byteClassSource.bytes));
     }
+  }
+
+  @Override
+  public String toString() {
+    return "CFR";
   }
 
   static class ByteClassSource implements ClassFileSource {
@@ -83,10 +86,10 @@ public class CFRFileFilter implements InputStreamFilter {
 
     @Override
     public Pair<byte[], String> getClassFileContent(final String var1) throws IOException {
-      if (!var1.equals(path)) {
+      if (!var1.equals(this.path)) {
         throw new FileNotFoundException("Can't find " + var1);
       }
-      return new Pair<>(bytes, path);
+      return new Pair<>(this.bytes, this.path);
     }
 
     @Override
@@ -116,7 +119,7 @@ public class CFRFileFilter implements InputStreamFilter {
     }
 
     public String getResult() {
-      return result;
+      return this.result;
     }
 
     private void setResult(final Object result) {
