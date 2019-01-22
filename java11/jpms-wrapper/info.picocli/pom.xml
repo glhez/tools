@@ -70,6 +70,8 @@
           </execution>
         </executions>
         <configuration>
+          <!-- keep the default manifest. -->
+          <archive> <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> </archive>
           <excludes>
             <exclude>picocli/__Cheat__.class</exclude>
             <exclude>picocli/__Cheat__.java</exclude>

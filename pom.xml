@@ -24,6 +24,7 @@
     <apache.commons-lang3.version>3.8.1</apache.commons-lang3.version>
     <apache.commons-text.version>1.6</apache.commons-text.version>
     <org.benf.cfr.version>0.139</org.benf.cfr.version>
+    <log4j.version>2.11.1</log4j.version>
   </properties>
 
   <!-- <repositories> <repository> <id>jitpack.io</id> <url>https://jitpack.io</url> </repository> </repositories> -->
@@ -37,11 +38,10 @@
       <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.text</artifactId>        <version>${apache.commons-text.version}</version>  </dependency>
       <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.benf.cfr</artifactId>                   <version>${org.benf.cfr.version}</version>         </dependency>
 
-
       <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>                     <version>1</version>                               </dependency>
       <dependency> <groupId>fr.glhez.jtools</groupId>              <artifactId>jtools-warextractor</artifactId>            <version>1</version>                               </dependency>
 
-      <dependency> <groupId>org.apache.logging.log4j</groupId>     <artifactId>log4j-bom</artifactId>                      <version>2.11.1</version>                          <scope>import</scope> <type>pom</type> </dependency>
+      <dependency> <groupId>org.apache.logging.log4j</groupId>     <artifactId>log4j-bom</artifactId>                      <version>${log4j.version}</version>                <scope>import</scope> <type>pom</type> </dependency>
 
       <!-- unit test -->
       <dependency> <groupId>org.mockito</groupId>                  <artifactId>mockito-core</artifactId>                   <version>2.23.4</version>                          </dependency>

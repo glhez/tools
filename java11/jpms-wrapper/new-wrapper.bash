@@ -26,8 +26,7 @@ declare cheat_classname="__Cheat__"
 declare cheat_class="${package//.//}/${cheat_classname}.class"
 declare cheat_java="${package//.//}/${cheat_classname}.java"
 
-declare template='
-<?xml version="1.0" encoding="utf-8" ?>
+declare template='<?xml version="1.0" encoding="utf-8" ?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -99,6 +98,8 @@ declare template='
           </execution>
         </executions>
         <configuration>
+          <!-- keep the default manifest. -->
+          <archive> <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> </archive>
           <excludes>
             <exclude>%cheat-class%</exclude>
             <exclude>%cheat-java%</exclude>

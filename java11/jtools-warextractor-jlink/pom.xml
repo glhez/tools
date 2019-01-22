@@ -22,8 +22,23 @@
         <configuration>
           <compress>2</compress>
           <bindServices>true</bindServices>
-          <launcher>jtools-warextractor=fr.glhez.jtools.warextractor/fr.glhez.jtools.warextractor.MainCommand</launcher>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals> <goal>copy</goal> </goals>
+            <configuration>
+              <prependGroupId>true</prependGroupId>
+              <artifactItems>
+                <artifactItem> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-core</artifactId> <version>${log4j.version}</version> <type>jar</type> <overWrite>true</overWrite> </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

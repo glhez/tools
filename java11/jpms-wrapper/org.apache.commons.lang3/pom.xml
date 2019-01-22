@@ -70,6 +70,8 @@
           </execution>
         </executions>
         <configuration>
+          <!-- keep the default manifest. -->
+          <archive> <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile> </archive>
           <excludes>
             <exclude>org/apache/commons/lang3/__Cheat__.class</exclude>
             <exclude>org/apache/commons/lang3/__Cheat__.java</exclude>

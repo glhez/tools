@@ -13,7 +13,7 @@
 
   <profiles>
     <profile>
-      <id>jlink-build-module</id>
+      <id>jlink</id>
       <!-- don't do that every time (require a snapshot plugin, ...) -->
       <activation> <property> <name>enableJlink</name> </property> </activation>
       <modules>

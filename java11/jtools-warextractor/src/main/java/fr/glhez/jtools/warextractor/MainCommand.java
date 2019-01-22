@@ -96,6 +96,9 @@ public class MainCommand implements Runnable {
   @Override
   public void run() {
     boolean multipleInput = true;
+    if (this.input == null || this.input.isEmpty()) {
+      throw new IllegalArgumentException("missing output directory; use --help to see usage.");
+    }
     if (this.output == null) {
       if (this.input.size() != 2) {
         throw new IllegalArgumentException("missing output directory; use --help to see usage.");
