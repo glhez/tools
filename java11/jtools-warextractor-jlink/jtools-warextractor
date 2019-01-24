@@ -15,5 +15,6 @@ declare JARS_PATH="$HERE/target/dependency"
 "$JAVA_PATH" --add-reads org.apache.logging.log4j=ALL-UNNAMED \
              --module-path "$JARS_PATH" \
              -Dsun.stdout.encoding=utf-8 \
+             $JAVA_OPTS
              -D_log4j2.debug \
              -m fr.glhez.jtools.warextractor/fr.glhez.jtools.warextractor.MainCommand $@
