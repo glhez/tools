@@ -69,8 +69,7 @@ public class MainCommand implements Runnable {
       "properties=name:.*[.](properties): apply filtering on a complex mapping using a regex as seen in includes/excludes.",
       "asm and cfr read binary content and produce UTF-8 content.",
       "properties produce UTF-8 content but read ISO-8859-1 content unless it was already filtered, in which case it expect UTF-8.",
-      "sql read and produce utf-8 content.",
-      "NOTE: filter are applied in memory."
+      "sql read and produce utf-8 content.", "NOTE: filter are applied in memory."
 
   })
   private List<String> filtering;

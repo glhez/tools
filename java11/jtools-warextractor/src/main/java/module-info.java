@@ -2,19 +2,19 @@
  * @author gael.lhez
  */
 module fr.glhez.jtools.warextractor {
-    exports fr.glhez.jtools.warextractor;
+  exports fr.glhez.jtools.warextractor;
 
-    requires info.picocli;
-    requires org.apache.commons.lang3;
-    requires org.apache.commons.text;
-    requires org.benf.cfr;
+  requires info.picocli;
+  requires org.apache.commons.lang3;
+  requires org.apache.commons.text;
+  requires org.benf.cfr;
 
-    requires org.objectweb.asm;
-    requires org.objectweb.asm.util;
-    requires org.apache.logging.log4j;
+  requires org.objectweb.asm;
+  requires org.objectweb.asm.util;
+  requires org.apache.logging.log4j;
 
-    opens fr.glhez.jtools.warextractor to info.picocli;
+  opens fr.glhez.jtools.warextractor to info.picocli;
 
-    uses java.nio.file.spi.FileSystemProvider;
+  uses java.nio.file.spi.FileSystemProvider;
 
 }

@@ -27,7 +27,8 @@ public class FileCollector implements FileVisitor<Path> {
 
   private FileCollector(final ExecutionContext ctx, final Path archiveDirectory, final Set<Path> ignoredDirectories) {
     this.context = ctx;
-    this.directories = new LinkedHashSet<>(); // store directories in encounter order, to create them once.
+    this.directories = new LinkedHashSet<>(); // store directories in encounter order, to create
+                                              // them once.
     this.files = new TreeSet<>();
     this.archives = new TreeSet<>();
     this.archiveDirectory = archiveDirectory;
@@ -35,8 +36,8 @@ public class FileCollector implements FileVisitor<Path> {
 
     this.fileMatcher = context.getFileMatcher();
 
-    logger.debug("ignoring directories: {}",  ignoredDirectories);
-    logger.debug("archive directory: {}",  () -> Objects.toString(archiveDirectory, "(none)"));
+    logger.debug("ignoring directories: {}", ignoredDirectories);
+    logger.debug("archive directory: {}", () -> Objects.toString(archiveDirectory, "(none)"));
   }
 
   public static FileCollector rootFileCollector(final ExecutionContext ctx, final Path root) {
@@ -89,14 +90,14 @@ public class FileCollector implements FileVisitor<Path> {
     if (this.fileMatcher.test(wrapper)) {
       this.directories.add(file.getParent());
       if (isArchive(wrapper)) {
-        logger.debug("adding new archive: {}",  file);
+        logger.debug("adding new archive: {}", file);
         this.archives.add(wrapper);
       } else {
-        logger.debug("adding new file: {}",  file);
+        logger.debug("adding new file: {}", file);
         this.files.add(wrapper);
       }
     } else {
-      logger.debug("ignoring file: {}",  file);
+      logger.debug("ignoring file: {}", file);
     }
     return FileVisitResult.CONTINUE;
   }

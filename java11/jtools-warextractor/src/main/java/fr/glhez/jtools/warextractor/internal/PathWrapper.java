@@ -76,7 +76,6 @@ public class PathWrapper implements Comparable<PathWrapper> {
     return path.toString().replace('\\', '/');
   }
 
-
   static class FileName {
     public final String fileName;
     public final String fileNameWithoutExtension;

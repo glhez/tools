@@ -49,7 +49,7 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
   /**
    * Filter a class file (which is expected to contains a Java class).
    * <p>
-   * The definition is shared with {@link ShowDuplicateClassJARProcessor}.
+   * The definition is shared with {@link ShowClassJARProcessor}.
    *
    * @param entry a jar entry
    * @return <code>true</code> if the entry correspond to a Java classes.

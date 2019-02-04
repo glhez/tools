@@ -11,17 +11,20 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.csv.CSVPrinter;
 
-public class ShowDuplicateClassJARProcessor extends ReportFileJARProcessor {
+public class ShowClassJARProcessor extends ReportFileJARProcessor {
   private final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
   private final ModuleJARProcessor moduleJARProcessor;
   private final Map<String, NavigableSet<JARInformation>> classesPerJAR;
 
-  public ShowDuplicateClassJARProcessor(final ReportFile reportFile,
+  private final boolean showOnlyDuplicateClasses;
+
+  public ShowClassJARProcessor(final ReportFile reportFile, final boolean showOnlyDuplicateClasses,
       final MavenArtifactsJARProcessor mavenArtifactsJARProcessor, final ModuleJARProcessor moduleJARProcessor) {
-    super("Duplicate class in JAR set", reportFile);
+    super("Class in JAR set", reportFile);
     this.mavenArtifactsJARProcessor = Objects.requireNonNull(mavenArtifactsJARProcessor, "mavenArtifactsJARProcessor");
     this.moduleJARProcessor = Objects.requireNonNull(moduleJARProcessor, "moduleJARProcessor");
-    this.classesPerJAR = new LinkedHashMap<>();
+    this.showOnlyDuplicateClasses = showOnlyDuplicateClasses;
+    classesPerJAR = new LinkedHashMap<>();
   }
 
   @Override
@@ -42,11 +45,11 @@ public class ShowDuplicateClassJARProcessor extends ReportFileJARProcessor {
   @Override
   protected void finish(final CSVPrinter printer) throws IOException {
     printer.printRecord("JAR", "GAV", "Module", "Class", "Number of classes references in all JARs");
-    for (final var entry : this.classesPerJAR.entrySet()) {
+    for (final var entry : classesPerJAR.entrySet()) {
       final String className = entry.getKey();
       final NavigableSet<JARInformation> jars = entry.getValue();
 
-      if (jars.size() > 1) {
+      if (!showOnlyDuplicateClasses || jars.size() > 1) {
         for (final var jar : jars) {
           final String gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
           final String module = moduleJARProcessor.getModuleDescriptorAsString(jar);

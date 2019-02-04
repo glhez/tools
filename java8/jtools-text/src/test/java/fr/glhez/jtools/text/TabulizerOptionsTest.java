@@ -87,7 +87,6 @@ public class TabulizerOptionsTest {
     builder.setAdditionalNumberToken(additionalNumberToken);
     builder.setRightAlignNumber(rightAlignNumber);
 
-
     final TabulizerOptions b = builder.build();
 
     assertThat(b.multilineComment).isSameAs(multilineComment);

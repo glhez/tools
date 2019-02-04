@@ -32,7 +32,8 @@ class Collections2 {
   // no ? extends E because TreeSet does have 2 matching constructors:
   // TreeSet(Collection<? extends E>)
   // TreeSet(SortedSet<E>)
-  // it seems that Java pick up the later (because NavigableSet extends SortedSet and is more specific
+  // it seems that Java pick up the later (because NavigableSet extends SortedSet and is more
+  // specific
   // than Collection), but in a case where it should not.
   // Since we still want to keep the comparator, we remove the ? extends.
   public static <E> NavigableSet<E> copyAsUnmodifiableNavigableSet(final NavigableSet<E> set) {

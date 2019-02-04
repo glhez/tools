@@ -66,7 +66,8 @@ public class BiTokenTest {
     final BiToken s = BiToken.string("'-", "@A");
     assertThat(s.regionMatches(" '- THIS IS IT ", 1)).isEqualTo(-1);
     assertThat(s.regionMatches(" '-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789'-".length());
-    assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789@A'-0123456789'-".length());
+    assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1))
+        .isEqualTo(1 + "'-0123456789@A'-0123456789'-".length());
 
   }
 

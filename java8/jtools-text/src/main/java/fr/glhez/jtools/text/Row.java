@@ -17,7 +17,6 @@ class Row implements Iterable<Column> {
     }
   }
 
-
   public int columnCount() {
     return columns.size();
   }

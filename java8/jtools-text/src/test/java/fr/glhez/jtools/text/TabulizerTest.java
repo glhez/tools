@@ -1,10 +1,13 @@
 package fr.glhez.jtools.text;
 
+import static fr.glhez.jtools.text.Tabulizer.detectInitialIndent;
+import static fr.glhez.jtools.text.Tabulizer.tabulize;
+import static fr.glhez.jtools.text.Tabulizer.trimLines;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
-import static fr.glhez.jtools.text.Tabulizer.*;
 
 public class TabulizerTest {
 
@@ -54,11 +57,8 @@ public class TabulizerTest {
       assertThat(row.columnCount()).isEqualTo(4);
     }
 
-
-    final Tabulizer stringOpt = TabulizerOptions.builder()
-        .setString1(BiToken.string("\"", "\\"))
-        .setString2(BiToken.string("'", "\\"))
-        .build().toTabulizer();
+    final Tabulizer stringOpt = TabulizerOptions.builder().setString1(BiToken.string("\"", "\\"))
+        .setString2(BiToken.string("'", "\\")).build().toTabulizer();
     {
       final String a = "A";
       final String b = "'B A'";

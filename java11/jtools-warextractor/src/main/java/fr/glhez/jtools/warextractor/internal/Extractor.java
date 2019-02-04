@@ -88,7 +88,7 @@ public abstract class Extractor implements AutoCloseable {
     copyFiles(root, this.target, collector.getFiles(), this.source);
     copyArchives(root, this.target, collector.getArchives());
     applyFiltering();
-    logger.info("done processing file: {}",  this.source);
+    logger.info("done processing file: {}", this.source);
   }
 
   protected Path relativeTarget(final Path target, final Path relativePath) {

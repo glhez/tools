@@ -23,7 +23,7 @@ public class ReportFile {
     Objects.requireNonNull(format, "format");
     Objects.requireNonNull(outputDirectory, "outputDirectory");
     Objects.requireNonNull(filename, "filename");
-    final var fn = !filename.toLowerCase().endsWith(".csv") ? filename + ".csv":filename;
+    final var fn = !filename.toLowerCase().endsWith(".csv") ? filename + ".csv" : filename;
     return new ReportFile(format, outputDirectory.resolve(fn));
   }
 

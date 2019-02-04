@@ -40,7 +40,6 @@ public class XmlTagTest {
     assertThat(tag.regionMatches(" <groupId>", 1)).isEqualTo(-1);
     assertThat(tag.regionMatches(" <groupId>AAAA", 1)).isEqualTo(-1);
 
-
     final String s1 = "<groupId>AAAA</groupId>";
     final String s2 = "<artifactId>AAAA</artifactId>";
     assertThat(tag.regionMatches(s1 + s2, 0)).isEqualTo(s1.length());

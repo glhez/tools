@@ -32,7 +32,7 @@ import fr.glhez.jtools.jar.internal.ModuleJARProcessor;
 import fr.glhez.jtools.jar.internal.MutableProcessorContext;
 import fr.glhez.jtools.jar.internal.ReportFile;
 import fr.glhez.jtools.jar.internal.SPIServiceJARProcessor;
-import fr.glhez.jtools.jar.internal.ShowDuplicateClassJARProcessor;
+import fr.glhez.jtools.jar.internal.ShowClassJARProcessor;
 import fr.glhez.jtools.jar.internal.ShowPackageJARProcessor;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -126,8 +126,11 @@ public class MainCommand implements Runnable {
       "--duplicate-packages" }, description = "Apply --package; show only package found in several JARs meaning probable problems with Java Modules.")
   private boolean showOnlyDuplicatePackage;
 
+  @Option(names = { "--class", "--classes" }, description = "Show all classes in JAR.")
+  private boolean showClasses;
+
   @Option(names = { "--duplicate-class", "--duplicate-classes" }, description = "Show duplicate classes in JAR.")
-  private boolean showDuplicateClasses;
+  private boolean showOnlyDuplicateClasses;
 
   private CSVFormat format;
 
@@ -143,8 +146,8 @@ public class MainCommand implements Runnable {
 
     final ListJARProcessor processor = buildProcessor();
 
-    try (final JARFileLocator locator = new JARFileLocator(this.deepScan, includes, excludes, this.deepFilter)) {
-      locator.addFileset(this.fileset);
+    try (final JARFileLocator locator = new JARFileLocator(deepScan, includes, excludes, deepFilter)) {
+      locator.addFileset(fileset);
       if (locator.hasErrors()) {
         System.err.println("Some file or directories could not be fetched:");
         locator.getErrors().forEach(System.err::println);
@@ -177,12 +180,12 @@ public class MainCommand implements Runnable {
     prepareParameters();
 
     final List<String> problems = new ArrayList<>();
-    if (!this.mavenShellScriptExport && !this.mavenProcessor && !this.moduleProcessor && !this.serviceProcessor
-        && !this.manifestPermissionProcessor && !this.manifestClassPathProcessor && !this.javaVersionProcessor
-        && !this.showPackage && !this.showOnlyDuplicatePackage) {
+    if (!mavenShellScriptExport && !mavenProcessor && !moduleProcessor && !serviceProcessor
+        && !manifestPermissionProcessor && !manifestClassPathProcessor && !javaVersionProcessor && !showPackage
+        && !showOnlyDuplicatePackage && !showClasses && !showOnlyDuplicateClasses) {
       problems.add("no processors registered");
     }
-    if (this.fileset.isEmpty()) {
+    if (fileset.isEmpty()) {
       problems.add("no files registered");
     }
 
@@ -194,31 +197,33 @@ public class MainCommand implements Runnable {
   }
 
   private void prepareParameters() {
-    this.fileset = Objects.requireNonNullElseGet(fileset, Collections::emptyList);
-    this.includes = Objects.requireNonNullElseGet(includes, Collections::emptyList);
-    this.excludes = Objects.requireNonNullElseGet(excludes, Collections::emptyList);
-    this.deepScan = Objects.requireNonNullElseGet(deepScan, () -> DeepMode.DISABLED);
-    this.deepFilter = Objects.requireNonNullElseGet(deepFilter, Collections::emptyList);
-    this.serviceFiltersEnabled = this.serviceFilters != null;
-    this.serviceFilters = Objects.requireNonNullElseGet(this.serviceFilters, Collections::emptySet);
-    this.outputDirectory = Objects.requireNonNullElseGet(outputDirectory, () -> Paths.get(""));
+    fileset = Objects.requireNonNullElseGet(fileset, Collections::emptyList);
+    includes = Objects.requireNonNullElseGet(includes, Collections::emptyList);
+    excludes = Objects.requireNonNullElseGet(excludes, Collections::emptyList);
+    deepScan = Objects.requireNonNullElseGet(deepScan, () -> DeepMode.DISABLED);
+    deepFilter = Objects.requireNonNullElseGet(deepFilter, Collections::emptyList);
+    serviceFiltersEnabled = serviceFilters != null;
+    serviceFilters = Objects.requireNonNullElseGet(serviceFilters, Collections::emptySet);
+    outputDirectory = Objects.requireNonNullElseGet(outputDirectory, () -> Paths.get(""));
 
     if (allProcessor) {
-      if (!this.mavenShellScriptExport && !this.mavenProcessor) {
-        this.mavenProcessor = true;
-        this.mavenShellScriptExport = false;
+      if (!mavenShellScriptExport && !mavenProcessor) {
+        mavenProcessor = true;
+        mavenShellScriptExport = false;
       }
-      this.moduleProcessor = true;
-      this.serviceProcessor = true;
-      this.manifestPermissionProcessor = true;
-      this.manifestClassPathProcessor = true;
-      this.javaVersionProcessor = true;
-      if (!this.showPackage && !this.showOnlyDuplicatePackage) {
-        this.showPackage = false;
-        this.showOnlyDuplicatePackage = true;
+      moduleProcessor = true;
+      serviceProcessor = true;
+      manifestPermissionProcessor = true;
+      manifestClassPathProcessor = true;
+      javaVersionProcessor = true;
+      if (!showPackage && !showOnlyDuplicatePackage) {
+        showPackage = false;
+        showOnlyDuplicatePackage = true;
       }
-      this.showDuplicateClasses = true;
-
+      if (!showClasses && !showOnlyDuplicateClasses) {
+        showClasses = false;
+        showOnlyDuplicateClasses = true;
+      }
     }
 
     if (showOnlyDuplicatePackage) {
@@ -233,14 +238,13 @@ public class MainCommand implements Runnable {
         csvSeparator = ',';
       }
     }
-    this.format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
+    format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
   }
 
   private ListJARProcessor buildProcessor() {
     final List<JARProcessor> processors = new ArrayList<>();
 
-    final boolean addModuleProcessor = this.moduleProcessor || this.serviceProcessor || this.showPackage
-        || this.showDuplicateClasses;
+    final boolean addModuleProcessor = moduleProcessor || serviceProcessor || showPackage || showClasses;
 
     final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
     if (mavenShellScriptExport) {
@@ -265,29 +269,29 @@ public class MainCommand implements Runnable {
     }
     add(processors, moduleJARProcessor);
 
-    if (this.serviceProcessor) {
+    if (serviceProcessor) {
       final var reportFile = newReportFile(serviceModuleOnly ? "services-module-only" : "services");
       add(processors, new SPIServiceJARProcessor(reportFile, moduleJARProcessor, !serviceFiltersEnabled, serviceFilters,
           serviceModuleOnly));
     }
 
-    if (this.manifestPermissionProcessor) {
+    if (manifestPermissionProcessor) {
       add(processors, new JNLPPermissionsJARProcessor(newReportFile("jnlp-permissions")));
     }
-    if (this.manifestClassPathProcessor) {
+    if (manifestClassPathProcessor) {
       add(processors, new ClassPathJARProcessor(newReportFile("class-path")));
     }
-    if (this.javaVersionProcessor) {
+    if (javaVersionProcessor) {
       add(processors, new JavaVersionJARProcessor(newReportFile("java-version"), mavenArtifactsJARProcessor));
     }
-    if (this.showPackage) {
+    if (showPackage) {
       add(processors,
-          new ShowPackageJARProcessor(newReportFile(showOnlyDuplicatePackage ? "duplicate-package.csv" : "package"),
-              this.showOnlyDuplicatePackage, mavenArtifactsJARProcessor, moduleJARProcessor));
+          new ShowPackageJARProcessor(newReportFile(showOnlyDuplicatePackage ? "duplicate-package" : "package"),
+              showOnlyDuplicatePackage, mavenArtifactsJARProcessor, moduleJARProcessor));
     }
-    if (this.showDuplicateClasses) {
-      add(processors, new ShowDuplicateClassJARProcessor(newReportFile("duplicate-classes"), mavenArtifactsJARProcessor,
-          moduleJARProcessor));
+    if (showClasses) {
+      add(processors, new ShowClassJARProcessor(newReportFile(showOnlyDuplicateClasses ? "duplicate-class" : "class"),
+          showOnlyDuplicateClasses, mavenArtifactsJARProcessor, moduleJARProcessor));
     }
 
     return new ListJARProcessor(processors);

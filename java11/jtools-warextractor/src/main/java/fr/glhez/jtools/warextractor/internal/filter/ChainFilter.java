@@ -65,7 +65,8 @@ public class ChainFilter {
   }
 
   private void filter(final int index, final int total, final Path file, final Filter[] filters) {
-    logger.debug("filtering {} ({}): {}", () -> index, () -> String.format("%3.2f%%", 100.0*(index / (double) total)), () -> file);
+    logger.debug("filtering {} ({}): {}", () -> index, () -> String.format("%3.2f%%", 100.0 * (index / (double) total)),
+        () -> file);
     try {
       InputStreamWithCharset root = InputStreamWithCharset.open(file);
       for (final Filter element : filters) {

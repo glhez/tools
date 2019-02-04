@@ -62,7 +62,8 @@ public class JARInformation implements Comparable<JARInformation> {
 
   @Override
   public String toString() {
-    return archivePath.toString() + pathInArchive.filter(p -> !p.equals(archivePath)).map(p -> " [" + p + "]").orElse("");
+    return archivePath.toString()
+        + pathInArchive.filter(p -> !p.equals(archivePath)).map(p -> " [" + p + "]").orElse("");
   }
 
   @Override
