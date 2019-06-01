@@ -2,17 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent> <groupId>fr.glhez.jtools</groupId> <artifactId>java11-parent</artifactId> <version>1</version> </parent>
+  <parent>
+    <groupId>com.github.glhez.jtools</groupId>
+    <artifactId>java11-parent</artifactId>
+    <version>1</version>
+  </parent>
 
   <artifactId>jtools-jar</artifactId>
 
   <name>glhez's java tools :: JAR</name>
 
   <dependencies>
-    <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>           </dependency>
-    <dependency> <groupId>fr.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId> </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm</artifactId>                    </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm-util</artifactId>               </dependency>
+    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>           </dependency>
+    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId> </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>                          <artifactId>asm</artifactId>                    </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>                          <artifactId>asm-util</artifactId>               </dependency>
   </dependencies>
 
 </project>
