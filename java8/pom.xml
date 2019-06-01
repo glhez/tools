@@ -15,4 +15,11 @@
   <version>1</version>
 
   <name>glhez's java tools :: Java 8</name>
+
+  <repositories>
+    <repository>
+      <id>github-maven-parent</id>
+      <url>https://raw.githubusercontent.com/glhez/project-settings/mvn-repo/releases/</url>
+    </repository>
+  </repositories>
 </project>
