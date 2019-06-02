@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>maven-parent</artifactId>
-    <version>2019.06.01.3</version>
+    <version>2019.06.02.4</version>
   </parent>
 
   <groupId>com.github.glhez.jtools</groupId>
@@ -19,7 +19,7 @@
   <repositories>
     <repository>
       <id>github-maven-parent</id>
-      <url>https://raw.githubusercontent.com/glhez/project-settings/mvn-repo/releases/</url>
+      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
     </repository>
   </repositories>
 
