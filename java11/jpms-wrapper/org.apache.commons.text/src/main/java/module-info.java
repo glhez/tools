@@ -13,4 +13,3 @@ module org.apache.commons.text {
 
   requires org.apache.commons.lang3;
 }
-

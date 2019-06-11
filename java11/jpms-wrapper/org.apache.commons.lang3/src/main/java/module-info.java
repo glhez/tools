@@ -17,4 +17,3 @@ module org.apache.commons.lang3 {
   // this was reported by jdeps.
   requires static java.desktop;
 }
-

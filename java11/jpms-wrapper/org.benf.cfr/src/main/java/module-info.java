@@ -5,4 +5,3 @@ module org.benf.cfr {
   requires  java.base;
   requires java.logging;
 }
-

@@ -4,10 +4,10 @@
 
   <parent>
     <groupId>com.github.glhez.parent</groupId>
-    <artifactId>java8</artifactId>
-    <version>2019.06.02.4</version>
+    <artifactId>java-1.8</artifactId>
+    <version>2019.06.12.02</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
-    <relativePath>../glhez-project-settings/java8/pom.xml</relativePath>
+    <relativePath />
   </parent>
 
   <groupId>com.github.glhez.jtools</groupId>

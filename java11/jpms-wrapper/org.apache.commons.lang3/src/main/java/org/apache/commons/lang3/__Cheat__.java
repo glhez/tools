@@ -1,4 +1,5 @@
 package org.apache.commons.lang3;
-// required by java
-public @interface __Cheat__ {}
 
+// required by java
+public @interface __Cheat__ {
+}
