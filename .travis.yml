@@ -3,6 +3,9 @@ jdk:
   - oraclejdk8
   - openjdk11
 #  - oraclejdk11
+script:
+  - 'find "$HOME/.m2/repository" -type f "(" -name "*.lastUpdated" -or -name "*SNAPSHOT*" ")" -print -delete'
+  - './mvnw clean install -s .mvn/settings.xml'
 cache:
   directories:
     - $HOME/.m2/repository

@@ -17,13 +17,6 @@
 
   <name>glhez's java tools :: Java 8</name>
 
-  <repositories>
-    <repository>
-      <id>github-maven-parent</id>
-      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
-    </repository>
-  </repositories>
-
   <modules>
     <module>jtools-text</module>
   </modules>
