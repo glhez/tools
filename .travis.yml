@@ -3,9 +3,14 @@ jdk:
   - oraclejdk8
   - openjdk11
 #  - oraclejdk11
-script:
-  - 'find "$HOME/.m2/repository" -type f "(" -name "*.lastUpdated" -or -name "*SNAPSHOT*" ")" -print -delete'
-  - './mvnw clean install -s .mvn/settings.xml'
+
+# 
+# since we use a cache, ensure maven will not fail
+#
+before_install:
+  - ./mvnw org.apache.maven.plugins:maven-dependency-plugin:3.1.1:purge-local-repository -DsnapshotsOnly -DreResolve=false
+  - 'find "$HOME/.m2/repository" -type f -name "*.lastUpdated" -print -delete'
+
 cache:
   directories:
     - $HOME/.m2/repository

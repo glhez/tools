@@ -17,6 +17,21 @@
 
   <name>glhez's java tools :: Java 11</name>
 
+  <repositories>
+    <repository>
+      <id>github-glhez-repo-dep</id>
+      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>github-glhez-repo-plugin</id>
+      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
   <modules>
     <module>jpms-wrapper</module>
     <module>jlink-parent</module>
