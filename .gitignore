@@ -27,8 +27,12 @@ hs_err_pid*
 .settings/
 
 # maven 
+*.versionsBackup
 target/
 /.profiler
+
+# vim
+*.swp
 
 # Export
 *.csv
