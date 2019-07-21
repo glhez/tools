@@ -19,7 +19,7 @@ public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
   private final Map<JNLPPermissions, Map<Path, Set<Optional<Path>>>> result = new TreeMap<>();
 
   public JNLPPermissionsJARProcessor(final ReportFile reportFile) {
-    super("JNLP Permissiosn", reportFile);
+    super("JNLP Permissions", reportFile);
   }
 
   @Override
@@ -165,10 +165,10 @@ public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
 
     // @formatter:off
     private static final Comparator<JNLPPermissions> COMPARATOR = Comparator
-      .comparing(JNLPPermissions::getPermissions, String::compareTo)
-      .thenComparing(JNLPPermissions::getCodebase, String::compareTo)
-      .thenComparing(JNLPPermissions::getCallerAllowableCodebase, String::compareTo)
-    ;
+        .comparing(JNLPPermissions::getPermissions, String::compareTo)
+        .thenComparing(JNLPPermissions::getCodebase, String::compareTo)
+        .thenComparing(JNLPPermissions::getCallerAllowableCodebase, String::compareTo)
+        ;
     // @formatter:on
     @Override
     public int compareTo(final JNLPPermissions o) {
