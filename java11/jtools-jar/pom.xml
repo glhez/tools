@@ -13,10 +13,10 @@
   <name>glhez's java tools :: JAR</name>
 
   <dependencies>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>           </dependency>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId> </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                          <artifactId>asm</artifactId>                    </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                          <artifactId>asm-util</artifactId>               </dependency>
+    <dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-csv</artifactId> </dependency>
+    <dependency> <groupId>info.picocli</groupId>       <artifactId>picocli</artifactId>     </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>        <artifactId>asm</artifactId>         </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>        <artifactId>asm-util</artifactId>    </dependency>
   </dependencies>
 
 </project>

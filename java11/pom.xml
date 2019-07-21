@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-11</artifactId>
-    <version>2019.06.23.01</version>
+    <version>2019.07.20.01-SNAPSHOT</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
@@ -33,10 +33,6 @@
   </pluginRepositories>
 
   <modules>
-    <module>jpms-wrapper</module>
-    <module>jlink-parent</module>
-
-    <!-- real modules -->
     <module>jtools-jar</module>
     <module>jtools-warextractor</module>
   </modules>
@@ -47,12 +43,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId>   <version>${dep.commons-csv.version}</version>   </dependency>
-      <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>             <version>${dep.picocli.version}</version>       </dependency>
-      <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.lang3</artifactId> <version>${dep.commons-lang3.version}</version> </dependency>
-      <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.text</artifactId>  <version>${dep.commons-text.version}</version>  </dependency>
-      <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.benf.cfr</artifactId>             <version>${dep.cfr.version}</version>           </dependency>
-
       <dependency> <groupId>com.github.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>               <version>${project.version}</version>           </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId>              <artifactId>jtools-warextractor</artifactId>      <version>${project.version}</version>           </dependency>
     </dependencies>

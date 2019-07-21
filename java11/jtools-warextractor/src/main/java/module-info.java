@@ -7,7 +7,7 @@ module fr.glhez.jtools.warextractor {
   requires info.picocli;
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
-  requires org.benf.cfr;
+  requires cfr;
 
   requires org.objectweb.asm;
   requires org.objectweb.asm.util;

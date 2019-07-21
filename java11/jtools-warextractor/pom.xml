@@ -13,17 +13,15 @@
   <name>glhez's java tools :: WAR Extractor</name>
 
   <dependencies>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>info.picocli</artifactId>             </dependency>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.csv</artifactId>   </dependency>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.lang3</artifactId> </dependency>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.apache.commons.text</artifactId>  </dependency>
-    <dependency> <groupId>com.github.glhez.jtools.jpms-wrapper</groupId> <artifactId>org.benf.cfr</artifactId>             </dependency>
-
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm</artifactId>                      </dependency>
-    <dependency> <groupId>org.ow2.asm</groupId>                  <artifactId>asm-util</artifactId>                 </dependency>
-    <dependency> <groupId>org.apache.logging.log4j</groupId>     <artifactId>log4j-api</artifactId>                </dependency>
+    <dependency> <groupId>org.apache.commons</groupId>       <artifactId>commons-lang3</artifactId> </dependency>
+    <dependency> <groupId>org.apache.commons</groupId>       <artifactId>commons-text</artifactId>  </dependency>
+    <dependency> <groupId>org.benf</groupId>                 <artifactId>cfr</artifactId>           </dependency>
+    <dependency> <groupId>info.picocli</groupId>             <artifactId>picocli</artifactId>       </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>              <artifactId>asm</artifactId>           </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>              <artifactId>asm-util</artifactId>      </dependency>
+    <dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-api</artifactId>     </dependency>
     <!-- NOTE this is incompatible with jlink -->
-    <dependency> <groupId>org.apache.logging.log4j</groupId>     <artifactId>log4j-core</artifactId>            <scope>provided</scope>   </dependency>
+    <dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-core</artifactId> <scope>provided</scope> </dependency>
   </dependencies>
 
 </project>

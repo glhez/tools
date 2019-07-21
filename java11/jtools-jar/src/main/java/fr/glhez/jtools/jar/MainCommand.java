@@ -135,7 +135,7 @@ public class MainCommand implements Runnable {
   private CSVFormat format;
 
   public static void main(final String[] args) {
-    picocli.CommandLine.run(new fr.glhez.jtools.jar.MainCommand(), System.out, args);
+    new picocli.CommandLine(new fr.glhez.jtools.jar.MainCommand()).execute(args);
   }
 
   @Override

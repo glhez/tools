@@ -89,7 +89,7 @@ public class MainCommand implements Runnable {
   private List<String> renameLib;
 
   public static void main(final String[] args) {
-    picocli.CommandLine.run(new fr.glhez.jtools.warextractor.MainCommand(), System.out, args);
+    new picocli.CommandLine(new fr.glhez.jtools.warextractor.MainCommand()).execute(args);
   }
 
   @Override
