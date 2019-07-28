@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-11</artifactId>
-    <version>2019.07.20.01-SNAPSHOT</version>
+    <version>2019.07.28.01</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
@@ -36,10 +36,6 @@
     <module>jtools-jar</module>
     <module>jtools-warextractor</module>
   </modules>
-
-  <properties>
-    <dep.commons-csv.version>1.6</dep.commons-csv.version>
-  </properties>
 
   <dependencyManagement>
     <dependencies>
