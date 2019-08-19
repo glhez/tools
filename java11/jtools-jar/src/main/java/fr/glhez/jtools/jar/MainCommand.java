@@ -15,7 +15,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.csv.CSVFormat;
 
@@ -146,6 +149,8 @@ public class MainCommand implements Runnable {
 
     final ListJARProcessor processor = buildProcessor();
 
+    final Pattern multiReleaseVersionPattern = Pattern.compile("^META-INF/versions/(\\d+)/$");
+
     try (final JARFileLocator locator = new JARFileLocator(deepScan, includes, excludes, deepFilter)) {
       locator.addFileset(fileset);
       if (locator.hasErrors()) {
@@ -162,13 +167,53 @@ public class MainCommand implements Runnable {
       for (final JARInformation file : files) {
         System.out.printf("Processing file: [%6.2f%%] %s%n", 100 * (fileIndex / (double) fileCount), file.archivePath);
         ctx.setSource(file);
-        try (JarFile jarFile = new JarFile(file.tmpPath.toFile(), false)) {
+
+        int[] features = null;
+        try (final JarFile jarFile = new JarFile(file.tmpPath.toFile(), false)) {
+          /*
+           * look up for multi release version now
+           */
+          if (jarFile.isMultiRelease()) {
+            ctx.setSource(file.asMultiRelease());
+
+            /* @formatter:off */
+            features = jarFile.stream()
+                   .map(entry -> multiReleaseVersionPattern.matcher(entry.getName()))
+                   .filter(matcher -> matcher.matches())
+                   .map(matcher -> matcher.group(1))
+                   .mapToInt(Integer::parseInt)
+                   .toArray();
+            /* @formatter:on */
+            if (features.length > 0) {
+              System.out.printf("Found %d version for Multi-Release JARs%n", features.length);
+            }
+          }
+
           processor.process(ctx, jarFile);
         } catch (final NullPointerException e) {
           throw e; // rethrow: this is probably OUR error.
         } catch (final Exception e) {
           ctx.addError(e);
         }
+
+        /*
+         * now use a multi release jar
+         */
+        if (features != null && features.length > 0) {
+          for (final int feature : features) {
+            ctx.setSource(file.asMultiReleaseVersion(feature));
+
+            final var version = Runtime.Version.parse(Integer.toString(feature));
+            try (final JarFile jarFile = new JarFile(file.tmpPath.toFile(), false, ZipFile.OPEN_READ, version)) {
+              processor.process(ctx, jarFile);
+            } catch (final NullPointerException e) {
+              throw e; // rethrow: this is probably OUR error.
+            } catch (final Exception e) {
+              ctx.addError(e);
+            }
+          }
+        }
+
         ++fileIndex;
       }
       dumpErrors(ctx);
