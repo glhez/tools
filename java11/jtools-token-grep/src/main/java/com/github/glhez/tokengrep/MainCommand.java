@@ -96,7 +96,6 @@ public class MainCommand implements Runnable {
     Lexer.createLexer(file).forEachRemaining(token -> grep(token, matchers));
   }
 
-
   private void grep(final Token token, final List<TokenMatcher> matchers) {
     matchers.stream().flatMap(matcher -> matcher.match(token)).forEach(result -> {
       System.out.println(token.location + ": " + result);
