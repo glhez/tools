@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-11</artifactId>
-    <version>14-SNAPSHOT</version>
+    <version>155555rsion>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
@@ -33,14 +33,18 @@
   </pluginRepositories>
 
   <modules>
+    <module>jtools-fileset</module>
     <module>jtools-jar</module>
     <module>jtools-warextractor</module>
+    <module>jtools-token-grep</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
-      <dependency> <groupId>com.github.glhez.jtools</groupId>              <artifactId>jtools-jar</artifactId>               <version>${project.version}</version>           </dependency>
-      <dependency> <groupId>com.github.glhez.jtools</groupId>              <artifactId>jtools-warextractor</artifactId>      <version>${project.version}</version>           </dependency>
+      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-fileset</artifactId>      <version>${project.version}</version> </dependency>
+      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-jar</artifactId>          <version>${project.version}</version> </dependency>
+      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-warextractor</artifactId> <version>${project.version}</version> </dependency>
+      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-token-grep</artifactId>   <version>${project.version}</version> </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

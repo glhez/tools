@@ -1,6 +1,7 @@
 /**
  * @author gael.lhez
  */
+@SuppressWarnings("module")
 module fr.glhez.jtools.jar {
   exports fr.glhez.jtools.jar;
 
