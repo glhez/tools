@@ -41,7 +41,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(mixinStandardHelpOptions = true, version = "JAR Tool")
+@Command(mixinStandardHelpOptions = true)
 public class MainCommand implements Runnable {
 
   @Option(names = { "-O",
