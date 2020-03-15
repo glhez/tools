@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-1.8</artifactId>
-    <version>21</version> <!--@[com.github.glhez.parent]-->
+    <version>22</version> <!--@[com.github.glhez.parent]-->
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
