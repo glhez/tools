@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.glhez.parent</groupId>
+    <artifactId>java-1.8</artifactId>
+    <version>23</version> <!--@[com.github.glhez.parent]-->
+    <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
+    <relativePath />
+  </parent>
+
+  <groupId>com.github.glhez.jtools</groupId>
+  <artifactId>java-1.8-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>1</version>
+
+  <name>glhez's java tools :: Java 8</name>
+
+  <repositories>
+    <repository>
+      <id>github-glhez-repo-dep</id>
+      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>github-glhez-repo-plugin</id>
+      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <modules>
+    <module>jtools-text</module>
+  </modules>
+
+</project>

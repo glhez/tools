@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent> <groupId>com.github.glhez.jtools</groupId> <artifactId>java-1.8-parent</artifactId> <version>1</version> </parent>
+
+  <artifactId>jtools-text</artifactId>
+
+  <name>glhez's java tools :: Text</name>
+  <description>A simple library providing text related function such as Tabulize, Justify, ...</description>
+
+  <dependencies>
+    <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-engine</artifactId>     <scope>test</scope> </dependency>
+    <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-api</artifactId>        <scope>test</scope> </dependency>
+    <dependency> <groupId>org.junit.jupiter</groupId>    <artifactId>junit-jupiter-params</artifactId>     <scope>test</scope> </dependency>
+
+    <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-engine</artifactId>    <scope>test</scope> </dependency>
+    <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-launcher</artifactId>  <scope>test</scope> </dependency>
+    <dependency> <groupId>org.junit.platform</groupId>   <artifactId>junit-platform-suite-api</artifactId> <scope>test</scope> </dependency>
+
+    <dependency> <groupId>org.mockito</groupId>          <artifactId>mockito-core</artifactId>             <scope>test</scope> </dependency>
+    <dependency> <groupId>org.assertj</groupId>          <artifactId>assertj-core</artifactId>             <scope>test</scope> </dependency>
+    <dependency> <groupId>com.github.marschall</groupId> <artifactId>memoryfilesystem</artifactId>         <scope>test</scope> </dependency>
+  </dependencies>
+
+</project>

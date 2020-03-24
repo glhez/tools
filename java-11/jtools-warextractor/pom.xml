@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.glhez.jtools</groupId>
+    <artifactId>java-11-parent</artifactId>
+    <version>1</version>
+  </parent>
+
+  <artifactId>jtools-warextractor</artifactId>
+
+  <name>glhez's java tools :: WAR Extractor</name>
+
+  <dependencies>
+    <dependency> <groupId>org.apache.commons</groupId>       <artifactId>commons-lang3</artifactId> </dependency>
+    <dependency> <groupId>org.apache.commons</groupId>       <artifactId>commons-text</artifactId>  </dependency>
+    <dependency> <groupId>org.benf</groupId>                 <artifactId>cfr</artifactId>           </dependency>
+    <dependency> <groupId>info.picocli</groupId>             <artifactId>picocli</artifactId>       </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>              <artifactId>asm</artifactId>           </dependency>
+    <dependency> <groupId>org.ow2.asm</groupId>              <artifactId>asm-util</artifactId>      </dependency>
+    <dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-api</artifactId>     </dependency>
+    <!-- NOTE this is incompatible with jlink -->
+    <dependency> <groupId>org.apache.logging.log4j</groupId> <artifactId>log4j-core</artifactId> <scope>provided</scope> </dependency>
+  </dependencies>
+
+</project>

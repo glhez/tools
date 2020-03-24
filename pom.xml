@@ -37,8 +37,8 @@
       <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
       <properties> <toolchain.phase>validate</toolchain.phase> </properties>
       <modules>
-        <module>java8</module>
-        <module>java11</module>
+        <module>java-1.8</module>
+        <module>java-11</module>
       </modules>
     </profile>
 
@@ -52,7 +52,7 @@
       <id>travis-jdk8</id>
       <activation> <property> <name>env.TRAVIS</name> </property> <jdk>1.8</jdk> </activation>
       <modules>
-        <module>java8</module>
+        <module>java-1.8</module>
       </modules>
     </profile>
 
@@ -60,7 +60,7 @@
       <id>travis-jdk11</id>
       <activation> <property> <name>env.TRAVIS</name> </property> <jdk>11</jdk> </activation>
       <modules>
-        <module>java11</module>
+        <module>java-11</module>
       </modules>
     </profile>
 
