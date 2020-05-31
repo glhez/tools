@@ -48,3 +48,6 @@ m2e-target
 [#]*#
 # WinMerge2011
 *.bak
+
+# CSV generated
+*.csv

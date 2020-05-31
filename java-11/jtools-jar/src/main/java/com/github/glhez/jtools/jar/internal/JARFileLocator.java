@@ -212,7 +212,7 @@ public class JARFileLocator implements AutoCloseable {
      * @return <code>true</code> if the file is valid, eg: can be processed.
      */
     protected boolean shouldDescendIntoFile(final String file) {
-      return file.endsWith(".ear") || file.endsWith(".war");
+      return file.endsWith(".ear") || file.endsWith(".war") || file.endsWith(".zip");
     }
 
     /**
