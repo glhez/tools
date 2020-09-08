@@ -4,8 +4,9 @@
 
   <parent>
     <groupId>com.github.glhez.jtools</groupId>
-    <artifactId>java-11-parent</artifactId>
+    <artifactId>jtools-parent</artifactId>
     <version>1</version>
+    <relativePath>../jtools-parent</relativePath>
   </parent>
 
   <artifactId>jtools-warextractor</artifactId>

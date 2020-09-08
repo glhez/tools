@@ -11,11 +11,11 @@
   </parent>
 
   <groupId>com.github.glhez.jtools</groupId>
-  <artifactId>java-11-parent</artifactId>
+  <artifactId>jtools-parent</artifactId>
   <version>1</version>
   <packaging>pom</packaging>
 
-  <name>glhez's java tools :: Java 11</name>
+  <name>glhez's java tools :: parent</name>
 
   <repositories>
     <repository>
@@ -32,15 +32,9 @@
     </pluginRepository>
   </pluginRepositories>
 
-  <modules>
-    <module>jtools-fileset</module>
-    <module>jtools-jar</module>
-    <module>jtools-warextractor</module>
-    <module>jtools-token-grep</module>
-  </modules>
-
   <dependencyManagement>
     <dependencies>
+      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-text</artifactId>         <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-fileset</artifactId>      <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-jar</artifactId>          <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-warextractor</artifactId> <version>${project.version}</version> </dependency>

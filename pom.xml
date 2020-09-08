@@ -3,68 +3,27 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.github.glhez.parent</groupId>
-    <artifactId>maven-parent</artifactId>
-    <version>26</version> <!--@[com.github.glhez.parent]-->
+    <groupId>com.github.glhez.jtools</groupId>
+    <artifactId>jtools-parent</artifactId>
+    <version>1</version>
+    <relativePath>jtools-parent</relativePath>
   </parent>
 
   <groupId>com.github.glhez.jtools</groupId>
-  <artifactId>jtools-parent</artifactId>
+  <artifactId>jtools-aggregator</artifactId>
   <version>1</version>
 
   <packaging>pom</packaging>
 
-  <name>glhez's java tools :: parent</name>
+  <name>glhez's java tools :: aggregator</name>
 
-  <repositories>
-    <repository>
-      <id>github-glhez-repo-dep</id>
-      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
-      <snapshots> <enabled>false</enabled> </snapshots>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>github-glhez-repo-plugin</id>
-      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
-      <snapshots> <enabled>false</enabled> </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <profiles>
-    <profile>
-      <id>not-travis</id>
-      <activation> <property> <name>!env.TRAVIS</name> </property> </activation>
-      <properties> <toolchain.phase>validate</toolchain.phase> </properties>
-      <modules>
-        <module>java-1.8</module>
-        <module>java-11</module>
-      </modules>
-    </profile>
-
-    <profile>
-      <id>travis-common</id>
-      <activation> <property> <name>env.TRAVIS</name> </property> </activation>
-      <properties> <toolchain.phase>none</toolchain.phase> </properties>
-    </profile>
-
-    <profile>
-      <id>travis-jdk8</id>
-      <activation> <property> <name>env.TRAVIS</name> </property> <jdk>1.8</jdk> </activation>
-      <modules>
-        <module>java-1.8</module>
-      </modules>
-    </profile>
-
-    <profile>
-      <id>travis-jdk11</id>
-      <activation> <property> <name>env.TRAVIS</name> </property> <jdk>11</jdk> </activation>
-      <modules>
-        <module>java-11</module>
-      </modules>
-    </profile>
-
-  </profiles>
+  <modules>
+    <module>jtools-parent</module>
+    <module>jtools-text</module>
+    <module>jtools-fileset</module>
+    <module>jtools-jar</module>
+    <module>jtools-warextractor</module>
+    <module>jtools-token-grep</module>
+  </modules>
 
 </project>
-
