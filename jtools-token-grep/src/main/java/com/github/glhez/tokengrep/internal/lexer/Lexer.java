@@ -21,7 +21,8 @@ public interface Lexer extends Iterator<Token> {
    * Return a token if there is still one available.
    *
    * @return a token
-   * @throws java.util.NoSuchElementException if no token remains.
+   * @throws java.util.NoSuchElementException
+   *           if no token remains.
    */
   @Override
   Token next();

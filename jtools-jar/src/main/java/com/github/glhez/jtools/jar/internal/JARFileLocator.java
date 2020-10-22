@@ -49,8 +49,10 @@ public class JARFileLocator implements AutoCloseable {
     if (null == filters || filters.isEmpty()) {
       return v -> defaultValue;
     }
-    return filters.stream().map(JARFileLocator::pathPredicate).collect(reducing(Predicate::or))
-        .orElse(v -> defaultValue);
+    return filters.stream()
+                  .map(JARFileLocator::pathPredicate)
+                  .collect(reducing(Predicate::or))
+                  .orElse(v -> defaultValue);
   }
 
   private static Predicate<NPath> pathPredicate(final String pattern) {

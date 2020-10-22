@@ -18,9 +18,9 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    * Our comparator implementation, which sort by parent first, then path {@link #getPathAsString()}
    * (ignoring problems due to incompatible implementation of {@link Path}).
    */
-  private static final Comparator<CollectedFile> COMPARATOR = Comparator
-      .comparing(CollectedFile::getParent, Comparator.nullsFirst(Comparator.naturalOrder()))
-      .thenComparing(CollectedFile::getPathAsString);
+  private static final Comparator<CollectedFile> COMPARATOR = Comparator.comparing(CollectedFile::getParent,
+                                                                                   Comparator.nullsFirst(Comparator.naturalOrder()))
+                                                                        .thenComparing(CollectedFile::getPathAsString);
 
   private final CollectedFile parent;
   private final Path path;
@@ -39,7 +39,8 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    * Return this with the real (absolute) path entries.
    *
    * @return a new {@link CollectedFile}
-   * @throws IOException see {@link Path#toRealPath(java.nio.file.LinkOption...)}.
+   * @throws IOException
+   *           see {@link Path#toRealPath(java.nio.file.LinkOption...)}.
    */
   public CollectedFile toRealPath() throws IOException {
     return new CollectedFile(parent, path.toRealPath());

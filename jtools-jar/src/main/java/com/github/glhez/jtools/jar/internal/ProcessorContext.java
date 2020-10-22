@@ -13,14 +13,16 @@ public interface ProcessorContext {
   /**
    * Add an error for the current jarInformation.
    *
-   * @param message some message (not null).
+   * @param message
+   *          some message (not null).
    */
   void addError(String message);
 
   /**
    * Add an error for the current jarInformation.
    *
-   * @param exception some exception (not null).
+   * @param exception
+   *          some exception (not null).
    */
   default void addError(final Exception exception) {
     requireNonNull(exception, "exception");

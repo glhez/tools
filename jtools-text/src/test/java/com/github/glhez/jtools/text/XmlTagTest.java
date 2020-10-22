@@ -7,12 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.IntStream.Builder;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
-
-import com.github.glhez.jtools.text.XmlTag;
 
 public class XmlTagTest {
 
@@ -21,13 +17,13 @@ public class XmlTagTest {
   }
 
   @Test
-  public void test_is_empty() {
+  void test_is_empty() {
     assertThat(new XmlTag(emptySet()).isEmpty()).isTrue();
     assertThat(new XmlTag(of("groupId", "artifactId")).isEmpty()).isFalse();
   }
 
   @Test
-  public void test_region_matches() {
+  void test_region_matches() {
     final XmlTag tag = new XmlTag(of("groupId", "artifactId"));
 
     assertThat(tag.regionMatches(" <groupId>org.apache</groupId>", 0)).isEqualTo(-1);
@@ -50,8 +46,8 @@ public class XmlTagTest {
   }
 
   @Test
-  public void test_xml_name() {
-    final Builder nameStartBuilder = IntStream.builder();
+  void test_xml_name() {
+    final IntStream.Builder nameStartBuilder = IntStream.builder();
 
     IntStream.of(':').forEach(nameStartBuilder);
     IntStream.of('A', 'Z').forEach(nameStartBuilder);
@@ -70,7 +66,7 @@ public class XmlTagTest {
     IntStream.of(0x0000FDF0, 0x0000FFFD).forEach(nameStartBuilder);
     IntStream.of(0x00010000, 0x000EFFFF).forEach(nameStartBuilder);
 
-    final Builder namePartBuilder = IntStream.builder();
+    final IntStream.Builder namePartBuilder = IntStream.builder();
     IntStream.of('-').forEach(namePartBuilder);
     IntStream.of('.').forEach(namePartBuilder);
     IntStream.of('0', '9').forEach(namePartBuilder);

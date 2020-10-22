@@ -43,14 +43,16 @@ public interface FilesProxy {
   /**
    * Delete the file or empty directory pointed by {@code start}.
    *
-   * @param start start point
+   * @param start
+   *          start point
    */
   void delete(Path start) throws IOException;
 
   /**
    * Recursively delete the file or directory pointed by {@code start}.
    *
-   * @param start start point
+   * @param start
+   *          start point
    */
   void recursiveDelete(Path start) throws IOException;
 

@@ -32,7 +32,7 @@ public class MutableProcessorContext implements ProcessorContext {
   @Override
   public void addError(final String message) {
     requireNonNull(message, "message");
-    errors.computeIfAbsent(jarInformation, (key) -> new ArrayList<>()).add(message);
+    errors.computeIfAbsent(jarInformation, key -> new ArrayList<>()).add(message);
   }
 
 }

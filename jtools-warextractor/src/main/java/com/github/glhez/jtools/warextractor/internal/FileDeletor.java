@@ -9,8 +9,7 @@ import java.util.Objects;
 
 public class FileDeletor implements FileVisitor<Path> {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(FileDeletor.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(FileDeletor.class);
 
   private final FilesProxy proxy;
 

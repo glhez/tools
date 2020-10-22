@@ -9,12 +9,10 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.glhez.jtools.text.BiToken;
-
 public class BiTokenTest {
 
   @Test
-  public void test() {
+  void test() {
     assertThatNullPointerException().isThrownBy(() -> BiToken.of(null, "a")).withMessage("start");
     assertThatNullPointerException().isThrownBy(() -> BiToken.of("a", null)).withMessage("end");
     assertThatNullPointerException().isThrownBy(() -> BiToken.of(null)).withMessage("start");
@@ -31,7 +29,7 @@ public class BiTokenTest {
   }
 
   @Test
-  public void test_hash_code_equals() {
+  void test_hash_code_equals() {
     final BiToken a1 = BiToken.of("a");
     final BiToken a2 = BiToken.of("a");
     final BiToken b1 = BiToken.of("b", "k");
@@ -57,7 +55,7 @@ public class BiTokenTest {
   }
 
   @Test
-  public void test_regionMatches() {
+  void test_regionMatches() {
     final BiToken c = BiToken.of("/*", "*/");
 
     assertThat(c.regionMatches("/* THIS IS IT ", 0)).isEqualTo(-1);
@@ -68,8 +66,8 @@ public class BiTokenTest {
     final BiToken s = BiToken.string("'-", "@A");
     assertThat(s.regionMatches(" '- THIS IS IT ", 1)).isEqualTo(-1);
     assertThat(s.regionMatches(" '-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789'-".length());
-    assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1))
-        .isEqualTo(1 + "'-0123456789@A'-0123456789'-".length());
+    assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1)).isEqualTo(1
+        + "'-0123456789@A'-0123456789'-".length());
 
   }
 

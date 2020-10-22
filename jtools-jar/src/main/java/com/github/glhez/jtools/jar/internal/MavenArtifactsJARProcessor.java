@@ -115,16 +115,16 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
         System.out.println("  local artifactId=\"$2\"");
         System.out.println("  local version=\"$3\"");
         System.out.println("  local file=\"$4\"");
-        System.out.println(
-            "  echo mvn deploy:deploy-file  \"-DgroupId=$groupId\" \"-DartifactId=$artifactId\"  \"-Dversion=$version\" \"-Dfile=$file\"");
+        System.out.println("  echo mvn deploy:deploy-file  \"-DgroupId=$groupId\" \"-DartifactId=$artifactId\"  \"-Dversion=$version\" \"-Dfile=$file\"");
         System.out.println("}");
         System.out.println("");
         System.out.println("");
         System.out.printf("# %d artifacts found%n", mavenArtifacts.size());
 
       }
-      mavenArtifacts.forEach((jar, gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId,
-          gav.version.orElse(""), jar));
+      mavenArtifacts.forEach((jar,
+          gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId, gav.version.orElse(""),
+                                    jar));
     } else if (kind == ExportMode.CSV) {
       csvProcessor.finish();
     } else {
@@ -239,20 +239,24 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
     @Override
     protected void finish(final CSVPrinter printer) throws IOException {
 
-      final Map<GAV, Long> counters = mavenArtifacts.values().stream()
-          .collect(groupingBy(Function.identity(), counting()));
-      final Map<GAV, Long> unversionnedCounters = mavenArtifacts.values().stream()
-          .collect(groupingBy(GAV::unversionned, counting()));
+      final Map<GAV, Long> counters = mavenArtifacts.values()
+                                                    .stream()
+                                                    .collect(groupingBy(Function.identity(), counting()));
+      final Map<GAV, Long> unversionnedCounters = mavenArtifacts.values()
+                                                                .stream()
+                                                                .collect(groupingBy(GAV::unversionned, counting()));
 
       printer.printRecord("groupId:artifactId", "version", "groupId:artifactId references in fileset",
-          "groupId:artifactId:version references in fileset", "File");
+                          "groupId:artifactId:version references in fileset", "File");
       for (final var entry : mavenArtifacts.entrySet()) {
         final var jarInformation = entry.getKey();
         final var gav = entry.getValue();
         final var unversionnedGav = gav.unversionned();
 
-        printer.printRecord(unversionnedGav, gav.getVersion().orElse(""),
-            unversionnedCounters.getOrDefault(unversionnedGav, 0L), counters.getOrDefault(gav, 0L), jarInformation);
+        printer.printRecord(unversionnedGav, gav.getVersion()
+                                                .orElse(""),
+                            unversionnedCounters.getOrDefault(unversionnedGav, 0L), counters.getOrDefault(gav, 0L),
+                            jarInformation);
       }
 
     }

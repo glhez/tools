@@ -25,12 +25,15 @@ public enum LineSeparator {
   }
 
   private static final Map<String, LineSeparator> MAPPING = Arrays.stream(LineSeparator.values())
-      .collect(collectingAndThen(toMap(LineSeparator::toString, x -> x), Collections::unmodifiableMap));
+                                                                  .collect(collectingAndThen(toMap(LineSeparator::toString,
+                                                                                                   x -> x),
+                                                                                             Collections::unmodifiableMap));
 
   /**
    * Get the {@link LineSeparator} out of {@link String}.
    *
-   * @param value some value
+   * @param value
+   *          some value
    * @return an {@link Optional} being empty if the mapping could not be found.
    */
   public static Optional<LineSeparator> of(final String value) {

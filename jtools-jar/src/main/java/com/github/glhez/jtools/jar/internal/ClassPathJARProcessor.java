@@ -31,8 +31,9 @@ public class ClassPathJARProcessor extends ReportFileJARProcessor {
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
-      final Optional<String> classPath = Optional.ofNullable(jarFile.getManifest()).map(Manifest::getMainAttributes)
-          .map(attr -> attr.getValue(Name.CLASS_PATH));
+      final Optional<String> classPath = Optional.ofNullable(jarFile.getManifest())
+                                                 .map(Manifest::getMainAttributes)
+                                                 .map(attr -> attr.getValue(Name.CLASS_PATH));
       classPathEntries.put(context.getJARInformation(), classPath.map(CLASS_PATH_SPLITTER::split).map(Arrays::asList));
     } catch (final IOException e) {
       context.addError(e);

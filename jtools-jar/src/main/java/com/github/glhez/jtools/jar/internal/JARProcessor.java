@@ -11,8 +11,10 @@ public interface JARProcessor {
   /**
    * Process one JAR file.
    *
-   * @param context a context.
-   * @param jarFile a {@link JarFile} representing the jar.
+   * @param context
+   *          a context.
+   * @param jarFile
+   *          a {@link JarFile} representing the jar.
    */
   void process(ProcessorContext context, JarFile jarFile);
 

@@ -35,8 +35,8 @@ public class ExecutionContext {
 
   private static ExecutionContext build(final ExecutionContext.Builder builder) {
     // do some validation before
-    final var filtering = ChainFilter
-        .newChainFilterBuilder(Optional.ofNullable(builder.filtering).orElse(DEFAULT_FILTERING));
+    final var filtering = ChainFilter.newChainFilterBuilder(Optional.ofNullable(builder.filtering)
+                                                                    .orElse(DEFAULT_FILTERING));
     final var includes = Objects.requireNonNullElse(builder.includes, DEFAULT_INCLUDES);
     final var excludes = Objects.requireNonNullElse(builder.excludes, DEFAULT_EXCLUDES);
     final var fileMatcher = toPredicate(includes, true).and(toPredicate(excludes, false).negate());
@@ -74,8 +74,10 @@ public class ExecutionContext {
     if (filters.isEmpty()) {
       return v -> defaultValue;
     }
-    return filters.stream().map(ExecutionContext::pathPredicate).collect(reducing(Predicate::or))
-        .orElse(v -> defaultValue);
+    return filters.stream()
+                  .map(ExecutionContext::pathPredicate)
+                  .collect(reducing(Predicate::or))
+                  .orElse(v -> defaultValue);
   }
 
   public static Predicate<PathWrapper> pathPredicate(final String pattern) {

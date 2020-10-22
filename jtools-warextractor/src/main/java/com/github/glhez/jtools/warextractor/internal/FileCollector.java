@@ -14,8 +14,7 @@ import java.util.function.Predicate;
 
 public class FileCollector implements FileVisitor<Path> {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(FileCollector.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(FileCollector.class);
 
   private final Set<Path> directories;
   private final SortedSet<PathWrapper> files;

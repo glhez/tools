@@ -14,8 +14,7 @@ import org.apache.commons.text.StringEscapeUtils;
 
 public class DryRunFilesProxy extends AbstractFilesProxy {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger("dry-run");
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("dry-run");
 
   private void log(final Object... args) {
     logger.info(Arrays.stream(args).map(this::convert).map(StringEscapeUtils::escapeXSI).collect(joining(" ")));

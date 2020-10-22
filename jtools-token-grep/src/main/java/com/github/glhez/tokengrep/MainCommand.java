@@ -3,7 +3,6 @@ package com.github.glhez.tokengrep;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,11 +12,11 @@ import java.util.function.Predicate;
 
 import com.github.glhez.fileset.ArchiveMode;
 import com.github.glhez.fileset.CollectedFile;
+import com.github.glhez.fileset.CollectedFilePredicateBuilder;
 import com.github.glhez.fileset.FilesCollector;
 import com.github.glhez.tokengrep.internal.Token;
 import com.github.glhez.tokengrep.internal.TokenMatcher;
 import com.github.glhez.tokengrep.internal.lexer.Lexer;
-import com.github.glhez.fileset.CollectedFilePredicateBuilder;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

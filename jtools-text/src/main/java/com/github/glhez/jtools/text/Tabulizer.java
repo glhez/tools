@@ -22,7 +22,8 @@ public class Tabulizer {
   /**
    * Tabulize a set of lines using default options.
    *
-   * @param lines a set of lines
+   * @param lines
+   *          a set of lines
    * @return lines padded with spaces to represent an ASCII table, without delimiters such as
    *         {@code !} or any other unicode character.
    */
@@ -35,8 +36,10 @@ public class Tabulizer {
    * <p>
    * The method does nothing if length of {@code lines} is not greater than one (1).
    *
-   * @param options options to use
-   * @param lines a set of lines.
+   * @param options
+   *          options to use
+   * @param lines
+   *          a set of lines.
    * @return lines padded with spaces to represent an ASCII table, without delimiters such as
    *         {@code !} or any other Unicode character.
    */
@@ -77,7 +80,8 @@ public class Tabulizer {
   /**
    * Detect a series of rows.
    *
-   * @param lines a set of lines
+   * @param lines
+   *          a set of lines
    * @return a Row[] containing as much rows than there is lines.
    */
   Row[] detectColumns(final String[] lines) {
@@ -206,7 +210,8 @@ public class Tabulizer {
    * <p>
    * The indent {@link String} only contains spaces.
    *
-   * @param indent indent value.
+   * @param indent
+   *          indent value.
    */
   private static String indent(final int indent) {
     final char[] spaces = new char[indent];
@@ -217,8 +222,10 @@ public class Tabulizer {
   /**
    * Detect the initial indent, which is the number of spaces to prepend before each lines.
    *
-   * @param lines lines
-   * @param tabSize size of tabs
+   * @param lines
+   *          lines
+   * @param tabSize
+   *          size of tabs
    * @return the initial indent,
    */
   static int detectInitialIndent(final String[] lines, final int tabSize) {
@@ -236,7 +243,8 @@ public class Tabulizer {
   /**
    * Detect initial indent of one line.
    *
-   * @param line line to check
+   * @param line
+   *          line to check
    * @param tabSize
    * @return
    */

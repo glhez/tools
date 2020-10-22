@@ -41,9 +41,11 @@ public class CollectedFilePredicateBuilder {
   /**
    * Convert a set of includes and excludes into a predicate.
    *
-   * @param includes file to includes, can be <code>null</code> or empty (which is same as
+   * @param includes
+   *          file to includes, can be <code>null</code> or empty (which is same as
    *          <code>true</code>)
-   * @param excludes file to excludes, can be <code>null</code> or empty (which is same as
+   * @param excludes
+   *          file to excludes, can be <code>null</code> or empty (which is same as
    *          <code>false</code>)
    * @return a predicate accepting file given includes and excludes.
    */
@@ -66,7 +68,8 @@ public class CollectedFilePredicateBuilder {
   /**
    * Convert several pattern by making a OR between each.
    *
-   * @param patterns set of pattern, can be <code>null</code>.
+   * @param patterns
+   *          set of pattern, can be <code>null</code>.
    * @return a predicate wrapped in an {@link Optional}.
    */
   public Optional<Predicate<CollectedFile>> convert(final Collection<? extends String> patterns) {
@@ -79,7 +82,8 @@ public class CollectedFilePredicateBuilder {
    * A pattern may starts with a prefix (see {@link #mapper}} which apply only on part of
    * {@link CollectedFile}.
    *
-   * @param pattern a pattern
+   * @param pattern
+   *          a pattern
    * @return some predicate
    */
   public Predicate<CollectedFile> convert(final String pattern) {

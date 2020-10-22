@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
@@ -24,6 +24,7 @@ import org.apache.commons.csv.CSVFormat;
 
 import com.github.glhez.jtools.jar.internal.ClassPathJARProcessor;
 import com.github.glhez.jtools.jar.internal.JARFileLocator;
+import com.github.glhez.jtools.jar.internal.JARFileLocator.DeepMode;
 import com.github.glhez.jtools.jar.internal.JARInformation;
 import com.github.glhez.jtools.jar.internal.JARProcessor;
 import com.github.glhez.jtools.jar.internal.JNLPPermissionsJARProcessor;
@@ -36,7 +37,6 @@ import com.github.glhez.jtools.jar.internal.ReportFile;
 import com.github.glhez.jtools.jar.internal.SPIServiceJARProcessor;
 import com.github.glhez.jtools.jar.internal.ShowClassJARProcessor;
 import com.github.glhez.jtools.jar.internal.ShowPackageJARProcessor;
-import com.github.glhez.jtools.jar.internal.JARFileLocator.DeepMode;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -180,7 +180,7 @@ public class MainCommand implements Runnable {
             /* @formatter:off */
             features = jarFile.stream()
                    .map(entry -> multiReleaseVersionPattern.matcher(entry.getName()))
-                   .filter(matcher -> matcher.matches())
+                   .filter(Matcher::matches)
                    .map(matcher -> matcher.group(1))
                    .mapToInt(Integer::parseInt)
                    .toArray();
@@ -331,9 +331,9 @@ public class MainCommand implements Runnable {
       add(processors, new JavaVersionJARProcessor(newReportFile("java-version"), mavenArtifactsJARProcessor));
     }
     if (showPackage) {
-      add(processors,
-          new ShowPackageJARProcessor(newReportFile(showOnlyDuplicatePackage ? "duplicate-package" : "package"),
-              showOnlyDuplicatePackage, mavenArtifactsJARProcessor, moduleJARProcessor));
+      add(processors, new ShowPackageJARProcessor(
+          newReportFile(showOnlyDuplicatePackage ? "duplicate-package" : "package"), showOnlyDuplicatePackage,
+          mavenArtifactsJARProcessor, moduleJARProcessor));
     }
     if (showClasses) {
       add(processors, new ShowClassJARProcessor(newReportFile(showOnlyDuplicateClasses ? "duplicate-class" : "class"),

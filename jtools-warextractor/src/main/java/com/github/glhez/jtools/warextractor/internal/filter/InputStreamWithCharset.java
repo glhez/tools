@@ -98,7 +98,8 @@ public class InputStreamWithCharset implements AutoCloseable {
    * <p>
    * This method will not work as intended if the stream was already read.
    *
-   * @param charset a custom charset to use if none is set {@link #getCharset()}.
+   * @param charset
+   *          a custom charset to use if none is set {@link #getCharset()}.
    * @throws IOException
    */
   public String getString(final Charset charset) throws IOException {

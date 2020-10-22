@@ -8,19 +8,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.jupiter.api.Test;
-
-import com.github.glhez.jtools.text.BiToken;
-import com.github.glhez.jtools.text.LineSeparator;
-import com.github.glhez.jtools.text.RightAlignNumber;
-import com.github.glhez.jtools.text.TabulizerOptions;
-import com.github.glhez.jtools.text.TabulizerOptions.Builder;
 
 public class TabulizerOptionsTest {
 
   @Test
-  public void test_default_values() {
+  void test_default_values() {
     final TabulizerOptions b = TabulizerOptions.builder().build();
 
     assertThat(b.multilineComment).isNull();
@@ -50,7 +43,7 @@ public class TabulizerOptionsTest {
   }
 
   @Test
-  public void test_customized() {
+  void test_customized() {
     final BiToken multilineComment = BiToken.of("/*", "*/");
 
     final String lineComment = "//";
@@ -71,7 +64,7 @@ public class TabulizerOptionsTest {
     final Set<String> additionalNumberToken = Collections.singleton("A");
     final RightAlignNumber rightAlignNumber = RightAlignNumber.NUMBERS_ONLY;
 
-    final Builder builder = TabulizerOptions.builder();
+    final TabulizerOptions.Builder builder = TabulizerOptions.builder();
     builder.setMultilineComment(multilineComment);
     builder.setLineComment(lineComment);
     builder.setString1(string1);
@@ -120,8 +113,9 @@ public class TabulizerOptionsTest {
   }
 
   static <E> void assertUnmodifiable(final Collection<? extends E> collection) {
-    assertThat(collection.getClass().getName())
-        .describedAs("collection (%s) should be unmodifiable", collection.getClass()).matches(
-            s -> s.startsWith("java.util.Collections$Unmodifiable") || s.startsWith("java.util.Collections$Empty"));
+    assertThat(collection.getClass()
+                         .getName()).describedAs("collection (%s) should be unmodifiable", collection.getClass())
+                                    .matches(s -> s.startsWith("java.util.Collections$Unmodifiable")
+                                        || s.startsWith("java.util.Collections$Empty"));
   }
 }

@@ -13,9 +13,11 @@ public interface Filter {
   /**
    * Filter the incoming input stream using the {@code source}.
    *
-   * @param stream source stream
+   * @param stream
+   *          source stream
    * @return the resulting stream
-   * @throws IOException in case of error during filtering.
+   * @throws IOException
+   *           in case of error during filtering.
    */
   InputStreamWithCharset filter(InputStreamWithCharset stream) throws IOException;
 }

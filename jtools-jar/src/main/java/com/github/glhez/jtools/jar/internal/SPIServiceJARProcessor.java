@@ -40,8 +40,9 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
     this.moduleJARProcessor = requireNonNull(moduleJARProcessor, "moduleJARProcessor");
     this.all = all;
     this.spiInterfaces = all || spiInterfaces.isEmpty() ? Collections.emptySet() : new LinkedHashSet<>(spiInterfaces);
-    this.spiInterfacesPath = spiInterfaces.stream().map(path -> SERVICES_DIRECTORY + path)
-        .collect(toCollection(LinkedHashSet::new));
+    this.spiInterfacesPath = spiInterfaces.stream()
+                                          .map(path -> SERVICES_DIRECTORY + path)
+                                          .collect(toCollection(LinkedHashSet::new));
     this.services = new LinkedHashMap<>();
     this.moduleOnly = moduleOnly;
   }
@@ -65,12 +66,12 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
       entries.forEach(entry -> process(context, jarFile, entry));
     }
     moduleJARProcessor.getModuleDescriptor(context.getJARInformation())
-        .ifPresent(descriptor -> process(context, descriptor));
+                      .ifPresent(descriptor -> process(context, descriptor));
 
   }
 
   private Set<AvailableImplementation> providersFor(final String service) {
-    return services.computeIfAbsent(service, (key) -> new LinkedHashSet<>());
+    return services.computeIfAbsent(service, key -> new LinkedHashSet<>());
   }
 
   private void process(final ProcessorContext context, final JarFile jarFile, final JarEntry entry) {
@@ -91,8 +92,8 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
 
   private void process(final ProcessorContext context, final ModuleDescriptor descriptor) {
     descriptor.provides().stream().filter(this::isRequestedServices).forEach(provides -> {
-      providersFor(provides.service())
-          .add(new AvailableImplementation(context.getJARInformation(), provides.providers(), true));
+      providersFor(provides.service()).add(new AvailableImplementation(context.getJARInformation(),
+          provides.providers(), true));
     });
   }
 
@@ -101,7 +102,7 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
     final Set<String> spiInterfaces = all ? services.keySet() : this.spiInterfaces;
 
     printer.printRecord("Interface", "Implementation count (Fileset)", "Implementation count (JAR)", "Implementation",
-        "Maven", "Java Module", "JAR");
+                        "Maven", "Java Module", "JAR");
 
     for (final String spiInterface : spiInterfaces) {
       final Set<AvailableImplementation> implementations = services.get(spiInterface);
@@ -117,7 +118,7 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
         final var jarImplementationFound = availableImplementation.implementations.size();
         for (final String impl : availableImplementation.implementations) {
           printer.printRecord(spiInterface, implementationFound, jarImplementationFound, impl, gav, desc,
-              availableImplementation.jarInformation);
+                              availableImplementation.jarInformation);
         }
       }
     }

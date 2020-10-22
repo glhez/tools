@@ -28,8 +28,8 @@ public enum ASMFileFilter implements Filter {
     try (var pw = new PrintWriter(bos, false, charset)) {
       final org.objectweb.asm.ClassVisitor traceClassVisitor = new TraceClassVisitor(null,
           new org.objectweb.asm.util.Textifier(), pw);
-      new ClassReader(stream.getStream()).accept(traceClassVisitor,
-          ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES);
+      new ClassReader(stream.getStream()).accept(traceClassVisitor, ClassReader.SKIP_DEBUG | ClassReader.SKIP_CODE
+          | ClassReader.SKIP_FRAMES);
     }
     return stream.filter(bos, charset);
   }

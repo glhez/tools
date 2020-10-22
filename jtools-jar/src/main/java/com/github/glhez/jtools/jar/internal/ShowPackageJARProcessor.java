@@ -40,8 +40,9 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try (final var ss = jarFile.stream()) {
-      final TreeSet<String> packages = ss.filter(ShowPackageJARProcessor::isClassFileEntry).map(this::splitName)
-          .collect(toCollection(TreeSet::new));
+      final TreeSet<String> packages = ss.filter(ShowPackageJARProcessor::isClassFileEntry)
+                                         .map(this::splitName)
+                                         .collect(toCollection(TreeSet::new));
       packagesPerJar.put(context.getJARInformation(), packages);
     }
   }
@@ -51,7 +52,8 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
    * <p>
    * The definition is shared with {@link ShowClassJARProcessor}.
    *
-   * @param entry a jar entry
+   * @param entry
+   *          a jar entry
    * @return <code>true</code> if the entry correspond to a Java classes.
    */
   static boolean isClassFileEntry(final JarEntry entry) {
@@ -76,8 +78,10 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
   @Override
   protected void finish(final CSVPrinter printer) throws IOException {
     // compute duplicate per package
-    final Map<String, Long> counters = this.packagesPerJar.values().stream().flatMap(Set::stream)
-        .collect(groupingBy(Function.identity(), counting()));
+    final Map<String, Long> counters = this.packagesPerJar.values()
+                                                          .stream()
+                                                          .flatMap(Set::stream)
+                                                          .collect(groupingBy(Function.identity(), counting()));
 
     printer.printRecord("JAR", "GAV", "Module", "Package", "Number of package references in all JARs");
     for (final var entry : this.packagesPerJar.entrySet()) {

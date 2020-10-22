@@ -1,12 +1,10 @@
 /**
  * @author gael.lhez
  */
-@SuppressWarnings("module")
 module com.github.glhez.jtools.jar {
   exports com.github.glhez.jtools.jar;
 
   requires info.picocli;
-
 
   requires commons.csv;
   requires java.sql; // due to commons.csv

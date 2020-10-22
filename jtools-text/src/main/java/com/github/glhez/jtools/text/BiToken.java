@@ -38,7 +38,8 @@ public final class BiToken implements RegionMatcher {
    * BiToken xmlComment = of("%") // same as of("%", "%")
    * </pre>
    *
-   * @param start start (can't be null)
+   * @param start
+   *          start (can't be null)
    * @return a {@link BiToken}.
    */
   public static BiToken of(final String start) {
@@ -54,8 +55,10 @@ public final class BiToken implements RegionMatcher {
    * BiToken xmlComment = of("&lt;!--", "--&gt;")
    * </pre>
    *
-   * @param start start (can't be null)
-   * @param end end (can't be null)
+   * @param start
+   *          start (can't be null)
+   * @param end
+   *          end (can't be null)
    * @return a {@link BiToken}.
    */
   public static BiToken of(final String start, final String end) {
@@ -71,8 +74,10 @@ public final class BiToken implements RegionMatcher {
    * BiToken jsQuotedString = string("'", "\\")
    * </pre>
    *
-   * @param start start (can't be null)
-   * @param escape escape character (can't be null)
+   * @param start
+   *          start (can't be null)
+   * @param escape
+   *          escape character (can't be null)
    * @return a {@link BiToken}.
    */
   public static BiToken string(final String start, final String escape) {

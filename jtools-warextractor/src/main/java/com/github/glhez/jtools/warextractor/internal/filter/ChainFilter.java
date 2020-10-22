@@ -6,6 +6,8 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
+import com.github.glhez.jtools.warextractor.internal.ExecutionContext;
+import com.github.glhez.jtools.warextractor.internal.PathWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,13 +15,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import com.github.glhez.jtools.warextractor.internal.ExecutionContext;
-import com.github.glhez.jtools.warextractor.internal.PathWrapper;
 
 /**
  * Produce {@link Filter}.
@@ -28,8 +26,7 @@ import com.github.glhez.jtools.warextractor.internal.PathWrapper;
  */
 public class ChainFilter {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(ChainFilter.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(ChainFilter.class);
 
   private final List<PredicateAndFilter> filters;
 
@@ -39,8 +36,10 @@ public class ChainFilter {
 
   public void filter(final Set<Path> copiedFiles) {
     // first regroup files per chain, this is to display statistics
-    final var map = copiedFiles.stream().map(PathWrapper::new).map(this::map)
-        .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, toList())));
+    final var map = copiedFiles.stream()
+                               .map(PathWrapper::new)
+                               .map(this::map)
+                               .collect(groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue, toList())));
 
     for (final var group : map.entrySet()) {
       final var filters = group.getKey().array;
@@ -58,15 +57,17 @@ public class ChainFilter {
     }
   }
 
-  private Entry<ArrayWrapper<Filter>, Path> map(final PathWrapper wrapper) {
-    final var filters = this.filters.stream().filter(paf -> paf.predicate.test(wrapper))
-        .map(PredicateAndFilter::getFilter).toArray(Filter[]::new);
+  private Map.Entry<ArrayWrapper<Filter>, Path> map(final PathWrapper wrapper) {
+    final var filters = this.filters.stream()
+                                    .filter(paf -> paf.predicate.test(wrapper))
+                                    .map(PredicateAndFilter::getFilter)
+                                    .toArray(Filter[]::new);
     return Map.entry(new ArrayWrapper<>(filters), wrapper.getPath());
   }
 
   private void filter(final int index, final int total, final Path file, final Filter[] filters) {
-    logger.debug("filtering {} ({}): {}", () -> index, () -> String.format("%3.2f%%", 100.0 * (index / (double) total)),
-        () -> file);
+    logger.debug("filtering {} ({}): {}", () -> index, () -> String.format("%3.2f%%", 100.0
+        * (index / (double) total)), () -> file);
     try {
       InputStreamWithCharset root = InputStreamWithCharset.open(file);
       for (final Filter element : filters) {

@@ -40,8 +40,10 @@ public class FilesCollector implements AutoCloseable {
   /**
    * Create a new collector.
    *
-   * @param archiveMode determine what to do with archives file.
-   * @param predicate how to filter file (mandatory).
+   * @param archiveMode
+   *          determine what to do with archives file.
+   * @param predicate
+   *          how to filter file (mandatory).
    * @return a collector.
    */
   public static FilesCollector newFilesCollector(final ArchiveMode archiveMode,
@@ -72,7 +74,8 @@ public class FilesCollector implements AutoCloseable {
    * <p>
    * Entries are directly processed for addition.
    *
-   * @param paths some entries, can be <code>null</code> or empty.
+   * @param paths
+   *          some entries, can be <code>null</code> or empty.
    */
   public void addEntries(final Collection<Path> paths) {
     if (paths != null && !paths.isEmpty()) {
@@ -85,7 +88,8 @@ public class FilesCollector implements AutoCloseable {
    * <p>
    * The entry is directly processed for addition.
    *
-   * @param path an entry (not null).
+   * @param path
+   *          an entry (not null).
    */
   public void addEntry(final Path path) {
     Objects.requireNonNull(path, "path");
@@ -109,20 +113,16 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addDirectoryEntry(final CollectedFile entry) throws IOException {
-    try (final Stream<Path> stream = Files.find(entry.getPath(), Integer.MAX_VALUE,
-        (file, attrs) -> attrs.isRegularFile())) {
+    try (final Stream<Path> stream = Files.find(entry.getPath(), Integer.MAX_VALUE, (file,
+        attrs) -> attrs.isRegularFile())) {
       stream.forEach(path -> {
         final var child = new CollectedFile(entry, path);
-        try {
-          addRegularFileEntry(child, false);
-        } catch (final IOException e) {
-          addError(child, e);
-        }
+        addRegularFileEntry(child, false);
       });
     }
   }
 
-  private void addRegularFileEntry(final CollectedFile entry, final boolean ignoreFilter) throws IOException {
+  private void addRegularFileEntry(final CollectedFile entry, final boolean ignoreFilter) {
     if (!ignoreFilter && !filter.test(entry)) {
       return;
     }

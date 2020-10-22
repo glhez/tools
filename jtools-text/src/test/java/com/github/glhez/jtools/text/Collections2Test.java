@@ -13,12 +13,10 @@ import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.glhez.jtools.text.Collections2;
-
 public class Collections2Test {
 
   @Test
-  public void testCopyAsUnmodifiableSet() {
+  void testCopyAsUnmodifiableSet() {
     final Set<Object> empty = Collections.emptySet();
 
     assertThat(Collections2.copyAsUnmodifiableSet(null)).isSameAs(empty);
@@ -29,7 +27,7 @@ public class Collections2Test {
   }
 
   @Test
-  public void testCopyAsUnmodifiableNavigableSet() {
+  void testCopyAsUnmodifiableNavigableSet() {
     final NavigableSet<Object> empty = Collections.emptyNavigableSet();
     assertThat(Collections2.copyAsUnmodifiableNavigableSet(null)).isSameAs(empty);
     assertThat(Collections2.copyAsUnmodifiableNavigableSet(new TreeSet<>())).isSameAs(empty);
@@ -39,7 +37,7 @@ public class Collections2Test {
   }
 
   @Test
-  public void testCopyAsUnmodifiableList() {
+  void testCopyAsUnmodifiableList() {
     final List<Object> empty = Collections.emptyList();
 
     assertThat(Collections2.copyAsUnmodifiableList(null)).isSameAs(empty);

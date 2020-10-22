@@ -9,17 +9,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.glhez.jtools.text.BiToken;
-import com.github.glhez.jtools.text.DefaultColumn;
-import com.github.glhez.jtools.text.LineSeparator;
-import com.github.glhez.jtools.text.Row;
-import com.github.glhez.jtools.text.Tabulizer;
-import com.github.glhez.jtools.text.TabulizerOptions;
-
 public class TabulizerTest {
 
   @Test
-  public void test_static_tabulize() {
+  void test_static_tabulize() {
     assertThatNullPointerException().isThrownBy(() -> new Tabulizer(null)).withMessage("options");
     assertThatNullPointerException().isThrownBy(() -> tabulize(null, new String[0])).withMessage("options");
     assertThatNullPointerException().isThrownBy(() -> tabulize((String[]) null)).withMessage("lines");
@@ -27,17 +20,21 @@ public class TabulizerTest {
 
     assertThat(tabulize()).isEmpty();
     assertThat(tabulize("A")).isEqualTo("A");
-    final TabulizerOptions opt1 = TabulizerOptions.builder().setDetectInitialIndent(true)
-        .setLineSeparator(LineSeparator.LF).build();
+    final TabulizerOptions opt1 = TabulizerOptions.builder()
+                                                  .setDetectInitialIndent(true)
+                                                  .setLineSeparator(LineSeparator.LF)
+                                                  .build();
     assertThat(tabulize(opt1, "    A", "B")).isNotNull().isEqualTo("    A\n    B\n");
 
-    assertThat(tabulize(TabulizerOptions.builder().setLineSeparator(LineSeparator.CRLF).build(), "    A", "B"))
-        .isNotNull().isEqualTo("A\r\nB\r\n");
+    assertThat(tabulize(TabulizerOptions.builder()
+                                        .setLineSeparator(LineSeparator.CRLF)
+                                        .build(),
+                        "    A", "B")).isNotNull().isEqualTo("A\r\nB\r\n");
 
   }
 
   @Test
-  public void test_detect_columns() {
+  void test_detect_columns() {
     // additionalNumberToken
     // detectNumber
     // keywordCaseInsensitive
@@ -52,20 +49,25 @@ public class TabulizerTest {
 
     {
       final Row row = noOpt.detectColumns("A B C D");
-      assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn("C"),
-          new DefaultColumn("D"));
+      assertThat(row).isNotNull()
+                     .contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn(
+                         "C"), new DefaultColumn("D"));
       assertThat(row.columnCount()).isEqualTo(4);
     }
     {
       // this should still work (we ignore space before/after)
       final Row row = noOpt.detectColumns("   A B C D    ");
-      assertThat(row).isNotNull().contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn("C"),
-          new DefaultColumn("D"));
+      assertThat(row).isNotNull()
+                     .contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn(
+                         "C"), new DefaultColumn("D"));
       assertThat(row.columnCount()).isEqualTo(4);
     }
 
-    final Tabulizer stringOpt = TabulizerOptions.builder().setString1(BiToken.string("\"", "\\"))
-        .setString2(BiToken.string("'", "\\")).build().toTabulizer();
+    final Tabulizer stringOpt = TabulizerOptions.builder()
+                                                .setString1(BiToken.string("\"", "\\"))
+                                                .setString2(BiToken.string("'", "\\"))
+                                                .build()
+                                                .toTabulizer();
     {
       final String a = "A";
       final String b = "'B A'";
@@ -78,7 +80,7 @@ public class TabulizerTest {
   }
 
   @Test
-  public void test_detect_initial_indent() {
+  void test_detect_initial_indent() {
     assertThat(detectInitialIndent("  A", 0)).isEqualTo(2);
     assertThat(detectInitialIndent("A", 0)).isEqualTo(0);
     assertThat(detectInitialIndent("\t\tA", 2)).isEqualTo(4);
@@ -87,26 +89,26 @@ public class TabulizerTest {
     assertThat(detectInitialIndent("      ", 0)).isEqualTo(0);
 
     assertThat(detectInitialIndent(lines( //
-        "      ",  // 0
-        "  A",     // 2
-        "\tA",     // 0 (tabSize = 0)
-        "\t A"     // 1 (tabSize = 0)
+                                         "      ",  // 0
+                                         "  A",     // 2
+                                         "\tA",     // 0 (tabSize = 0)
+                                         "\t A"     // 1 (tabSize = 0)
     ), 0)).isEqualTo(2);
     assertThat(detectInitialIndent(lines( //
-        "  A",     // 2
-        "\tA",     // 4 (tabSize = 4)
-        "      ",  // 0
-        "\t A"     // 5 (tabSize = 4)
+                                         "  A",     // 2
+                                         "\tA",     // 4 (tabSize = 4)
+                                         "      ",  // 0
+                                         "\t A"     // 5 (tabSize = 4)
     ), 4)).isEqualTo(5);
 
   }
 
   @Test
-  public void test_trim_lines() {
+  void test_trim_lines() {
     assertThat(trimLines(lines( //
-        "     AAAA     ", // AAAA
-        "   \tBBBB",      // BBBB
-        "CCCC \t \t"      // CCCC
+                               "     AAAA     ", // AAAA
+                               "   \tBBBB",      // BBBB
+                               "CCCC \t \t"      // CCCC
     ))).containsExactly("AAAA", "BBBB", "CCCC");
   }
 

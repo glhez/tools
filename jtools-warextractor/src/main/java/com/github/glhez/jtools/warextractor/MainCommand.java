@@ -16,8 +16,7 @@ import picocli.CommandLine.Parameters;
 @Command(mixinStandardHelpOptions = true, version = "JAR Tool")
 public class MainCommand implements Runnable {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(MainCommand.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(MainCommand.class);
 
   @Parameters(description = "Input directories or archives (if supported by Java zip/jar FileSystemProvider). If there is no --output directory, there must be exactly two parameters, the second being the output directory.")
   private List<Path> input;

@@ -17,8 +17,7 @@ import java.util.SortedSet;
 
 public abstract class Extractor implements AutoCloseable {
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(Extractor.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(Extractor.class);
 
   protected final ExecutionContext context;
   protected final FilesProxy filesProxy;

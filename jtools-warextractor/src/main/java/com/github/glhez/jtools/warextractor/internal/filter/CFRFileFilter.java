@@ -31,8 +31,7 @@ public enum CFRFileFilter implements Filter {
   INSTANCE;
 
   /** Logger */
-  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
-      .getLogger(CFRFileFilter.class);
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(CFRFileFilter.class);
 
   private static final Map<String, String> CFR_DEFAULT_OPTIONS = Map.of("usenametable", "false", "analyseas", "CLASS");
 
@@ -47,8 +46,10 @@ public enum CFRFileFilter implements Filter {
 
     final Callable<String> task = () -> {
       final JavaOutputSinkFactory sinkFactory = new JavaOutputSinkFactory();
-      final var driver = new CfrDriver.Builder().withOptions(CFR_DEFAULT_OPTIONS).withOutputSink(sinkFactory)
-          .withClassFileSource(byteClassSource).build();
+      final var driver = new CfrDriver.Builder().withOptions(CFR_DEFAULT_OPTIONS)
+                                                .withOutputSink(sinkFactory)
+                                                .withClassFileSource(byteClassSource)
+                                                .build();
 
       // CFR sort the list, we can't use immutability and such
       driver.analyse(new ArrayList<>(List.of(byteClassSource.path)));

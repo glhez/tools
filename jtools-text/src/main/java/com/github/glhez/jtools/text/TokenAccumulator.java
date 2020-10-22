@@ -19,8 +19,10 @@ public class TokenAccumulator {
   /**
    * Reset the position eventually generating a new column.
    *
-   * @param line containing the accumulated token
-   * @param end end position (excluded)
+   * @param line
+   *          containing the accumulated token
+   * @param end
+   *          end position (excluded)
    */
   public Column reset(final String line, final int end) {
     final int offset = this.offset;
@@ -35,7 +37,8 @@ public class TokenAccumulator {
   /**
    * Reset the position eventually generating a new column.
    *
-   * @param line containing the accumulated token
+   * @param line
+   *          containing the accumulated token
    */
   public Column finish(final String line) {
     return reset(line, line.length());
@@ -47,7 +50,8 @@ public class TokenAccumulator {
    * If the {@code offset} is {@link #INVALID_OFFSET}, then the position is reset to this one.
    * Otherwise, the method does nothing.
    *
-   * @param index position in line for the new token.
+   * @param index
+   *          position in line for the new token.
    */
   public void start(final int index) {
     if (this.offset == INVALID_OFFSET) {

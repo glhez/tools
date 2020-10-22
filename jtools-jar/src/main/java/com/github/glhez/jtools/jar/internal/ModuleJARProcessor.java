@@ -35,18 +35,13 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
       final ZipEntry moduleInfo = jarFile.getEntry("module-info.class");
 
       if (null != moduleInfo) {
-        try (InputStream is = jarFile.getInputStream(moduleInfo);
-            BufferedInputStream bis = new BufferedInputStream(is)) {
-          final java.lang.module.ModuleDescriptor module = java.lang.module.ModuleDescriptor.read(bis);
-          this.moduleDescriptors.put(context.getJARInformation(), module);
-        } catch (final IOException | java.lang.SecurityException e) {
-          context.addError("Failed to read module-info definition: " + e.getMessage());
-        }
+        handleModuleDescriptor(context, jarFile, moduleInfo);
         return;
       }
 
       final Optional<String> automaticModuleName = Optional.ofNullable(jarFile.getManifest())
-          .map(Manifest::getMainAttributes).map(attr -> attr.getValue("Automatic-Module-Name"));
+                                                           .map(Manifest::getMainAttributes)
+                                                           .map(attr -> attr.getValue("Automatic-Module-Name"));
 
       automaticModuleName.ifPresent(name -> {
         this.moduleDescriptors.put(context.getJARInformation(), ModuleDescriptor.newAutomaticModule(name).build());
@@ -56,6 +51,16 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
         | java.lang.IllegalArgumentException e) {
       // thrown by module info.
       context.addError(e);
+    }
+  }
+
+  private void handleModuleDescriptor(final ProcessorContext context, final JarFile jarFile,
+      final ZipEntry moduleInfo) {
+    try (InputStream is = jarFile.getInputStream(moduleInfo); BufferedInputStream bis = new BufferedInputStream(is)) {
+      final java.lang.module.ModuleDescriptor module = java.lang.module.ModuleDescriptor.read(bis);
+      this.moduleDescriptors.put(context.getJARInformation(), module);
+    } catch (final IOException | java.lang.SecurityException e) {
+      context.addError("Failed to read module-info definition: " + e.getMessage());
     }
   }
 
@@ -76,8 +81,8 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
   }
 
   String getModuleDescriptorAsString(final JARInformation jar) {
-    return getModuleDescriptor(jar)
-        .map(module -> module.toNameAndVersion() + (module.isAutomatic() ? " (automatic)" : "")).orElse("");
+    return getModuleDescriptor(jar).map(module -> module.toNameAndVersion()
+        + (module.isAutomatic() ? " (automatic)" : "")).orElse("");
   }
 
   String getGAVAsString(final JARInformation jarInformation) {
