@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-11</artifactId>
-    <version>32</version>
+    <version>38</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
@@ -20,14 +20,14 @@
   <repositories>
     <repository>
       <id>github-glhez-repo-dep</id>
-      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <url>https://glhez.github.io/maven-repository/releases</url>
       <snapshots> <enabled>false</enabled> </snapshots>
     </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
       <id>github-glhez-repo-plugin</id>
-      <url>https://raw.githubusercontent.com/glhez/maven-repository/master/releases/</url>
+      <url>https://glhez.github.io/maven-repository/releases</url>
       <snapshots> <enabled>false</enabled> </snapshots>
     </pluginRepository>
   </pluginRepositories>
