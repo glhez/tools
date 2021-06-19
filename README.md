@@ -2,7 +2,7 @@
 
 This project contains various tools build for my own usage; there are no license for the moment.
 
-# Java tools [![Build Status](https://travis-ci.org/glhez/tools.svg?branch=master)](https://travis-ci.org/glhez/tools)
+# Java tools [![Java CI with Maven](https://github.com/glhez/tools/actions/workflows/build.yml/badge.svg)](https://github.com/glhez/tools/actions/workflows/build.yml)
 
 ## Building
 
