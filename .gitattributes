@@ -1,5 +1,17 @@
-*.bash                                eol=lf
-*.sh                                  eol=lf
-mvnw                                  eol=lf
-.mvn/wrapper/maven-wrapper.properties eol=lf
+#
+# maven wrapper stuff
+#
+mvnw                                      eol=lf
+mvnw.cmd                                  eol=crlf
+.mvn/wrapper/MavenWrapperDownloader.java  eol=lf
+.mvn/wrapper/maven-wrapper.properties     eol=lf
+
+#
+# Other
+#
+*.bash   eol=lf
+*.sh     eol=lf
+*.cmd    eol=crlf
+*.bat    eol=crlf
+
 
