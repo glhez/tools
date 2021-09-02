@@ -113,7 +113,9 @@ public class JARFileLocator implements AutoCloseable {
   }
 
   private void deepAdd(final Path path) {
-    this.files.add(newJARInformation(path));
+    if (!Files.isDirectory(path)) {
+      this.files.add(newJARInformation(path));
+    }
     if (deepMode.shouldDescendIntoFile(path)) {
       processArchive(path);
     }
