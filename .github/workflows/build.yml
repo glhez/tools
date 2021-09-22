@@ -21,6 +21,6 @@ jobs:
         java-version: '17'
         distribution: 'adopt'
     - name: Build with Maven
-      run: ./mvnw -B package --file pom.xml
+      run: ./mvnw -X -B package --file pom.xml
 
 
