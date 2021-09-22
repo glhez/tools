@@ -122,7 +122,7 @@ public class JARFileLocator implements AutoCloseable {
   }
 
   private void processArchive(final Path realPath) {
-    try (final FileSystem fs = FileSystems.newFileSystem(realPath, null)) {
+    try (var fs = FileSystems.newFileSystem(realPath, java.util.Collections.emptyMap())) {
       fs.getRootDirectories().forEach(root -> {
         try (var fileset = Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED)) {
           filter(deepInclude, fileset.filter(deepMode::isArchivePath)).forEach(child -> {

@@ -4,8 +4,8 @@
 
   <parent>
     <groupId>com.github.glhez.parent</groupId>
-    <artifactId>java-11</artifactId>
-    <version>46</version>
+    <artifactId>java-17</artifactId>
+    <version>47</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath />
   </parent>
