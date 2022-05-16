@@ -4,7 +4,6 @@ import static com.github.glhez.jtools.jar.internal.JARInformation.newJARInformat
 import static java.util.stream.Collectors.reducing;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,7 +126,7 @@ public class JARFileLocator implements AutoCloseable {
         try (var fileset = Files.find(root, Integer.MAX_VALUE, DeepMode.DISABLED)) {
           filter(deepInclude, fileset.filter(deepMode::isArchivePath)).forEach(child -> {
             try {
-              final Path tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
+              final var tempFile = Files.createTempFile("jarfile-" + child.getFileName().toString(), ".jar");
               Files.copy(child, tempFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
               tempFiles.add(tempFile);
               files.add(newJARInformation(realPath, child, tempFile));

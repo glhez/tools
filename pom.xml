@@ -21,7 +21,7 @@
     <module>jtools-fileset</module>
     <module>jtools-jar</module>
     <module>jtools-warextractor</module>
-    <module>jtools-token-grep</module>
+    <module>jtools-oomph</module>
   </modules>
 
 </project>

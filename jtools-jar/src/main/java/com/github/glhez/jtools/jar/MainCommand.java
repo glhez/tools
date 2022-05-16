@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -148,29 +147,29 @@ public class MainCommand implements Runnable {
       return;
     }
 
-    final ListJARProcessor processor = buildProcessor();
+    final var processor = buildProcessor();
 
-    final Pattern multiReleaseVersionPattern = Pattern.compile("^META-INF/versions/(\\d+)/$");
+    final var multiReleaseVersionPattern = Pattern.compile("^META-INF/versions/(\\d+)/$");
 
-    try (final JARFileLocator locator = new JARFileLocator(deepScan, includes, excludes, deepFilter)) {
+    try (final var locator = new JARFileLocator(deepScan, includes, excludes, deepFilter)) {
       locator.addFileset(fileset);
       if (locator.hasErrors()) {
         System.err.println("Some file or directories could not be fetched:");
         locator.getErrors().forEach(System.err::println);
       }
-      final Set<JARInformation> files = locator.getFiles();
+      final var files = locator.getFiles();
 
-      final MutableProcessorContext ctx = new MutableProcessorContext();
+      final var ctx = new MutableProcessorContext();
       processor.init();
 
-      int fileIndex = 1;
-      final int fileCount = files.size();
+      var fileIndex = 1;
+      final var fileCount = files.size();
       for (final JARInformation file : files) {
         System.out.printf("Processing file: [%6.2f%%] %s%n", 100 * (fileIndex / (double) fileCount), file.archivePath);
         ctx.setSource(file);
 
         int[] features = null;
-        try (final JarFile jarFile = new JarFile(file.tmpPath.toFile(), false)) {
+        try (final var jarFile = new JarFile(file.tmpPath.toFile(), false)) {
           /*
            * look up for multi release version now
            */
@@ -205,7 +204,7 @@ public class MainCommand implements Runnable {
             ctx.setSource(file.asMultiReleaseVersion(feature));
 
             final var version = Runtime.Version.parse(Integer.toString(feature));
-            try (final JarFile jarFile = new JarFile(file.tmpPath.toFile(), false, ZipFile.OPEN_READ, version)) {
+            try (final var jarFile = new JarFile(file.tmpPath.toFile(), false, ZipFile.OPEN_READ, version)) {
               processor.process(ctx, jarFile);
             } catch (final NullPointerException e) {
               throw e; // rethrow: this is probably OUR error.
@@ -277,20 +276,20 @@ public class MainCommand implements Runnable {
     }
 
     if (null == csvSeparator) {
-      final Locale locale = Locale.getDefault();
+      final var locale = Locale.getDefault();
       if (Locale.FRANCE.equals(locale) || Locale.GERMANY.equals(locale)) {
         csvSeparator = ';';
       } else {
         csvSeparator = ',';
       }
     }
-    format = CSVFormat.EXCEL.withDelimiter(csvSeparator);
+    format = CSVFormat.EXCEL.builder().setDelimiter(csvSeparator).build();
   }
 
   private ListJARProcessor buildProcessor() {
     final List<JARProcessor> processors = new ArrayList<>();
 
-    final boolean addModuleProcessor = moduleProcessor || serviceProcessor || showPackage || showClasses;
+    final var addModuleProcessor = moduleProcessor || serviceProcessor || showPackage || showClasses;
 
     final MavenArtifactsJARProcessor mavenArtifactsJARProcessor;
     if (mavenShellScriptExport) {
@@ -354,12 +353,12 @@ public class MainCommand implements Runnable {
   }
 
   private void dumpErrors(final MutableProcessorContext ctx) {
-    final Map<JARInformation, List<String>> errors = ctx.getErrors();
+    final var errors = ctx.getErrors();
     if (!errors.isEmpty()) {
       System.err.println("-------------------------------");
       System.err.println("There was " + errors.size() + " errors:");
       errors.forEach((information, messages) -> {
-        final int n = messages.size();
+        final var n = messages.size();
         if (n == 1) {
           System.err.printf("  %s: %s%n", information, messages.get(0));
         } else if (n > 1) {
