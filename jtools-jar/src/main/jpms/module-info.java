@@ -6,7 +6,7 @@ module com.github.glhez.jtools.jar {
 
   requires info.picocli;
 
-  requires commons.csv;
+  requires org.apache.commons.csv;
   requires java.sql; // due to commons.csv
 
   opens com.github.glhez.jtools.jar to info.picocli;
