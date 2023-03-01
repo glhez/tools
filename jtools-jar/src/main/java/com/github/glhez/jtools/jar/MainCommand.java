@@ -21,6 +21,8 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.csv.CSVFormat;
 
+import com.github.glhez.fileset.FilesCollector;
+import com.github.glhez.jtools.jar.internal.ArchiveSupport;
 import com.github.glhez.jtools.jar.internal.ClassPathJARProcessor;
 import com.github.glhez.jtools.jar.internal.JARFileLocator;
 import com.github.glhez.jtools.jar.internal.JARFileLocator.DeepMode;
@@ -42,14 +44,19 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(mixinStandardHelpOptions = true)
+@SuppressWarnings("java:S106")
 public class MainCommand implements Runnable {
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(MainCommand.class);
 
   @Option(names = { "-O", "--output-directory" },
           description = "Output directory when using reports. Created if it does not exists.")
   private Path outputDirectory;
 
-  @Option(names = "--csv-separator",
-          description = "CSV Separator to use. Default depends on locale (eg: FRENCH + GERMAN = ; otherwise ,).")
+  @Option(names = { "--tmp-directory" },
+          description = "Where to extract archive (default to system).")
+  private Path tmpDirectory;
+
+  @Option(names = "--csv-separator", description = "CSV Separator to use. Default depends on locale (eg: FRENCH + GERMAN = ; otherwise ,).")
   private Character csvSeparator;
 
   /*
@@ -60,17 +67,25 @@ public class MainCommand implements Runnable {
 
   @Option(names = { "-i", "--include", "--includes" },
           description = """
-              Include file from the file system. File matched by the pattern will be added to any analysis.
-              The pattern use java.util.regex.Pattern and can be added several times.
-              By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+                  Include file from the file system. File matched by the pattern will be added to any analysis.
+
+                  The pattern use java.util.regex.Pattern and can be added several times.
+
+
+                  Pattern may start with:
+                    - complete: filter the parent path + path in archive (for example: foobar.jar!/META-INF/)
+                    - path: apply regexp on the path (ex: ^.*\\Qorg/apache/commons/\\E.*$)
+                    - name: apply on filename and its extension (default if not set)
+                    - ext: apply on extension (part after the last dot)
               """)
   private List<String> includes;
 
   @Option(names = { "-x", "--exclude", "--excludes" },
           description = """
                   Exclude file from the file system. File matched by the pattern will be ignored from any analysis.
-                  The pattern use java.util.regex.Pattern and can be added several times.
-                  By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+
+                  See --include for details on pattern.
+
               """)
   private List<String> excludes;
 
@@ -80,9 +95,9 @@ public class MainCommand implements Runnable {
 
   @Option(names = { "-f", "--deep-filter" },
           description = """
-              Filter embedded JAR/WAR. Path matched by the Pattern will be included.
-              The pattern use java.util.regex.Pattern and can be added several times.
-              By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+                  Filter embedded JAR/WAR. Path matched by the Pattern will be included.
+                  The pattern use java.util.regex.Pattern and can be added several times.
+                  By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
               """)
   private List<String> deepFilter;
 
@@ -94,15 +109,15 @@ public class MainCommand implements Runnable {
 
   @Option(names = "--maven",
           description = """
-              Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.
-              The processor will ignore JAR with multiple pom.properties (probably über jar).
+                  Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.
+                  The processor will ignore JAR with multiple pom.properties (probably über jar).
               """)
   private boolean mavenProcessor;
 
   @Option(names = { "--maven-bash", "--maven-shellscript" },
           description = """
-              Export Maven information as a shell script (bash oriented; other shell may work or need to be adapted).
-              The scriplet can be used to import the dependency to a local repository.
+                  Export Maven information as a shell script (bash oriented; other shell may work or need to be adapted).
+                  The scriplet can be used to import the dependency to a local repository.
               """)
   private boolean mavenShellScriptExport;
 
@@ -159,6 +174,24 @@ public class MainCommand implements Runnable {
     final var processor = buildProcessor();
 
     final var multiReleaseVersionPattern = Pattern.compile("^META-INF/versions/(\\d+)/$");
+
+    try (final var collector = FilesCollector.builder()
+                                             .setTmpDirectory(tmpDirectory)
+                                             .setIncludes(includes)
+                                             .setExcludes(excludes)
+                                             .setArchivePredicate(ArchiveSupport.ALL)
+                                             .build()) {
+      collector.addEntries(fileset);
+      if (collector.hasErrors()) {
+        logger.error("Some file or directories could not be fetched:");
+        collector.getErrors().forEach(System.err::println);
+      }
+      collector.getCollectedFiles().forEach(file -> {
+        System.out.printf("Collected: %s%n", file.getFileName());
+      });
+    }
+
+    System.exit(1);
 
     try (final var locator = new JARFileLocator(deepScan, includes, excludes, deepFilter)) {
       locator.addFileset(fileset);
