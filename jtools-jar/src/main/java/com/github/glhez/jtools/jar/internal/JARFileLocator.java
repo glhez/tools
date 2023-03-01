@@ -75,7 +75,6 @@ public class JARFileLocator implements AutoCloseable {
           addEntry(attributes, file);
         } catch (final IOException e) {
           errors.addError(file, e);
-          continue;
         }
       }
     }

@@ -10,10 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+
+import com.github.glhez.fileset.internal.NoArchive;
 
 /**
  * A simple API to collect files.
@@ -24,31 +26,34 @@ import java.util.stream.Stream;
  * @author gael.lhez
  */
 public class FilesCollector implements AutoCloseable {
-  private final ArchiveMode archiveMode;
-  private final Predicate<CollectedFile> filter;
+  private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(FilesCollector.class);
+
+  private final Path tmpDirectory;
+  private final Predicate<CollectedFile> rootFilter;
+  private final ArchivePredicate archivePredicate;
+
   private final List<FileError> errors;
   private final SortedSet<CollectedFile> collectedFiles;
+  private final List<FileSystem> fileSystems;
+  private final List<Path> tempFiles;
 
-  private FilesCollector(final ArchiveMode archiveMode, final Predicate<CollectedFile> filter) {
-    this.archiveMode = Objects.requireNonNull(archiveMode, "archiveMode");
-    this.filter = Objects.requireNonNull(filter, "filter");
+  private FilesCollector(final FilesCollector.Builder builder) {
+    this.tmpDirectory = builder.tmpDirectory;
+    this.rootFilter = new CollectedFilePredicateBuilder().convert(builder.includes, builder.excludes);
+    this.archivePredicate = Optional.ofNullable(builder.archivePredicate).orElseGet(() -> NoArchive.INSTANCE);
 
     this.collectedFiles = new TreeSet<>();
     this.errors = new ArrayList<>();
+    this.fileSystems = new ArrayList<>();
+    this.tempFiles = new ArrayList<>();
   }
 
-  /**
-   * Create a new collector.
-   *
-   * @param archiveMode
-   *          determine what to do with archives file.
-   * @param predicate
-   *          how to filter file (mandatory).
-   * @return a collector.
-   */
-  public static FilesCollector newFilesCollector(final ArchiveMode archiveMode,
-      final Predicate<CollectedFile> predicate) {
-    return new FilesCollector(archiveMode, predicate);
+  public static FilesCollector.Builder builder() {
+    return new FilesCollector.Builder();
+  }
+
+  public boolean hasErrors() {
+    return !errors.isEmpty();
   }
 
   /**
@@ -97,7 +102,7 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addEntry(final CollectedFile parent, final Path path) {
-    final CollectedFile entry = new CollectedFile(parent, path);
+    final var entry = new CollectedFile(parent, path);
     try {
       final var attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class).readAttributes();
       if (attributes.isDirectory()) {
@@ -113,7 +118,7 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addDirectoryEntry(final CollectedFile entry) throws IOException {
-    try (final Stream<Path> stream = Files.find(entry.getPath(), Integer.MAX_VALUE, (file,
+    try (final var stream = Files.find(entry.getPath(), Integer.MAX_VALUE, (file,
         attrs) -> attrs.isRegularFile())) {
       stream.forEach(path -> {
         final var child = new CollectedFile(entry, path);
@@ -123,11 +128,11 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addRegularFileEntry(final CollectedFile entry, final boolean ignoreFilter) {
-    if (!ignoreFilter && !filter.test(entry)) {
+    if (!ignoreFilter && !rootFilter.test(entry)) {
       return;
     }
 
-    if (archiveMode.test(entry)) {
+    if (archivePredicate.isArchive(entry)) {
       throw new UnsupportedOperationException("Descending into archives not yet supported");
     }
     collectedFiles.add(entry);
@@ -143,7 +148,55 @@ public class FilesCollector implements AutoCloseable {
 
   @Override
   public void close() {
-    // TODO Auto-generated method stub
+    this.fileSystems.forEach(this::closeFileSystem);
+    this.tempFiles.forEach(this::deleteTempFile);
   }
 
+  private void deleteTempFile(final Path tempFile) {
+    try {
+      Files.deleteIfExists(tempFile);
+    } catch (IOException e) {
+      logger.warn("could not delete temp file: {}", tempFile, e);
+    }
+  }
+
+  private void closeFileSystem(final FileSystem fs) {
+    try {
+      fs.close();
+    } catch (IOException e) {
+      logger.warn("could not close file system: {}", fs, e);
+    }
+  }
+
+  public static class Builder {
+    private Path tmpDirectory;
+    private ArchivePredicate archivePredicate;
+    private List<String> includes;
+    private List<String> excludes;
+
+    public FilesCollector.Builder setTmpDirectory(final Path tmpDirectory) {
+      this.tmpDirectory = tmpDirectory;
+      return this;
+    }
+
+    public FilesCollector.Builder setArchivePredicate(final ArchivePredicate archivePredicate) {
+      this.archivePredicate = archivePredicate;
+      return this;
+    }
+
+    public FilesCollector.Builder setIncludes(final List<String> includes) {
+      this.includes = includes;
+      return this;
+    }
+
+    public FilesCollector.Builder setExcludes(final List<String> excludes) {
+      this.excludes = excludes;
+      return this;
+    }
+
+    public FilesCollector build() {
+      return new FilesCollector(this);
+    }
+
+  }
 }
