@@ -21,14 +21,10 @@ import java.util.regex.Pattern;
 public class CollectedFilePredicateBuilder {
   private final Map<String, Pattern> patternCache;
 
-  // @formatter:off
-  private final Map<String, Function<CollectedFile, String>> mapper = Map.of(
-      "complete:", CollectedFile::getCompletePath,
-      "path:", CollectedFile::getPathAsString,
-      "name:", CollectedFile::getFileName,
-      "ext:", CollectedFile::getExtension
-      );
-  // @formatter:on
+  private final Map<String, Function<CollectedFile, String>> mapper = Map.of("complete:", CollectedFile::getCompletePath,
+                                                                             "path:", CollectedFile::getPathAsString,
+                                                                             "name:", CollectedFile::getFileName,
+                                                                             "ext:", CollectedFile::getExtension);
 
   public CollectedFilePredicateBuilder() {
     this.patternCache = new HashMap<>();
@@ -54,15 +50,11 @@ public class CollectedFilePredicateBuilder {
     final var inc = convert(includes);
     final var exc = convert(excludes).map(Predicate::negate);
 
-    // @formatter:off
     // if includes is present, then and it with exclude.
-    final UnaryOperator<Predicate<CollectedFile>> iem = ip -> exc.map(ep -> ip.and(ep)).orElse(ip);
+    final UnaryOperator<Predicate<CollectedFile>> iem = ip -> exc.map(ip::and).orElse(ip);
     // otherwise, get it or always return true.
     final Supplier<Predicate<CollectedFile>> eem = () -> exc.orElseGet(() -> f -> true);
-    final var predicate = inc.map(iem).orElseGet(eem);
-    // @formatter:on
-
-    return predicate;
+    return inc.map(iem).orElseGet(eem);
   }
 
   /**
