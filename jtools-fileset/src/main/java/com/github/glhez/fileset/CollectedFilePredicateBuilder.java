@@ -21,14 +21,10 @@ import java.util.regex.Pattern;
 public class CollectedFilePredicateBuilder {
   private final Map<String, Pattern> patternCache;
 
-  // @formatter:off
-  private final Map<String, Function<CollectedFile, String>> mapper = Map.of(
-      "complete:", CollectedFile::getCompletePath,
-      "path:", CollectedFile::getPathAsString,
-      "name:", CollectedFile::getFileName,
-      "ext:", CollectedFile::getExtension
-      );
-  // @formatter:on
+  private final Map<String, Function<CollectedFile, String>> mapper = Map.of("complete:", CollectedFile::getCompletePath,
+                                                                             "path:", CollectedFile::getPathAsString,
+                                                                             "name:", CollectedFile::getFileName,
+                                                                             "ext:", CollectedFile::getExtension);
 
   public CollectedFilePredicateBuilder() {
     this.patternCache = new HashMap<>();
