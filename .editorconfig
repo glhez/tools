@@ -3,7 +3,7 @@ root=true
 #
 # Global properties
 #
-[*.{bash,java,cpp,py,xml}]
+[*.{bash,java,cpp,py,xml,xsd,json,jsonc,json5,yml,yaml}]
 charset = utf-8
 indent_style = space
 indent_size = 2
