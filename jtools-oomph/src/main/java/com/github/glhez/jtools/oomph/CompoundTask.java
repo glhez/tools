@@ -1,9 +1,10 @@
 package com.github.glhez.jtools.oomph;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 public class CompoundTask implements ContainerTask {
   private final String name;
@@ -31,9 +32,9 @@ public class CompoundTask implements ContainerTask {
   @Override
   public void write(final XMLStreamWriter writer) throws XMLStreamException {
     writer.writeStartElement("setupTask");
-    writer.writeAttribute(XmlWriterSupport.XSI_NS_PREFIX, XmlWriterSupport.XSI_NS_URI, "type", XmlWriterSupport.SETUP_NS_PREFIX +":CompoundTask");
+    writer.writeAttribute(XmlWriterSupport.XSI_NS_PREFIX, XmlWriterSupport.XSI_NS_URI, "type", XmlWriterSupport.SETUP_NS_PREFIX + ":CompoundTask");
     writer.writeAttribute("name", this.name);
-    for (var task: this.tasks) {
+    for (var task : this.tasks) {
       task.write(writer);
     }
     writer.writeEndElement();

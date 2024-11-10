@@ -25,10 +25,10 @@ public final class CollectedFile implements Comparable<CollectedFile> {
   private final CollectedFile parent;
   private final Path path;
 
-  private transient String extensionCache;
-  private transient String fileNameCache;
-  private transient String pathAsStringCache;
-  private transient String completePathCache;
+  private String extensionCache;
+  private String fileNameCache;
+  private String pathAsStringCache;
+  private String completePathCache;
 
   public CollectedFile(final CollectedFile parent, final Path path) {
     this.parent = parent;

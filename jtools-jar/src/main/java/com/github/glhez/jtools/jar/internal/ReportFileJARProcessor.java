@@ -11,11 +11,11 @@ public abstract class ReportFileJARProcessor implements JARProcessor {
   private final String reportName;
   private final Optional<ReportFile> reportFile;
 
-  public ReportFileJARProcessor(final String reportName, final ReportFile reportFile) {
+  protected ReportFileJARProcessor(final String reportName, final ReportFile reportFile) {
     this(reportName, Optional.of(Objects.requireNonNull(reportFile, "reportFile")));
   }
 
-  public ReportFileJARProcessor(final String reportName, final Optional<ReportFile> reportFile) {
+  protected ReportFileJARProcessor(final String reportName, final Optional<ReportFile> reportFile) {
     this.reportName = Objects.requireNonNull(reportName, "reportName");
     this.reportFile = Objects.requireNonNull(reportFile, "reportFile");
   }

@@ -8,9 +8,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 
-public class XmlTagTest {
+class XmlTagTest {
 
   private Set<String> of(final String... values) {
     return Stream.of(values).collect(toSet());

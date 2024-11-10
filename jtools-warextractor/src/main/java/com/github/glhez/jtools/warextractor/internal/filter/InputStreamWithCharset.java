@@ -64,8 +64,6 @@ public class InputStreamWithCharset implements AutoCloseable {
 
   /**
    * Get the charset if the resulting stream is now a text.
-   *
-   * @return
    */
   public Charset getCharset() {
     return charset;

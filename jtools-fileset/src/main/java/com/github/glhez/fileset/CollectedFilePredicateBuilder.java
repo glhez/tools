@@ -34,7 +34,7 @@ public class CollectedFilePredicateBuilder {
     this.patternCache = new HashMap<>();
   }
 
-  private static Collection<? extends String> emptyIfNull(final Collection<? extends String> collection) {
+  private static Collection<String> emptyIfNull(final Collection<String> collection) {
     return collection == null ? Collections.emptyList() : collection;
   }
 
@@ -49,20 +49,15 @@ public class CollectedFilePredicateBuilder {
    *          <code>false</code>)
    * @return a predicate accepting file given includes and excludes.
    */
-  public Predicate<CollectedFile> convert(final Collection<? extends String> includes,
-      final Collection<? extends String> excludes) {
+  public Predicate<CollectedFile> convert(final Collection<String> includes, final Collection<String> excludes) {
     final var inc = convert(includes);
     final var exc = convert(excludes).map(Predicate::negate);
 
-    // @formatter:off
     // if includes is present, then and it with exclude.
-    final UnaryOperator<Predicate<CollectedFile>> iem = ip -> exc.map(ep -> ip.and(ep)).orElse(ip);
+    final UnaryOperator<Predicate<CollectedFile>> iem = ip -> exc.map(ip::and).orElse(ip);
     // otherwise, get it or always return true.
     final Supplier<Predicate<CollectedFile>> eem = () -> exc.orElseGet(() -> f -> true);
-    final var predicate = inc.map(iem).orElseGet(eem);
-    // @formatter:on
-
-    return predicate;
+    return inc.map(iem).orElseGet(eem);
   }
 
   /**
@@ -72,7 +67,7 @@ public class CollectedFilePredicateBuilder {
    *          set of pattern, can be <code>null</code>.
    * @return a predicate wrapped in an {@link Optional}.
    */
-  public Optional<Predicate<CollectedFile>> convert(final Collection<? extends String> patterns) {
+  public Optional<Predicate<CollectedFile>> convert(final Collection<String> patterns) {
     return emptyIfNull(patterns).stream().map(this::convert).collect(reducing(Predicate::or));
   }
 

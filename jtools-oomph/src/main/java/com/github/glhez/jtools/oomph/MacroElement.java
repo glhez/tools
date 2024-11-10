@@ -1,15 +1,15 @@
 package com.github.glhez.jtools.oomph;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 public class MacroElement implements XmlWriter {
   private final List<Task> tasks;
   private String name;
   private String label;
-
 
   public MacroElement(String name, String label) {
     this.name = name;

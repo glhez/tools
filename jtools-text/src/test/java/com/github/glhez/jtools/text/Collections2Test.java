@@ -13,7 +13,7 @@ import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
-public class Collections2Test {
+class Collections2Test {
 
   @Test
   void testCopyAsUnmodifiableSet() {

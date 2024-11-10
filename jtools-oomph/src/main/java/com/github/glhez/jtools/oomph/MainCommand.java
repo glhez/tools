@@ -1,19 +1,5 @@
 package com.github.glhez.jtools.oomph;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileObject;
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,12 +14,27 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
+import javax.xml.XMLConstants;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
 @Command(mixinStandardHelpOptions = true)
 public class MainCommand implements Callable<Integer> {
 
-  @Option(names = {"-i", "--input"}, description = "A Java Input file returning a MacroElement", required = true)
+  @Option(names = { "-i", "--input" }, description = "A Java Input file returning a MacroElement", required = true)
   private Path inputFile;
-  @Option(names = {"-o", "--output"}, description = "Output file", required = true)
+  @Option(names = { "-o", "--output" }, description = "Output file", required = true)
   private Path outputFile;
 
   public static void main(final String[] args) {
@@ -51,7 +52,7 @@ public class MainCommand implements Callable<Integer> {
 
     System.out.printf("Loading class %s from %s%n", className, url);
 
-    try (var cl = new URLClassLoader(new URL[]{url})) {
+    try (var cl = new URLClassLoader(new URL[] { url })) {
       Class<?> javaType = cl.loadClass(className);
       if (javaType.isAssignableFrom(Supplier.class)) {
         System.err.printf("type %s does not implements %s%n", javaType.getName(), Supplier.class.getName());
@@ -64,8 +65,7 @@ public class MainCommand implements Callable<Integer> {
 
       if (!(result instanceof MacroElement)) {
         System.err.printf("result %s does not implements %s%n", result == null ? "null" : result.getClass().getName(),
-                          MacroElement.class.getName()
-        );
+                          MacroElement.class.getName());
         return CommandLine.ExitCode.SOFTWARE;
       }
       var macro = MacroElement.class.cast(result);
@@ -73,7 +73,6 @@ public class MainCommand implements Callable<Integer> {
       return CommandLine.ExitCode.OK;
     }
   }
-
 
   private boolean compileInput() {
     System.out.printf("About to compile: %s%n", inputFile);
@@ -83,16 +82,14 @@ public class MainCommand implements Callable<Integer> {
     var units = fm.getJavaFileObjects(inputFile);
 
     var task = compiler.getTask(
-      null,
-      fm,
-      diagnostics,
-      List.of(
-        "--class-path", System.getProperty("java.class.path"),
-        "--module-path", System.getProperty("jdk.module.path")
-      ),
-      null,
-      units
-    );
+                                null,
+                                fm,
+                                diagnostics,
+                                List.of(
+                                        "--class-path", System.getProperty("java.class.path"),
+                                        "--module-path", System.getProperty("jdk.module.path")),
+                                null,
+                                units);
     task.addModules(List.of(this.getClass().getModule().getName()));
     task.setLocale(Locale.ENGLISH);
 
@@ -121,9 +118,8 @@ public class MainCommand implements Callable<Integer> {
         var transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.transform(
-          new StreamSource(new ByteArrayInputStream(bos.toByteArray())),
-          new StreamResult(bufferedOutputStream)
-        );
+                              new StreamSource(new ByteArrayInputStream(bos.toByteArray())),
+                              new StreamResult(bufferedOutputStream));
       }
     }
   }

@@ -17,7 +17,7 @@ public abstract class AbstractFilesProxy implements FilesProxy {
   private final Set<Path> createdFiles;
   private final Set<Path> copyFailedFiles;
 
-  public AbstractFilesProxy() {
+  protected AbstractFilesProxy() {
     this.createdDirectories = new HashSet<>();
     this.createdFiles = new HashSet<>();
     this.copyFailedFiles = new HashSet<>();

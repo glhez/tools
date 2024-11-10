@@ -8,9 +8,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
-public class TabulizerOptionsTest {
+class TabulizerOptionsTest {
 
   @Test
   void test_default_values() {

@@ -73,7 +73,7 @@ public class PathWrapper implements Comparable<PathWrapper> {
   }
 
   public static String pathToString(final String path) {
-    return path.toString().replace('\\', '/');
+    return path.replace('\\', '/');
   }
 
   static class FileName {

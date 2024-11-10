@@ -11,11 +11,7 @@ Use `--help` or `-h`.
 
 ## Examples
 
-### Find all JAR with a `Class-Path` entry: 
+### Find all JAR with a `Class-Path` entry:
 
-    java -jar target/jtools-jar-1.jar --class-path -d ~/.m2/repostories
-
-
-
-
+        java -jar target/jtools-jar-1.jar --class-path -d ~/.m2/repostories
 

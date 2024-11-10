@@ -1,9 +1,10 @@
 package com.github.glhez.jtools.oomph;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 public class StringSubstitutionTask implements Task {
   private final String name;
@@ -63,7 +64,6 @@ public class StringSubstitutionTask implements Task {
     return this;
   }
 
-
   @Override
   public void write(XMLStreamWriter writer) throws XMLStreamException {
     if (filterVariableFormatter == null) {
@@ -86,15 +86,13 @@ public class StringSubstitutionTask implements Task {
   private void write(XMLStreamWriter writer, String filter, String value) throws XMLStreamException {
     writer.writeEmptyElement("setupTask");
     writer.writeAttribute(XmlWriterSupport.XSI_NS_PREFIX, XmlWriterSupport.XSI_NS_URI, "type",
-                          XmlWriterSupport.SETUP_NS_PREFIX + ":StringSubstitutionTask"
-    );
+                          XmlWriterSupport.SETUP_NS_PREFIX + ":StringSubstitutionTask");
     writer.writeAttribute("name", this.name);
     if (filter != null) {
       writer.writeAttribute("filter", filter);
     }
     writer.writeAttribute("value", value);
   }
-
 
   public static UnaryOperator<String> asFilterVariable() {
     return name -> "${" + name + "}";

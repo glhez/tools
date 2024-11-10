@@ -249,7 +249,8 @@ public class Tabulizer {
    * @return
    */
   static int detectInitialIndent(final String line, final int tabSize) {
-    for (int i = 0, n = line.length(), indent = 0; i < n; ++i) {
+    int indent = 0;
+    for (int i = 0, n = line.length(); i < n; ++i) {
       final char c = line.charAt(i);
       if (c == '\t') {
         indent += tabSize;

@@ -218,16 +218,16 @@ public class TabulizerOptions {
     private Set<? extends String> xmlTags = Collections.emptySet();
     private List<? extends String> xmlTagsOrder = Collections.emptyList();
     private boolean alignXmlTags;
-    private Set<? extends String> keywords = Collections.emptySet();
+    private Set<String> keywords = Collections.emptySet();
     private boolean keywordCaseInsensitive;
     private boolean attachSingleOperator;
     private boolean detectInitialIndent;
     private int tabSize;
     private LineSeparator lineSeparator;
-    private Set<? extends String> rightAlignFirstColumn = Collections.emptySet();
+    private Set<String> rightAlignFirstColumn = Collections.emptySet();
     private boolean rightAlignFirstColumnCaseInsensitive;
     private boolean detectNumber;
-    private Set<? extends String> additionalNumberToken = Collections.emptySet();
+    private Set<String> additionalNumberToken = Collections.emptySet();
     private RightAlignNumber rightAlignNumber;
 
     private Builder() {

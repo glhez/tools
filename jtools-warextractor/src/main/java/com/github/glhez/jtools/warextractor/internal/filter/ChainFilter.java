@@ -6,8 +6,6 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
-import com.github.glhez.jtools.warextractor.internal.ExecutionContext;
-import com.github.glhez.jtools.warextractor.internal.PathWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import com.github.glhez.jtools.warextractor.internal.ExecutionContext;
+import com.github.glhez.jtools.warextractor.internal.PathWrapper;
 
 /**
  * Produce {@link Filter}.

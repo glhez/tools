@@ -9,7 +9,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-public class TabulizerTest {
+class TabulizerTest {
 
   @Test
   void test_static_tabulize() {
@@ -82,11 +82,11 @@ public class TabulizerTest {
   @Test
   void test_detect_initial_indent() {
     assertThat(detectInitialIndent("  A", 0)).isEqualTo(2);
-    assertThat(detectInitialIndent("A", 0)).isEqualTo(0);
+    assertThat(detectInitialIndent("A", 0)).isZero();
     assertThat(detectInitialIndent("\t\tA", 2)).isEqualTo(4);
 
     // detect empty lines
-    assertThat(detectInitialIndent("      ", 0)).isEqualTo(0);
+    assertThat(detectInitialIndent("      ", 0)).isZero();
 
     assertThat(detectInitialIndent(lines( //
                                          "      ",  // 0

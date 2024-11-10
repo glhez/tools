@@ -75,7 +75,6 @@ public class JARFileLocator implements AutoCloseable {
           addEntry(attributes, file);
         } catch (final IOException e) {
           errors.addError(file, e);
-          continue;
         }
       }
     }
@@ -192,7 +191,7 @@ public class JARFileLocator implements AutoCloseable {
      * The method may for example check if file starts with META-INF/lib.
      *
      * @param file
-     * @return
+     * @return if path represent archive.
      */
     public abstract boolean isArchivePath(final Path file);
 

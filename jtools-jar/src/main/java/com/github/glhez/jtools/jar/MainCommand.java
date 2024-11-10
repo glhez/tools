@@ -57,28 +57,32 @@ public class MainCommand implements Runnable {
   @Parameters(description = "Add a directory/files; directories are searched for JAR/WAR/EAR.")
   private List<Path> fileset;
 
-  @Option(names = { "-i", "--include" }, description = {
-      "Include file from the file system. File matched by the pattern will be added to any analysis.",
-      "The pattern use java.util.regex.Pattern and can be added several times.",
-      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+  @Option(names = { "-i", "--include" },
+          description = {
+              "Include file from the file system. File matched by the pattern will be added to any analysis.",
+              "The pattern use java.util.regex.Pattern and can be added several times.",
+              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
   private List<String> includes;
 
-  @Option(names = { "-x", "--exclude" }, description = {
-      "Exclude file from the file system. File matched by the pattern will be ignored from any analysis.",
-      "The pattern use java.util.regex.Pattern and can be added several times.",
-      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'"
+  @Option(names = { "-x", "--exclude" },
+          description = {
+              "Exclude file from the file system. File matched by the pattern will be ignored from any analysis.",
+              "The pattern use java.util.regex.Pattern and can be added several times.",
+              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'"
 
-  })
+          })
   private List<String> excludes;
 
   @Option(names = { "-D",
-      "--deep-scan" }, description = "Look for JAR in EAR/WAR files. The filter accepts value ALL (don't care about hierarchy) or the default STD (META-INF/lib/ only)")
+      "--deep-scan" },
+          description = "Look for JAR in EAR/WAR files. The filter accepts value ALL (don't care about hierarchy) or the default STD (META-INF/lib/ only)")
   private JARFileLocator.DeepMode deepScan;
 
-  @Option(names = { "-f", "--deep-filter" }, description = {
-      "Filter embedded JAR/WAR. Path matched by the Pattern will be included.",
-      "The pattern use java.util.regex.Pattern and can be added several times.",
-      "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+  @Option(names = { "-f", "--deep-filter" },
+          description = {
+              "Filter embedded JAR/WAR. Path matched by the Pattern will be included.",
+              "The pattern use java.util.regex.Pattern and can be added several times.",
+              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
   private List<String> deepFilter;
 
   /*
@@ -87,14 +91,16 @@ public class MainCommand implements Runnable {
   @Option(names = "--all", description = { "Enable all processor." })
   private boolean allProcessor;
 
-  @Option(names = "--maven", description = {
-      "Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.",
-      "The processor will ignore JAR with multiple pom.properties (probably über jar)." })
+  @Option(names = "--maven",
+          description = {
+              "Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.",
+              "The processor will ignore JAR with multiple pom.properties (probably über jar)." })
   private boolean mavenProcessor;
 
-  @Option(names = { "--maven-bash", "--maven-shellscript" }, description = {
-      "Export Maven information as a shell script (bash oriented; other sh may work or need to be adapted).",
-      "The scriplet can be used to import the dependency to a local repository.", })
+  @Option(names = { "--maven-bash", "--maven-shellscript" },
+          description = {
+              "Export Maven information as a shell script (bash oriented; other sh may work or need to be adapted).",
+              "The scriplet can be used to import the dependency to a local repository.", })
   private boolean mavenShellScriptExport;
 
   @Option(names = { "--jnlp-permission",
