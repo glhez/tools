@@ -24,7 +24,7 @@ public enum ASMFileFilter implements Filter {
     }
 
     final var charset = StandardCharsets.UTF_8;
-    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    final var bos = new ByteArrayOutputStream();
     try (var pw = new PrintWriter(bos, false, charset)) {
       final org.objectweb.asm.ClassVisitor traceClassVisitor = new TraceClassVisitor(null,
           new org.objectweb.asm.util.Textifier(), pw);

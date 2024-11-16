@@ -25,7 +25,7 @@ class XmlTagTest {
 
   @Test
   void test_region_matches() {
-    final XmlTag tag = new XmlTag(of("groupId", "artifactId"));
+    final var tag = new XmlTag(of("groupId", "artifactId"));
 
     assertThat(tag.regionMatches(" <groupId>org.apache</groupId>", 0)).isEqualTo(-1);
     assertThat(tag.regionMatches(" <", 1)).isEqualTo(-1);
@@ -39,8 +39,8 @@ class XmlTagTest {
     assertThat(tag.regionMatches(" <groupId>", 1)).isEqualTo(-1);
     assertThat(tag.regionMatches(" <groupId>AAAA", 1)).isEqualTo(-1);
 
-    final String s1 = "<groupId>AAAA</groupId>";
-    final String s2 = "<artifactId>AAAA</artifactId>";
+    final var s1 = "<groupId>AAAA</groupId>";
+    final var s2 = "<artifactId>AAAA</artifactId>";
     assertThat(tag.regionMatches(s1 + s2, 0)).isEqualTo(s1.length());
     assertThat(tag.regionMatches(s1 + s2, s1.length())).isEqualTo(s1.length() + s2.length());
 
@@ -48,7 +48,7 @@ class XmlTagTest {
 
   @Test
   void test_xml_name() {
-    final IntStream.Builder nameStartBuilder = IntStream.builder();
+    final var nameStartBuilder = IntStream.builder();
 
     IntStream.of(':').forEach(nameStartBuilder);
     IntStream.of('A', 'Z').forEach(nameStartBuilder);
@@ -67,7 +67,7 @@ class XmlTagTest {
     IntStream.of(0x0000FDF0, 0x0000FFFD).forEach(nameStartBuilder);
     IntStream.of(0x00010000, 0x000EFFFF).forEach(nameStartBuilder);
 
-    final IntStream.Builder namePartBuilder = IntStream.builder();
+    final var namePartBuilder = IntStream.builder();
     IntStream.of('-').forEach(namePartBuilder);
     IntStream.of('.').forEach(namePartBuilder);
     IntStream.of('0', '9').forEach(namePartBuilder);
@@ -75,9 +75,9 @@ class XmlTagTest {
     IntStream.of(0x00000300, 0x0000036F).forEach(namePartBuilder);
     IntStream.of(0x00000203F, 0x00002040).forEach(namePartBuilder);
 
-    final int[] nameStart = nameStartBuilder.build().toArray();
-    final int[] namePart = namePartBuilder.build().toArray();
-    final int[] invalidInBoth = IntStream.of(0, ~0, 0x00FFFFFF).toArray();
+    final var nameStart = nameStartBuilder.build().toArray();
+    final var namePart = namePartBuilder.build().toArray();
+    final var invalidInBoth = IntStream.of(0, ~0, 0x00FFFFFF).toArray();
 
     Arrays.stream(nameStart).forEach(n -> assertThat(XmlTag.isNameStart(n)).isTrue());
     Arrays.stream(namePart).forEach(n -> assertThat(XmlTag.isNameStart(n)).isFalse());

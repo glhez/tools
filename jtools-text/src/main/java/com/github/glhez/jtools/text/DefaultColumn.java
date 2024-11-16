@@ -32,7 +32,7 @@ public class DefaultColumn implements Column {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final DefaultColumn other = (DefaultColumn) obj;
+    final var other = (DefaultColumn) obj;
     return Objects.equals(value, other.value);
   }
 

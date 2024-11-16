@@ -11,7 +11,7 @@ public class MacroElement implements XmlWriter {
   private String name;
   private String label;
 
-  public MacroElement(String name, String label) {
+  public MacroElement(final String name, final String label) {
     this.name = name;
     this.label = label;
     this.tasks = new ArrayList<>();
@@ -21,30 +21,30 @@ public class MacroElement implements XmlWriter {
     this(null, null);
   }
 
-  public MacroElement name(String name) {
+  public MacroElement name(final String name) {
     this.name = name;
     return this;
   }
 
-  public MacroElement label(String label) {
+  public MacroElement label(final String label) {
     this.label = label;
     return this;
   }
 
-  public CompoundTask addCompoundTask(String name) {
-    CompoundTask compoundTask = new CompoundTask(name);
+  public CompoundTask addCompoundTask(final String name) {
+    var compoundTask = new CompoundTask(name);
     this.tasks.add(compoundTask);
     return compoundTask;
   }
 
-  public StringSubstitutionTask addStringSubstitutionTask(String name) {
-    StringSubstitutionTask stringSubstitutionTask = new StringSubstitutionTask(name);
+  public StringSubstitutionTask addStringSubstitutionTask(final String name) {
+    var stringSubstitutionTask = new StringSubstitutionTask(name);
     this.tasks.add(stringSubstitutionTask);
     return stringSubstitutionTask;
   }
 
   @Override
-  public void write(XMLStreamWriter writer) throws XMLStreamException {
+  public void write(final XMLStreamWriter writer) throws XMLStreamException {
     writer.writeStartDocument("utf-8", "1.0");
     writer.writeStartElement(XmlWriterSupport.SETUP_NS_PREFIX, "Macro", XmlWriterSupport.SETUP_NS_URI);
     writer.writeNamespace(XmlWriterSupport.XSI_NS_PREFIX, XmlWriterSupport.XSI_NS_URI);

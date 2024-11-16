@@ -75,11 +75,11 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
   }
 
   private void process(final ProcessorContext context, final JarFile jarFile, final JarEntry entry) {
-    final String service = getServiceForEntry(entry);
+    final var service = getServiceForEntry(entry);
     if (null == service) {
       return;
     }
-    try (final InputStream is = jarFile.getInputStream(entry)) {
+    try (final var is = jarFile.getInputStream(entry)) {
       providersFor(service).add(AvailableImplementation.parse(context.getJARInformation(), is));
     } catch (final IOException | java.lang.SecurityException e) {
       context.addError("Failed to read services definition [" + service + "]: " + e.getMessage());
@@ -99,22 +99,22 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
 
   @Override
   protected void finish(final CSVPrinter printer) throws IOException {
-    final Set<String> spiInterfaces = all ? services.keySet() : this.spiInterfaces;
+    final var spiInterfaces = all ? services.keySet() : this.spiInterfaces;
 
     printer.printRecord("Interface", "Implementation count (Fileset)", "Implementation count (JAR)", "Implementation",
                         "Maven", "Java Module", "JAR");
 
     for (final String spiInterface : spiInterfaces) {
-      final Set<AvailableImplementation> implementations = services.get(spiInterface);
+      final var implementations = services.get(spiInterface);
       if (null == implementations) {
         printer.printRecord(spiInterface, "0", "0", "(none)", "", "", "");
         continue;
       }
 
-      final int implementationFound = implementations.stream().mapToInt(ai -> ai.implementations.size()).sum();
+      final var implementationFound = implementations.stream().mapToInt(ai -> ai.implementations.size()).sum();
       for (final AvailableImplementation availableImplementation : implementations) {
-        final String gav = moduleJARProcessor.getGAVAsString(availableImplementation.jarInformation);
-        final String desc = moduleJARProcessor.getModuleDescriptorAsString(availableImplementation.jarInformation);
+        final var gav = moduleJARProcessor.getGAVAsString(availableImplementation.jarInformation);
+        final var desc = moduleJARProcessor.getModuleDescriptorAsString(availableImplementation.jarInformation);
         final var jarImplementationFound = availableImplementation.implementations.size();
         for (final String impl : availableImplementation.implementations) {
           printer.printRecord(spiInterface, implementationFound, jarImplementationFound, impl, gav, desc,
@@ -133,7 +133,7 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
   }
 
   private String getServiceForEntry(final JarEntry entry) {
-    final String service = entry.getName().substring(SERVICES_DIRECTORY.length());
+    final var service = entry.getName().substring(SERVICES_DIRECTORY.length());
     if (service.contains("/")) {
       return null;
     }
@@ -154,9 +154,9 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
 
     static AvailableImplementation parse(final JARInformation source, final InputStream is) throws IOException {
       final List<String> implementations = new ArrayList<>();
-      try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+      try (final var reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
         for (String line = null; null != (line = reader.readLine());) {
-          final int ci = line.indexOf('#');
+          final var ci = line.indexOf('#');
           if (ci >= 0) {
             line = line.substring(0, ci);
           }

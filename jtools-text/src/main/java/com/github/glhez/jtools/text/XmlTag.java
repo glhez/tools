@@ -21,23 +21,19 @@ class XmlTag implements RegionMatcher {
       return -1;
     }
 
-    final int tagStart = start + 1;
-    final int tagEnd = readName(line, tagStart);
-    if (tagEnd == -1) {
+    final var tagStart = start + 1;
+    final var tagEnd = readName(line, tagStart);
+    if ((tagEnd == -1) || (tagEnd < line.length() && line.charAt(tagEnd) != '>')) {
       return -1;
     }
 
-    if (tagEnd < line.length() && line.charAt(tagEnd) != '>') {
-      return -1;
-    }
-
-    final String tagName = line.substring(tagStart, tagEnd);
+    final var tagName = line.substring(tagStart, tagEnd);
 
     if (!this.xmlTags.contains(tagName)) {
       return -1;
     }
-    final String endTagName = "</" + tagName + ">";
-    final int end = line.indexOf(endTagName, tagEnd + 1);
+    final var endTagName = "</" + tagName + ">";
+    final var end = line.indexOf(endTagName, tagEnd + 1);
 
     if (end == -1) {
       return -1;
@@ -47,10 +43,10 @@ class XmlTag implements RegionMatcher {
   }
 
   private int readName(final String line, final int start) {
-    final int n = line.length();
+    final var n = line.length();
     if (start < n) {
       if (isNameStart(line.charAt(start))) {
-        int i = start + 1;
+        var i = start + 1;
         while (i < n && isNamePart(line.charAt(i))) {
           ++i;
         }

@@ -45,7 +45,7 @@ public enum CFRFileFilter implements Filter {
     final var byteClassSource = new ByteClassSource(stream);
 
     final Callable<String> task = () -> {
-      final JavaOutputSinkFactory sinkFactory = new JavaOutputSinkFactory();
+      final var sinkFactory = new JavaOutputSinkFactory();
       final var driver = new CfrDriver.Builder().withOptions(CFR_DEFAULT_OPTIONS)
                                                 .withOutputSink(sinkFactory)
                                                 .withClassFileSource(byteClassSource)
@@ -128,7 +128,7 @@ public enum CFRFileFilter implements Filter {
     }
 
     private <T> void fail(final SinkType sinkType, final SinkClass sinkClass, final T value) {
-      final Throwable exception = value instanceof Throwable ? (Throwable) value : null;
+      final var exception = value instanceof Throwable ? (Throwable) value : null;
       throw new IllegalStateException(
           String.format("unsupported cfr case: sinkType: %s, sinkClass: %s, value: %s", sinkType, sinkClass, value),
           exception);

@@ -75,7 +75,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    */
   public String getFileName() {
     var fileNameCache = this.fileNameCache;
-    if (null == fileNameCache) {
+    if (fileNameCache == null) {
       fileNameCache = path.getFileName().toString();
       this.fileNameCache = fileNameCache;
     }
@@ -91,7 +91,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    */
   public String getExtension() {
     var extensionCache = this.extensionCache;
-    if (null == extensionCache) {
+    if (extensionCache == null) {
       extensionCache = getExtension0();
       this.extensionCache = extensionCache;
     }
@@ -99,8 +99,8 @@ public final class CollectedFile implements Comparable<CollectedFile> {
   }
 
   private String getExtension0() {
-    final String name = getFileName();
-    final int dotIndex = name.lastIndexOf('.');
+    final var name = getFileName();
+    final var dotIndex = name.lastIndexOf('.');
     if (dotIndex == -1) {
       return "";
     }
@@ -120,7 +120,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    */
   public String getPathAsString() {
     var pathAsStringCache = this.pathAsStringCache;
-    if (null == pathAsStringCache) {
+    if (pathAsStringCache == null) {
       // normalize path as well
       pathAsStringCache = path.toString().replace('\\', '/');
       this.pathAsStringCache = pathAsStringCache;
@@ -138,7 +138,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    */
   public String getCompletePath() {
     var completePathCache = this.completePathCache;
-    if (null == completePathCache) {
+    if (completePathCache == null) {
       completePathCache = getCompletePath0();
       this.completePathCache = completePathCache;
     }
@@ -146,10 +146,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
   }
 
   private String getCompletePath0() {
-    if (null != parent) {
-      return parent.toString() + "!" + getPathAsString();
-    }
-    return path.toString();
+    return parent == null ? getPathAsString() : parent.toString() + "!" + getPathAsString();
   }
 
   @Override
@@ -172,13 +169,10 @@ public final class CollectedFile implements Comparable<CollectedFile> {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final CollectedFile other = (CollectedFile) obj;
+    final var other = (CollectedFile) obj;
     return Objects.equals(parent, other.parent) && Objects.equals(getPathAsString(), other.getPathAsString());
   }
 

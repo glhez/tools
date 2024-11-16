@@ -59,7 +59,7 @@ public class PathWrapper implements Comparable<PathWrapper> {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final PathWrapper other = (PathWrapper) obj;
+    final var other = (PathWrapper) obj;
     return Objects.equals(this.path, other.path);
   }
 
@@ -83,7 +83,7 @@ public class PathWrapper implements Comparable<PathWrapper> {
 
     public FileName(final String fullName) {
       this.fileName = fullName;
-      final int n = fullName.lastIndexOf('.');
+      final var n = fullName.lastIndexOf('.');
       if (n == -1) {
         this.fileNameWithoutExtension = fullName;
         this.extension = "";

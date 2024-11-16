@@ -20,10 +20,10 @@ class TabulizerTest {
 
     assertThat(tabulize()).isEmpty();
     assertThat(tabulize("A")).isEqualTo("A");
-    final TabulizerOptions opt1 = TabulizerOptions.builder()
-                                                  .setDetectInitialIndent(true)
-                                                  .setLineSeparator(LineSeparator.LF)
-                                                  .build();
+    final var opt1 = TabulizerOptions.builder()
+                                     .setDetectInitialIndent(true)
+                                     .setLineSeparator(LineSeparator.LF)
+                                     .build();
     assertThat(tabulize(opt1, "    A", "B")).isNotNull().isEqualTo("    A\n    B\n");
 
     assertThat(tabulize(TabulizerOptions.builder()
@@ -45,10 +45,10 @@ class TabulizerTest {
     // string2
     // xmlTags
 
-    final Tabulizer noOpt = TabulizerOptions.builder().build().toTabulizer();
+    final var noOpt = TabulizerOptions.builder().build().toTabulizer();
 
     {
-      final Row row = noOpt.detectColumns("A B C D");
+      final var row = noOpt.detectColumns("A B C D");
       assertThat(row).isNotNull()
                      .contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn(
                          "C"), new DefaultColumn("D"));
@@ -56,23 +56,23 @@ class TabulizerTest {
     }
     {
       // this should still work (we ignore space before/after)
-      final Row row = noOpt.detectColumns("   A B C D    ");
+      final var row = noOpt.detectColumns("   A B C D    ");
       assertThat(row).isNotNull()
                      .contains(new DefaultColumn("A"), new DefaultColumn("B"), new DefaultColumn(
                          "C"), new DefaultColumn("D"));
       assertThat(row.columnCount()).isEqualTo(4);
     }
 
-    final Tabulizer stringOpt = TabulizerOptions.builder()
-                                                .setString1(BiToken.string("\"", "\\"))
-                                                .setString2(BiToken.string("'", "\\"))
-                                                .build()
-                                                .toTabulizer();
+    final var stringOpt = TabulizerOptions.builder()
+                                          .setString1(BiToken.string("\"", "\\"))
+                                          .setString2(BiToken.string("'", "\\"))
+                                          .build()
+                                          .toTabulizer();
     {
-      final String a = "A";
-      final String b = "'B A'";
-      final String c = "'C $' D'".replace("'", "\"").replace("$", "\\");
-      final Row row = stringOpt.detectColumns(a + b + c);
+      final var a = "A";
+      final var b = "'B A'";
+      final var c = "'C $' D'".replace("'", "\"").replace("$", "\\");
+      final var row = stringOpt.detectColumns(a + b + c);
       assertThat(row).isNotNull().contains(new DefaultColumn(a), new DefaultColumn(b), new DefaultColumn(c));
       assertThat(row.columnCount()).isEqualTo(3);
     }

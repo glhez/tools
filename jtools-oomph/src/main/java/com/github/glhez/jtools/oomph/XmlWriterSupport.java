@@ -10,7 +10,8 @@ public class XmlWriterSupport {
   public static final String SETUP_NS_PREFIX = "setup";
   public static final String SETUP_NS_URI = "http://www.eclipse.org/oomph/setup/1.0";
 
-  public static void writeAttributeIfNotBlank(javax.xml.stream.XMLStreamWriter writer, String localName, String value) throws XMLStreamException {
+  public static void writeAttributeIfNotBlank(final javax.xml.stream.XMLStreamWriter writer, final String localName, final String value)
+      throws XMLStreamException {
     if (value != null && !value.isBlank()) {
       writer.writeAttribute(localName, value);
     }

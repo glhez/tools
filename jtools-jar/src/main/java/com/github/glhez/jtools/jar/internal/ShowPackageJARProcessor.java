@@ -58,7 +58,7 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
    */
   static boolean isClassFileEntry(final JarEntry entry) {
     // use the .class rather than the directory: this will lessen the false positive.
-    final String name = entry.getName();
+    final var name = entry.getName();
     return name.endsWith(".class") //
         && !"module-info.class".equals(name) // ignore module (this will produce "EMPTY" package)
         && !name.startsWith("META-INF/") //
@@ -67,8 +67,8 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
   }
 
   private String splitName(final JarEntry entry) {
-    final String name = entry.getName();
-    final int n = name.lastIndexOf('/');
+    final var name = entry.getName();
+    final var n = name.lastIndexOf('/');
     if (n == -1) {
       return "";
     }
@@ -85,14 +85,14 @@ public class ShowPackageJARProcessor extends ReportFileJARProcessor {
 
     printer.printRecord("JAR", "GAV", "Module", "Package", "Number of package references in all JARs");
     for (final var entry : this.packagesPerJar.entrySet()) {
-      final JARInformation jar = entry.getKey();
-      final NavigableSet<String> packages = entry.getValue();
-      final String gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
-      final String module = moduleJARProcessor.getModuleDescriptorAsString(jar);
-      final String info = jar.toString();
+      final var jar = entry.getKey();
+      final var packages = entry.getValue();
+      final var gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
+      final var module = moduleJARProcessor.getModuleDescriptorAsString(jar);
+      final var info = jar.toString();
 
       for (final var packageName : packages) {
-        final Long counter = counters.getOrDefault(packageName, 1L);
+        final var counter = counters.getOrDefault(packageName, 1L);
         if (!showDuplicatePackage || counter > 1) {
           printer.printRecord(info, gav, module, packageName.isEmpty() ? "<EMPTY>" : packageName, counter);
         }

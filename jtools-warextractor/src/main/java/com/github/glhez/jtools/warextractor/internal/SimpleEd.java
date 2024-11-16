@@ -37,10 +37,10 @@ public class SimpleEd {
       if (!"s".equals(type)) {
         throw newIllegalArgumentException(mask, "invalid type: [" + type + "] (expected: 's')");
       }
-      int patternFlags = 0;
-      boolean all = false;
+      var patternFlags = 0;
+      var all = false;
       for (int i = 0, len = options.length(); i < len; ++i) {
-        final char c = options.charAt(i);
+        final var c = options.charAt(i);
         switch (c) {
           case 'i':
             patternFlags |= Pattern.CASE_INSENSITIVE;

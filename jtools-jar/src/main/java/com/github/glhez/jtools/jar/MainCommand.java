@@ -44,11 +44,12 @@ import picocli.CommandLine.Parameters;
 @Command(mixinStandardHelpOptions = true)
 public class MainCommand implements Runnable {
 
-  @Option(names = { "-O",
-      "--output-directory" }, description = "Output directory when using reports. Created if it does not exists.")
+  @Option(names = { "-O", "--output-directory" },
+          description = "Output directory when using reports. Created if it does not exists.")
   private Path outputDirectory;
 
-  @Option(names = "--csv-separator", description = "CSV Separator to use. Default depends on locale (eg: FRENCH + GERMAN = ; otherwise ,).")
+  @Option(names = "--csv-separator",
+          description = "CSV Separator to use. Default depends on locale (eg: FRENCH + GERMAN = ; otherwise ,).")
   private Character csvSeparator;
 
   /*
@@ -57,32 +58,32 @@ public class MainCommand implements Runnable {
   @Parameters(description = "Add a directory/files; directories are searched for JAR/WAR/EAR.")
   private List<Path> fileset;
 
-  @Option(names = { "-i", "--include" },
-          description = {
-              "Include file from the file system. File matched by the pattern will be added to any analysis.",
-              "The pattern use java.util.regex.Pattern and can be added several times.",
-              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+  @Option(names = { "-i", "--include", "--includes" },
+          description = """
+              Include file from the file system. File matched by the pattern will be added to any analysis.
+              The pattern use java.util.regex.Pattern and can be added several times.
+              By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+              """)
   private List<String> includes;
 
-  @Option(names = { "-x", "--exclude" },
-          description = {
-              "Exclude file from the file system. File matched by the pattern will be ignored from any analysis.",
-              "The pattern use java.util.regex.Pattern and can be added several times.",
-              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'"
-
-          })
+  @Option(names = { "-x", "--exclude", "--excludes" },
+          description = """
+                  Exclude file from the file system. File matched by the pattern will be ignored from any analysis.
+                  The pattern use java.util.regex.Pattern and can be added several times.
+                  By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+              """)
   private List<String> excludes;
 
-  @Option(names = { "-D",
-      "--deep-scan" },
+  @Option(names = { "-D", "--deep-scan" },
           description = "Look for JAR in EAR/WAR files. The filter accepts value ALL (don't care about hierarchy) or the default STD (META-INF/lib/ only)")
   private JARFileLocator.DeepMode deepScan;
 
   @Option(names = { "-f", "--deep-filter" },
-          description = {
-              "Filter embedded JAR/WAR. Path matched by the Pattern will be included.",
-              "The pattern use java.util.regex.Pattern and can be added several times.",
-              "By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'" })
+          description = """
+              Filter embedded JAR/WAR. Path matched by the Pattern will be included.
+              The pattern use java.util.regex.Pattern and can be added several times.
+              By default the pattern match only the name of file; it may match the whole path by prefixing pattern by 'path:'
+              """)
   private List<String> deepFilter;
 
   /*
@@ -92,23 +93,25 @@ public class MainCommand implements Runnable {
   private boolean allProcessor;
 
   @Option(names = "--maven",
-          description = {
-              "Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.",
-              "The processor will ignore JAR with multiple pom.properties (probably über jar)." })
+          description = """
+              Extract information stored by Maven Archiver in /META-INF/maven/**/pom.properties.
+              The processor will ignore JAR with multiple pom.properties (probably über jar).
+              """)
   private boolean mavenProcessor;
 
   @Option(names = { "--maven-bash", "--maven-shellscript" },
-          description = {
-              "Export Maven information as a shell script (bash oriented; other sh may work or need to be adapted).",
-              "The scriplet can be used to import the dependency to a local repository.", })
+          description = """
+              Export Maven information as a shell script (bash oriented; other shell may work or need to be adapted).
+              The scriplet can be used to import the dependency to a local repository.
+              """)
   private boolean mavenShellScriptExport;
 
-  @Option(names = { "--jnlp-permission",
-      "--jnlp-permissions" }, description = "Check for permissions codebase for JNLP")
+  @Option(names = { "--jnlp-permission", "--jnlp-permissions" },
+          description = "Check for permissions codebase for JNLP")
   private boolean manifestPermissionProcessor;
 
-  @Option(names = { "--service", "--services",
-      "--spi" }, description = "Search for SPI; looks for file in /META-INF/services or in Java module if available.")
+  @Option(names = { "--service", "--services", "--spi" },
+          description = "Search for SPI; looks for file in /META-INF/services or in Java module if available.")
   private boolean serviceProcessor;
 
   @Option(names = "--service-module", description = "Ignore SPI file and only process module-info.")
@@ -131,8 +134,8 @@ public class MainCommand implements Runnable {
   @Option(names = { "--package", "--packages" }, description = "Show root packages contained in JAR.")
   private boolean showPackage;
 
-  @Option(names = { "--duplicate-package",
-      "--duplicate-packages" }, description = "Apply --package; show only package found in several JARs meaning probable problems with Java Modules.")
+  @Option(names = { "--duplicate-package", "--duplicate-packages" },
+          description = "Apply --package; show only package found in several JARs meaning probable problems with Java Modules.")
   private boolean showOnlyDuplicatePackage;
 
   @Option(names = { "--class", "--classes" }, description = "Show all classes in JAR.")

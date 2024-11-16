@@ -70,10 +70,7 @@ public class FileCollector implements FileVisitor<Path> {
   }
 
   private boolean isArchive(final PathWrapper file) {
-    if (this.archiveDirectory == null) {
-      return false;
-    }
-    if (!file.startsWith(this.archiveDirectory)) {
+    if ((this.archiveDirectory == null) || !file.startsWith(this.archiveDirectory)) {
       return false;
     }
     final var fn = file.getFileName();
@@ -85,7 +82,7 @@ public class FileCollector implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-    final PathWrapper wrapper = new PathWrapper(file);
+    final var wrapper = new PathWrapper(file);
     if (this.fileMatcher.test(wrapper)) {
       this.directories.add(file.getParent());
       if (isArchive(wrapper)) {

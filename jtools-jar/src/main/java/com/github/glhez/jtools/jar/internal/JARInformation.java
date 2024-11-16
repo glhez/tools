@@ -78,7 +78,7 @@ public class JARInformation implements Comparable<JARInformation> {
     if (null == obj || obj.getClass() != this.getClass()) {
       return false;
     }
-    final JARInformation other = (JARInformation) obj;
+    final var other = (JARInformation) obj;
     return archivePath.equals(other.archivePath) && pathInArchive.equals(other.pathInArchive)
         && multiRelease == other.multiRelease && feature == other.feature;
   }
@@ -92,7 +92,7 @@ public class JARInformation implements Comparable<JARInformation> {
 
   @Override
   public int compareTo(final JARInformation o) {
-    int n = archivePath.compareTo(o.archivePath);
+    var n = archivePath.compareTo(o.archivePath);
     if (n == 0) {
       n = pathInArchive.map(Object::toString).orElse("").compareTo(o.pathInArchive.map(Object::toString).orElse(""));
     }

@@ -14,7 +14,7 @@ public class StringSubstitutionTask implements Task {
 
   private UnaryOperator<String> filterVariableFormatter;
 
-  public StringSubstitutionTask(String name) {
+  public StringSubstitutionTask(final String name) {
     this.name = name;
     this.hasValue = false;
     this.value = new StringBuilder();
@@ -26,31 +26,31 @@ public class StringSubstitutionTask implements Task {
     return this;
   }
 
-  public StringSubstitutionTask value(String value) {
+  public StringSubstitutionTask value(final String value) {
     return clearValue().appendValue(value);
   }
 
-  public StringSubstitutionTask appendValue(String value) {
+  public StringSubstitutionTask appendValue(final String value) {
     this.hasValue = true;
     this.value.append(' ').append(value);
     return this;
   }
 
-  public StringSubstitutionTask appendVariable(String value) {
+  public StringSubstitutionTask appendVariable(final String value) {
     return appendValue("$${" + value + "}");
   }
 
-  public StringSubstitutionTask appendSetupVariable(String value) {
+  public StringSubstitutionTask appendSetupVariable(final String value) {
     return appendValue("${" + value + "}");
   }
 
-  public StringSubstitutionTask appendJavaProperty(String key, String value) {
+  public StringSubstitutionTask appendJavaProperty(final String key, final String value) {
     this.hasValue = true;
     this.value.append(" -D").append(key).append("=").append(value);
     return this;
   }
 
-  public StringSubstitutionTask filterVariable(String filterVariable) {
+  public StringSubstitutionTask filterVariable(final String filterVariable) {
     this.filterVariable = filterVariable;
     return this;
   }
@@ -59,13 +59,13 @@ public class StringSubstitutionTask implements Task {
     return filterVariable(name);
   }
 
-  public StringSubstitutionTask filterVariableFormatter(UnaryOperator<String> formatter) {
+  public StringSubstitutionTask filterVariableFormatter(final UnaryOperator<String> formatter) {
     this.filterVariableFormatter = formatter;
     return this;
   }
 
   @Override
-  public void write(XMLStreamWriter writer) throws XMLStreamException {
+  public void write(final XMLStreamWriter writer) throws XMLStreamException {
     if (filterVariableFormatter == null) {
       filterVariableFormatter = asFilterVariable();
     }
@@ -77,13 +77,13 @@ public class StringSubstitutionTask implements Task {
     } else if (whenFilterMatchValue == null) {
       write(writer, null, s);
     } else {
-      String condition = "(" + filterVariable + "=*)";
+      var condition = "(" + filterVariable + "=*)";
       write(writer, "(!" + condition + ")", s);
       write(writer, condition, whenFilterMatchValue);
     }
   }
 
-  private void write(XMLStreamWriter writer, String filter, String value) throws XMLStreamException {
+  private void write(final XMLStreamWriter writer, final String filter, final String value) throws XMLStreamException {
     writer.writeEmptyElement("setupTask");
     writer.writeAttribute(XmlWriterSupport.XSI_NS_PREFIX, XmlWriterSupport.XSI_NS_URI, "type",
                           XmlWriterSupport.SETUP_NS_PREFIX + ":StringSubstitutionTask");
@@ -98,7 +98,7 @@ public class StringSubstitutionTask implements Task {
     return name -> "${" + name + "}";
   }
 
-  public static UnaryOperator<String> asFilterVariable(String modifier) {
+  public static UnaryOperator<String> asFilterVariable(final String modifier) {
     return name -> "${" + name + "|" + modifier + "}";
   }
 }

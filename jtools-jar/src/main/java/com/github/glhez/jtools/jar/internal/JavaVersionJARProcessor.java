@@ -52,10 +52,10 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
   private Function<JarEntry, Map.Entry<String, JavaVersion>> javaVersionDetector(final ProcessorContext context,
       final JarFile jarFile) {
     return entry -> {
-      try (DataInputStream dis = new DataInputStream(jarFile.getInputStream(entry))) {
+      try (var dis = new DataInputStream(jarFile.getInputStream(entry))) {
         if (JAVA_CLASS_MAGIC == dis.readInt()) {
-          final int minorVersion = dis.readUnsignedShort();
-          final int majorVersion = dis.readUnsignedShort();
+          final var minorVersion = dis.readUnsignedShort();
+          final var majorVersion = dis.readUnsignedShort();
           return Map.entry(entry.getName(), JavaVersion.match(majorVersion, minorVersion));
         }
       } catch (final IOException | java.lang.SecurityException e) {
@@ -69,8 +69,8 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
   protected void finish(final CSVPrinter printer) throws IOException {
     printer.printRecord("JAR", "Maven GAV", "Java Version", "Files in JAR");
     for (final var entry : entries.entrySet()) {
-      final JARInformation jarInfo = entry.getKey();
-      final String gav = mavenArtifactsJARProcessor.map(p -> p.getGAVAsString(jarInfo)).orElse("");
+      final var jarInfo = entry.getKey();
+      final var gav = mavenArtifactsJARProcessor.map(p -> p.getGAVAsString(jarInfo)).orElse("");
       final var versions = entry.getValue();
 
       for (final var versionEntry : versions.entrySet()) {
@@ -108,7 +108,7 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
     private final int major;
     private final String name;
 
-    private JavaVersion(final int major, final int minor, final String name) {
+    JavaVersion(final int major, final int minor, final String name) {
       this.minor = minor;
       this.major = major;
       this.name = name;

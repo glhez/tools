@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * A simple API to collect files.
@@ -97,7 +96,7 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addEntry(final CollectedFile parent, final Path path) {
-    final CollectedFile entry = new CollectedFile(parent, path);
+    final var entry = new CollectedFile(parent, path);
     try {
       final var attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class).readAttributes();
       if (attributes.isDirectory()) {
@@ -113,7 +112,7 @@ public class FilesCollector implements AutoCloseable {
   }
 
   private void addDirectoryEntry(final CollectedFile entry) throws IOException {
-    try (final Stream<Path> stream = Files.find(entry.getPath(), Integer.MAX_VALUE, (file,
+    try (final var stream = Files.find(entry.getPath(), Integer.MAX_VALUE, (file,
         attrs) -> attrs.isRegularFile())) {
       stream.forEach(path -> {
         final var child = new CollectedFile(entry, path);

@@ -61,16 +61,16 @@ public class Tabulizer {
   }
 
   private String format(final String[] originalLines) {
-    final int initialIndent = !options.detectInitialIndent ? 0 : detectInitialIndent(originalLines, options.tabSize);
+    final var initialIndent = !options.detectInitialIndent ? 0 : detectInitialIndent(originalLines, options.tabSize);
     // TODO gael.lhez remove this: the trim is done by detectColumns.
-    final String[] lines = trimLines(originalLines);
+    final var lines = trimLines(originalLines);
 
-    final Row[] rows = detectColumns(lines);
-    final String indent = indent(initialIndent);
-    final String lineSeparator = options.lineSeparator.toString();
+    final var rows = detectColumns(lines);
+    final var indent = indent(initialIndent);
+    final var lineSeparator = options.lineSeparator.toString();
 
     // TODO gael.lhez finish the work
-    final StringBuilder sb = new StringBuilder();
+    final var sb = new StringBuilder();
     for (final String line : lines) {
       sb.append(indent).append(line).append(lineSeparator);
     }
@@ -85,8 +85,8 @@ public class Tabulizer {
    * @return a Row[] containing as much rows than there is lines.
    */
   Row[] detectColumns(final String[] lines) {
-    final Row[] rows = new Row[lines.length];
-    for (int i = 0; i < rows.length; ++i) {
+    final var rows = new Row[lines.length];
+    for (var i = 0; i < rows.length; ++i) {
       rows[i] = detectColumns(lines[i]);
     }
     return rows;
@@ -112,7 +112,7 @@ public class Tabulizer {
     // [x] string2
     // [x] xmlTags
     // [ ] other token
-    final Row row = new Row();
+    final var row = new Row();
 
     /*
      * if we selected something, use a big fat algorithm; otherwise, use non whitespace transition.
@@ -121,14 +121,14 @@ public class Tabulizer {
         || options.multilineComment != null || options.string1 != null || options.string2 != null
         || !options.xmlTags.isEmpty()) {
       // NOOP (for now)
-      final int n = line.length();
+      final var n = line.length();
       // for non WS tokens, the position of the first char being non whitespace
-      final int firstChar = -1;
+      final var firstChar = -1;
 
-      final TokenAccumulator accumulator = new TokenAccumulator();
-      for (int i = 0; i < n;) {
+      final var accumulator = new TokenAccumulator();
+      for (var i = 0; i < n;) {
         if (options.multilineComment != null) {
-          final int offset = options.multilineComment.regionMatches(line, i);
+          final var offset = options.multilineComment.regionMatches(line, i);
           if (offset != -1) {
             row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
@@ -142,7 +142,7 @@ public class Tabulizer {
           break;
         }
         if (options.string1 != null) {
-          final int offset = options.string1.regionMatches(line, i);
+          final var offset = options.string1.regionMatches(line, i);
           if (offset != -1) {
             row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
@@ -151,7 +151,7 @@ public class Tabulizer {
           }
         }
         if (options.string2 != null) {
-          final int offset = options.string2.regionMatches(line, i);
+          final var offset = options.string2.regionMatches(line, i);
           if (offset != -1) {
             row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
@@ -161,7 +161,7 @@ public class Tabulizer {
         }
 
         if (!xmlTag.isEmpty()) {
-          final int offset = xmlTag.regionMatches(line, i);
+          final var offset = xmlTag.regionMatches(line, i);
           if (offset != -1) {
             row.add(accumulator.reset(line, i));
             row.add(new DefaultColumn(line.substring(i, offset)));
@@ -187,7 +187,7 @@ public class Tabulizer {
         }
 
         // advance NWS
-        final int start = i;
+        final var start = i;
         while (i < n && !Character.isWhitespace(line.charAt(i))) {
           ++i;
         }
@@ -214,7 +214,7 @@ public class Tabulizer {
    *          indent value.
    */
   private static String indent(final int indent) {
-    final char[] spaces = new char[indent];
+    final var spaces = new char[indent];
     Arrays.fill(spaces, ' ');
     return new String(spaces);
   }
@@ -229,9 +229,9 @@ public class Tabulizer {
    * @return the initial indent,
    */
   static int detectInitialIndent(final String[] lines, final int tabSize) {
-    int initialIndent = 0;
+    var initialIndent = 0;
     for (final String line : lines) {
-      final int lineInitialIndent = detectInitialIndent(line, tabSize);
+      final var lineInitialIndent = detectInitialIndent(line, tabSize);
       if (lineInitialIndent > initialIndent) {
         initialIndent = lineInitialIndent;
       }
@@ -249,9 +249,9 @@ public class Tabulizer {
    * @return
    */
   static int detectInitialIndent(final String line, final int tabSize) {
-    int indent = 0;
+    var indent = 0;
     for (int i = 0, n = line.length(); i < n; ++i) {
-      final char c = line.charAt(i);
+      final var c = line.charAt(i);
       if (c == '\t') {
         indent += tabSize;
       } else if (c == ' ') {

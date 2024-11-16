@@ -70,7 +70,7 @@ public class ChainFilter {
     logger.debug("filtering {} ({}): {}", () -> index, () -> String.format("%3.2f%%", 100.0
         * (index / (double) total)), () -> file);
     try {
-      InputStreamWithCharset root = InputStreamWithCharset.open(file);
+      var root = InputStreamWithCharset.open(file);
       for (final Filter element : filters) {
         root = element.filter(root);
       }
@@ -88,7 +88,7 @@ public class ChainFilter {
   private static PredicateAndFilter parse(final String value) {
     Objects.requireNonNull(value, "value");
 
-    final int n = value.indexOf('=');
+    final var n = value.indexOf('=');
     final String filter;
     final String pathFilter;
     if (n == -1) {
@@ -132,7 +132,7 @@ public class ChainFilter {
     private final Predicate<PathWrapper> predicate;
     private final Filter filter;
 
-    private KnownFileFilter(final String defaultPredicate, final Filter filter) {
+    KnownFileFilter(final String defaultPredicate, final Filter filter) {
       this.predicate = ExecutionContext.pathPredicate(defaultPredicate);
       this.filter = filter;
     }
@@ -156,8 +156,8 @@ public class ChainFilter {
 
     @Override
     public int hashCode() {
-      final int prime = 31;
-      int result = 1;
+      final var prime = 31;
+      var result = 1;
       result = prime * result + Arrays.deepHashCode(array);
       return result;
     }
@@ -167,10 +167,7 @@ public class ChainFilter {
       if (this == obj) {
         return true;
       }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
+      if ((obj == null) || (getClass() != obj.getClass())) {
         return false;
       }
       final ArrayWrapper<?> other = (ArrayWrapper<?>) obj;

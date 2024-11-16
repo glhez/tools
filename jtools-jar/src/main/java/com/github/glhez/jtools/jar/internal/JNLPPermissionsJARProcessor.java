@@ -9,9 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.jar.Attributes;
 import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.apache.commons.csv.CSVPrinter;
 
@@ -30,15 +28,15 @@ public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
-      final Manifest manifest = jarFile.getManifest();
-      final Attributes ma = null == manifest ? null : manifest.getMainAttributes();
+      final var manifest = jarFile.getManifest();
+      final var ma = null == manifest ? null : manifest.getMainAttributes();
 
       if (null == ma) {
         put(JNLPPermissions.EMPTY, context);
         return;
       }
 
-      final JNLPPermissions permissions = new JNLPPermissions(clean(ma.getValue("Permissions")),
+      final var permissions = new JNLPPermissions(clean(ma.getValue("Permissions")),
           clean(ma.getValue("Codebase")), clean(ma.getValue("Caller-Allowable-Codebase")));
 
       if (permissions.equals(JNLPPermissions.VALID)) {
@@ -134,7 +132,7 @@ public class JNLPPermissionsJARProcessor extends ReportFileJARProcessor {
       if (obj == EMPTY || obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      final JNLPPermissions other = (JNLPPermissions) obj;
+      final var other = (JNLPPermissions) obj;
       return Objects.equals(permissions, other.permissions) && Objects.equals(codebase, other.codebase)
           && Objects.equals(callerAllowableCodebase, other.callerAllowableCodebase);
     }

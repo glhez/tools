@@ -103,7 +103,7 @@ public class MainCommand implements Runnable {
 
   @Override
   public void run() {
-    boolean multipleInput = true;
+    var multipleInput = true;
     if (this.input == null || this.input.isEmpty()) {
       throw new IllegalArgumentException("missing output directory; use --help to see usage.");
     }
@@ -125,7 +125,7 @@ public class MainCommand implements Runnable {
     builder.setRenameLib(this.renameLib);
     builder.setCacheDirectory(this.cacheDirectory);
 
-    final ExecutionContext ctx = builder.build();
+    final var ctx = builder.build();
 
     for (final var src : this.input) {
       final var output = multipleInput ? this.output.resolve(PathWrapper.getFileNameNoExtension(src)) : this.output;

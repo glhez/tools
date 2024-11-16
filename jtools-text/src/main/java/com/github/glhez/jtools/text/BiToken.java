@@ -97,15 +97,15 @@ public final class BiToken implements RegionMatcher {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final BiToken other = (BiToken) obj;
+    final var other = (BiToken) obj;
     return Objects.equals(start, other.start) && Objects.equals(end, other.end) && Objects.equals(escape, other.escape);
   }
 
   @Override
   public int regionMatches(final String line, final int offset) {
     if (line.regionMatches(offset, start, 0, start.length())) {
-      for (int initial = offset + start.length();;) {
-        final int endIndex = line.indexOf(end, initial);
+      for (var initial = offset + start.length();;) {
+        final var endIndex = line.indexOf(end, initial);
         if (endIndex == -1) {
           return -1; // invalid token, mismatch.
         }

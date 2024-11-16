@@ -46,14 +46,14 @@ public class ShowClassJARProcessor extends ReportFileJARProcessor {
   protected void finish(final CSVPrinter printer) throws IOException {
     printer.printRecord("JAR", "GAV", "Module", "Class", "Number of classes references in all JARs");
     for (final var entry : classesPerJAR.entrySet()) {
-      final String className = entry.getKey();
-      final NavigableSet<JARInformation> jars = entry.getValue();
+      final var className = entry.getKey();
+      final var jars = entry.getValue();
 
       if (!showOnlyDuplicateClasses || jars.size() > 1) {
         for (final var jar : jars) {
-          final String gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
-          final String module = moduleJARProcessor.getModuleDescriptorAsString(jar);
-          final String info = jar.toString();
+          final var gav = mavenArtifactsJARProcessor.getGAVAsString(jar);
+          final var module = moduleJARProcessor.getModuleDescriptorAsString(jar);
+          final var info = jar.toString();
           printer.printRecord(info, gav, module, className, jars.size());
         }
       }

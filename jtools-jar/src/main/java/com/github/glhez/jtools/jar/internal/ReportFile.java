@@ -44,7 +44,7 @@ public class ReportFile {
   }
 
   private void createParentIfNeeded() throws IOException {
-    final Path parent = this.path.getParent();
+    final var parent = this.path.getParent();
     if (null != parent) {
       Files.createDirectories(parent);
     }

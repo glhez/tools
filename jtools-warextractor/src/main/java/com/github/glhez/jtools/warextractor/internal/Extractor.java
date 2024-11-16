@@ -74,7 +74,7 @@ public abstract class Extractor implements AutoCloseable {
   public void execute() {
     final var root = getRoot();
 
-    final FileCollector collector = FileCollector.rootFileCollector(this.context, root);
+    final var collector = FileCollector.rootFileCollector(this.context, root);
     try {
       // walkFileTree() is a little bit more efficient than find when filtering.
       Files.walkFileTree(root, collector);
@@ -94,7 +94,7 @@ public abstract class Extractor implements AutoCloseable {
     if (null == relativePath) {
       return target; // if in place and parent is null
     }
-    final String s = relativePath.toString();
+    final var s = relativePath.toString();
     if (s.startsWith("/")) {
       return target.resolve(s.substring(1));
     }
@@ -153,11 +153,11 @@ public abstract class Extractor implements AutoCloseable {
           relTarget = relTarget.resolve(this.renamer.apply(archiveWrapper.getFileName().fileNameWithoutExtension));
         }
 
-        final Path archive = getArchiveFile(archiveWrapper);
+        final var archive = getArchiveFile(archiveWrapper);
         try (var fs = FileSystems.newFileSystem(URI.create("jar:" + archive.toUri()), Map.of())) {
           final var archiveRoot = fs.getPath("/");
 
-          final FileCollector collector = FileCollector.jarFileCollector(this.context, archiveRoot);
+          final var collector = FileCollector.jarFileCollector(this.context, archiveRoot);
           Files.walkFileTree(archiveRoot, collector);
           createDirectories(archiveRoot, relTarget, collector.getDirectories(), file);
           copyFiles(archiveRoot, relTarget, collector.getFiles(), file);
@@ -226,7 +226,7 @@ public abstract class Extractor implements AutoCloseable {
       final var fileName = wrapper.getFileName().fileNameWithoutExtension;
 
       if (null == this.cacheDirectory) {
-        final Path tempFile = Files.createTempFile(fileName + "-", ".zip");
+        final var tempFile = Files.createTempFile(fileName + "-", ".zip");
         logger.debug("copying archive {} to {}", path, tempFile);
         Files.copy(path, tempFile, StandardCopyOption.REPLACE_EXISTING);
         return tempFile;
@@ -235,7 +235,7 @@ public abstract class Extractor implements AutoCloseable {
       logger.debug("computing archive {} checksum", path);
       this.digest.reset();
       try (var is = Files.newInputStream(path); var bis = new BufferedInputStream(is)) {
-        for (int n = 0; -1 != (n = bis.read(this.buffer, 0, this.buffer.length));) {
+        for (var n = 0; -1 != (n = bis.read(this.buffer, 0, this.buffer.length));) {
           this.digest.update(this.buffer, 0, n);
         }
       }
@@ -258,9 +258,9 @@ public abstract class Extractor implements AutoCloseable {
     private final static char[] hexArray = "0123456789abcdef".toCharArray();
 
     public static String bytesToHex(final byte[] bytes) {
-      final char[] hexChars = new char[bytes.length * 2];
-      for (int j = 0; j < bytes.length; j++) {
-        final int v = bytes[j] & 0xFF;
+      final var hexChars = new char[bytes.length * 2];
+      for (var j = 0; j < bytes.length; j++) {
+        final var v = bytes[j] & 0xFF;
         hexChars[j * 2] = hexArray[v >>> 4];
         hexChars[j * 2 + 1] = hexArray[v & 0x0F];
       }

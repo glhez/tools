@@ -25,7 +25,7 @@ public class TokenAccumulator {
    *          end position (excluded)
    */
   public Column reset(final String line, final int end) {
-    final int offset = this.offset;
+    final var offset = this.offset;
     this.offset = INVALID_OFFSET;
     if (offset == INVALID_OFFSET || offset == end) {
       return null;

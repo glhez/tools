@@ -15,7 +15,7 @@ class TabulizerOptionsTest {
 
   @Test
   void test_default_values() {
-    final TabulizerOptions b = TabulizerOptions.builder().build();
+    final var b = TabulizerOptions.builder().build();
 
     assertThat(b.multilineComment).isNull();
     assertThat(b.lineComment).isNull();
@@ -45,27 +45,27 @@ class TabulizerOptionsTest {
 
   @Test
   void test_customized() {
-    final BiToken multilineComment = BiToken.of("/*", "*/");
+    final var multilineComment = BiToken.of("/*", "*/");
 
-    final String lineComment = "//";
-    final BiToken string1 = BiToken.string("'", "\\");
-    final BiToken string2 = BiToken.string("\"", "\\");
+    final var lineComment = "//";
+    final var string1 = BiToken.string("'", "\\");
+    final var string2 = BiToken.string("\"", "\\");
     final Set<String> xmlTags = Collections.singleton("groupId");
     final List<String> xmlTagsOrder = asList("groupId", "artifactId");
-    final boolean keywordCaseInsensitive = true;
-    final boolean alignXmlTags = true;
+    final var keywordCaseInsensitive = true;
+    final var alignXmlTags = true;
     final Set<String> keywords = singleton("as if");
-    final boolean attachSingleOperator = true;
-    final boolean detectInitialIndent = true;
-    final int tabSize = 4;
-    final LineSeparator lineSeparator = LineSeparator.CRLF;
+    final var attachSingleOperator = true;
+    final var detectInitialIndent = true;
+    final var tabSize = 4;
+    final var lineSeparator = LineSeparator.CRLF;
     final Set<String> rightAlignFirstColumn = singleton(",");
-    final boolean rightAlignFirstColumnCaseInsensitive = true;
-    final boolean detectNumber = true;
+    final var rightAlignFirstColumnCaseInsensitive = true;
+    final var detectNumber = true;
     final Set<String> additionalNumberToken = Collections.singleton("A");
-    final RightAlignNumber rightAlignNumber = RightAlignNumber.NUMBERS_ONLY;
+    final var rightAlignNumber = RightAlignNumber.NUMBERS_ONLY;
 
-    final TabulizerOptions.Builder builder = TabulizerOptions.builder();
+    final var builder = TabulizerOptions.builder();
     builder.setMultilineComment(multilineComment);
     builder.setLineComment(lineComment);
     builder.setString1(string1);
@@ -85,7 +85,7 @@ class TabulizerOptionsTest {
     builder.setAdditionalNumberToken(additionalNumberToken);
     builder.setRightAlignNumber(rightAlignNumber);
 
-    final TabulizerOptions b = builder.build();
+    final var b = builder.build();
 
     assertThat(b.multilineComment).isSameAs(multilineComment);
     assertThat(b.lineComment).isSameAs(lineComment);

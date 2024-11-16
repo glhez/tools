@@ -61,7 +61,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
-    final List<JarEntry> properties = getCandidateProperties(jarFile);
+    final var properties = getCandidateProperties(jarFile);
 
     if (properties.isEmpty()) {
       return;
@@ -69,7 +69,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
     for (final JarEntry jarEntry : properties) {
       final Set<GAV> gavs = new LinkedHashSet<>();
-      try (InputStream is = jarFile.getInputStream(jarEntry)) {
+      try (var is = jarFile.getInputStream(jarEntry)) {
         gavs.add(GAV.parse(is));
       } catch (final IOException | java.lang.SecurityException e) {
         context.addError("Failed to read GAV definition: " + e.getMessage());
@@ -81,7 +81,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
         mavenArtifacts.put(context.getJARInformation(), gavs.iterator().next());
       } else {
         // filter using the archive name, else fail
-        final String name = context.getJARInformation().getFileName().toString();
+        final var name = context.getJARInformation().getFileName().toString();
         final Set<GAV> newGavs = gavs.stream().filter(gav -> name.contains(gav.getFileNamePrefix())).collect(toSet());
         if (newGavs.isEmpty()) {
           return; // this would have been a GAV read error.
@@ -152,11 +152,11 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
     }
 
     public static GAV parse(final InputStream is) throws IOException {
-      final Properties propz = new Properties();
+      final var propz = new Properties();
       propz.load(is);
-      final String groupId = propz.getProperty("groupId");
-      final String artifactId = propz.getProperty("artifactId");
-      final String version = propz.getProperty("version");
+      final var groupId = propz.getProperty("groupId");
+      final var artifactId = propz.getProperty("artifactId");
+      final var version = propz.getProperty("version");
 
       if (null == groupId || null == artifactId || null == version) {
         throw new IOException("Missing fields: groupId % artifactId % version");
@@ -207,7 +207,7 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
       if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
-      final GAV other = (GAV) obj;
+      final var other = (GAV) obj;
       return Objects.equals(groupId, other.groupId) && Objects.equals(artifactId, other.artifactId)
           && Objects.equals(version, other.version);
     }

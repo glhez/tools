@@ -32,7 +32,7 @@ class Row implements Iterable<Column> {
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
+    final var builder = new StringBuilder();
     builder.append("Row [");
     if (columns != null) {
       builder.append("columns=").append(columns);

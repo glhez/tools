@@ -30,12 +30,12 @@ class BiTokenTest {
 
   @Test
   void test_hash_code_equals() {
-    final BiToken a1 = BiToken.of("a");
-    final BiToken a2 = BiToken.of("a");
-    final BiToken b1 = BiToken.of("b", "k");
-    final BiToken b2 = BiToken.of("b", "k");
-    final BiToken c1 = BiToken.string("c", "m");
-    final BiToken c2 = BiToken.string("c", "m");
+    final var a1 = BiToken.of("a");
+    final var a2 = BiToken.of("a");
+    final var b1 = BiToken.of("b", "k");
+    final var b2 = BiToken.of("b", "k");
+    final var c1 = BiToken.string("c", "m");
+    final var c2 = BiToken.string("c", "m");
 
     assertThat(a1).isEqualTo(a1).isEqualTo(a2).isNotEqualTo(b1).isNotEqualTo(b1).hasSameHashCodeAs(a2);
     assertThat(b1).isEqualTo(b1).isEqualTo(b2).isNotEqualTo(a1).isNotEqualTo(c1).hasSameHashCodeAs(b2);
@@ -56,14 +56,14 @@ class BiTokenTest {
 
   @Test
   void test_regionMatches() {
-    final BiToken c = BiToken.of("/*", "*/");
+    final var c = BiToken.of("/*", "*/");
 
     assertThat(c.regionMatches("/* THIS IS IT ", 0)).isEqualTo(-1);
     assertThat(c.regionMatches("   THIS IS IT */", 0)).isEqualTo(-1);
     //
     assertThat(c.regionMatches(" /*0123456789*/ ", 1)).isEqualTo(1 + "/*0123456789*/".length());
 
-    final BiToken s = BiToken.string("'-", "@A");
+    final var s = BiToken.string("'-", "@A");
     assertThat(s.regionMatches(" '- THIS IS IT ", 1)).isEqualTo(-1);
     assertThat(s.regionMatches(" '-0123456789'- ", 1)).isEqualTo(1 + "'-0123456789'-".length());
     assertThat(s.regionMatches(" '-0123456789@A'-0123456789'- ", 1)).isEqualTo(1

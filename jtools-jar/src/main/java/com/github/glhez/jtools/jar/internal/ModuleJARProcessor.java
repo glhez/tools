@@ -2,7 +2,6 @@ package com.github.glhez.jtools.jar.internal;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.module.ModuleDescriptor;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
   @Override
   public void process(final ProcessorContext context, final JarFile jarFile) {
     try {
-      final ZipEntry moduleInfo = jarFile.getEntry("module-info.class");
+      final var moduleInfo = jarFile.getEntry("module-info.class");
 
       if (null != moduleInfo) {
         handleModuleDescriptor(context, jarFile, moduleInfo);
@@ -56,8 +55,8 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
 
   private void handleModuleDescriptor(final ProcessorContext context, final JarFile jarFile,
       final ZipEntry moduleInfo) {
-    try (InputStream is = jarFile.getInputStream(moduleInfo); BufferedInputStream bis = new BufferedInputStream(is)) {
-      final java.lang.module.ModuleDescriptor module = java.lang.module.ModuleDescriptor.read(bis);
+    try (var is = jarFile.getInputStream(moduleInfo); var bis = new BufferedInputStream(is)) {
+      final var module = java.lang.module.ModuleDescriptor.read(bis);
       this.moduleDescriptors.put(context.getJARInformation(), module);
     } catch (final IOException | java.lang.SecurityException e) {
       context.addError("Failed to read module-info definition: " + e.getMessage());
@@ -70,7 +69,7 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
     for (final var entry : moduleDescriptors.entrySet()) {
       final var jarInformation = entry.getKey();
       final var module = entry.getValue();
-      final String gav = mavenArtifactsProcessor.getGAVAsString(jarInformation);
+      final var gav = mavenArtifactsProcessor.getGAVAsString(jarInformation);
 
       printer.printRecord(module.toNameAndVersion(), module.isAutomatic() ? "Yes" : "No", gav, jarInformation);
     }

@@ -22,7 +22,7 @@ class Collections2Test {
     assertThat(Collections2.copyAsUnmodifiableSet(null)).isSameAs(empty);
     assertThat(Collections2.copyAsUnmodifiableSet(new HashSet<>())).isSameAs(empty);
 
-    final HashSet<String> set = new HashSet<>(asList("A", "B"));
+    final var set = new HashSet<String>(asList("A", "B"));
     assertThat(Collections2.copyAsUnmodifiableSet(set)).isEqualTo(set);
   }
 
@@ -32,7 +32,7 @@ class Collections2Test {
     assertThat(Collections2.copyAsUnmodifiableNavigableSet(null)).isSameAs(empty);
     assertThat(Collections2.copyAsUnmodifiableNavigableSet(new TreeSet<>())).isSameAs(empty);
 
-    final TreeSet<String> set = new TreeSet<>(asList("A", "B"));
+    final var set = new TreeSet<String>(asList("A", "B"));
     assertThat(Collections2.copyAsUnmodifiableNavigableSet(set)).isEqualTo(set);
   }
 
