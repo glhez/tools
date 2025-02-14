@@ -12,7 +12,7 @@ that all developers use Java 11++ for Eclipse, jEdit, ...).
 
 The basic usage is to compile the project:
 
-    ./mvnw clean install
+        ./mvnw clean install
 
 Then, it may be imported in Eclipse (except for `jtools-jpms-wrapper` which can't work in Eclipse).
 
@@ -36,6 +36,6 @@ If there is no README.md, consider the tool to be dead or non working:
 - python-tools
   - A small tool to compute checksum with ncurse. Might not be "good python" :)
 
-
 [1]: https://maven.apache.org/guides/mini/guide-using-toolchains.html
 [2]: https://commons.apache.org/proper/commons-csv/
+
