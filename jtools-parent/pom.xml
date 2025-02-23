@@ -30,11 +30,9 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-text</artifactId>         <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-fileset</artifactId>      <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-jar</artifactId>          <version>${project.version}</version> </dependency>
       <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-warextractor</artifactId> <version>${project.version}</version> </dependency>
-      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-token-grep</artifactId>   <version>${project.version}</version> </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

@@ -17,11 +17,9 @@
 
   <modules>
     <module>jtools-parent</module>
-    <module>jtools-text</module>
     <module>jtools-fileset</module>
     <module>jtools-jar</module>
     <module>jtools-warextractor</module>
-    <module>jtools-oomph</module>
   </modules>
 
 </project>
