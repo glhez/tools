@@ -134,7 +134,7 @@ public abstract class Extractor implements AutoCloseable {
       }
 
       try {
-        logger.trace("copying [{}] to [{}]", () -> file.toUri(), () -> targetFile);
+        logger.trace("copying [{}] to [{}]", file::toUri, () -> targetFile);
         filesProxy.copy(file, targetFile);
       } catch (final IOException e) {
         logger.error("unable to copy [{}] to [{}]", file.toUri(), targetFile, e);
@@ -170,7 +170,7 @@ public abstract class Extractor implements AutoCloseable {
 
   private void applyFiltering() {
     final var copiedFiles = filesProxy.getCopiedFiles();
-    logger.info("{}: applying filtering on {} files.", () -> source.toUri(), () -> copiedFiles.size());
+    logger.info("{}: applying filtering on {} files.", source::toUri, copiedFiles::size);
     context.getFilterChain().filter(copiedFiles);
   }
 
@@ -255,7 +255,7 @@ public abstract class Extractor implements AutoCloseable {
       return result;
     }
 
-    private final static char[] hexArray = "0123456789abcdef".toCharArray();
+    private static final char[] hexArray = "0123456789abcdef".toCharArray();
 
     public static String bytesToHex(final byte[] bytes) {
       final var hexChars = new char[bytes.length * 2];

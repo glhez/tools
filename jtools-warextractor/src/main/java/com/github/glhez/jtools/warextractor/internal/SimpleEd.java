@@ -4,13 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 public class SimpleEd {
 
   private final Function<String, String> f;
 
-  private SimpleEd(final Function<String, String> f) {
+  private SimpleEd(@SuppressWarnings("java:S4276") Function<String, String> f) {
     this.f = f;
   }
 
@@ -23,6 +24,7 @@ public class SimpleEd {
     if (commands.isEmpty()) {
       return new SimpleEd(s -> s);
     }
+    @SuppressWarnings("java:S4276")
     Function<String, String> function = null;
     for (final var mask : commands) {
       final var n = findIndexOfDelimiter(mask, 0, "no type / delimiter");
@@ -53,15 +55,15 @@ public class SimpleEd {
         }
       }
 
-      final var pattern = Pattern.compile(patternStr, patternFlags);
-      final var matcher = pattern.matcher(""); // not threadsafe at all (we are not in this case)
-      final Function<String, String> fctor;
+      var pattern = Pattern.compile(patternStr, patternFlags);
+      var matcher = pattern.matcher(""); // not threadsafe at all (we are not in this case)
+      UnaryOperator<String> fctor;
       if (all) {
         fctor = s -> matcher.reset(s).replaceAll(replace);
       } else {
         fctor = s -> matcher.reset(s).replaceFirst(replace);
       }
-      if (null == function) {
+      if (function == null) {
         function = fctor;
       } else {
         function = function.andThen(fctor);

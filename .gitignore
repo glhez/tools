@@ -37,6 +37,7 @@ target
 *.versionsBackup
 *.releaseBackup
 /release.properties
+.flattened-pom.xml
 
 # vim
 *.swp
@@ -45,5 +46,5 @@ target
 # WinMerge2011
 *.bak
 
-# CSV generated
+# generated CSV
 *.csv

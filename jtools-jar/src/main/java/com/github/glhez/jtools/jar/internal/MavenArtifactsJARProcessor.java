@@ -2,7 +2,6 @@ package com.github.glhez.jtools.jar.internal;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
@@ -21,6 +20,7 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.csv.CSVPrinter;
 
+@SuppressWarnings("java:S106")
 public class MavenArtifactsJARProcessor implements JARProcessor {
   private static final String MAVEN_DIRECTORY = "META-INF/maven/";
   private static final String MAVEN_PROPERTY = "/pom.properties";
@@ -97,38 +97,39 @@ public class MavenArtifactsJARProcessor implements JARProcessor {
 
   private List<JarEntry> getCandidateProperties(final JarFile jarFile) {
     try (final var ss = jarFile.stream()) {
-      return ss.filter(MavenArtifactsJARProcessor::isCandidateForMaven).collect(toList());
+      return ss.filter(MavenArtifactsJARProcessor::isCandidateForMaven).toList();
     }
   }
 
   @Override
   public void finish() {
-    if (kind == ExportMode.NONE) {
-      return;
-    }
-    if (kind == ExportMode.BASH) {
-      if (!mavenArtifacts.isEmpty()) {
-        System.out.println("#!/bin/bash");
-
-        System.out.println("_mvn() {");
-        System.out.println("  local groupId=\"$1\"");
-        System.out.println("  local artifactId=\"$2\"");
-        System.out.println("  local version=\"$3\"");
-        System.out.println("  local file=\"$4\"");
-        System.out.println("  echo mvn deploy:deploy-file  \"-DgroupId=$groupId\" \"-DartifactId=$artifactId\"  \"-Dversion=$version\" \"-Dfile=$file\"");
-        System.out.println("}");
-        System.out.println("");
-        System.out.println("");
-        System.out.printf("# %d artifacts found%n", mavenArtifacts.size());
-
+    switch (kind) {
+      case NONE -> {
+        // do nothing
       }
-      mavenArtifacts.forEach((jar,
-          gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId, gav.version.orElse(""),
-                                    jar));
-    } else if (kind == ExportMode.CSV) {
-      csvProcessor.finish();
-    } else {
-      throw new IllegalStateException("Case not handled: " + kind);
+      case BASH -> {
+        if (!mavenArtifacts.isEmpty()) {
+          System.out.println("#!/bin/bash");
+
+          System.out.println("_mvn() {");
+          System.out.println("  local groupId=\"$1\"");
+          System.out.println("  local artifactId=\"$2\"");
+          System.out.println("  local version=\"$3\"");
+          System.out.println("  local file=\"$4\"");
+          System.out.println("  echo mvn deploy:deploy-file  \"-DgroupId=$groupId\" \"-DartifactId=$artifactId\"  \"-Dversion=$version\" \"-Dfile=$file\"");
+          System.out.println("}");
+          System.out.println("");
+          System.out.println("");
+          System.out.printf("# %d artifacts found%n", mavenArtifacts.size());
+
+        }
+        mavenArtifacts.forEach((jar,
+            gav) -> System.out.printf("_mvn '%s' '%s' '%s' '%s'%n", gav.groupId, gav.artifactId, gav.version.orElse(""),
+                                      jar));
+      }
+      case CSV -> csvProcessor.finish();
+      default -> throw new IllegalStateException("Case not handled: " + kind);
+
     }
   }
 

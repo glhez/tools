@@ -34,5 +34,8 @@ end_of_line = lf
 [*.{cmd,bat}]
 end_of_line = crlf
 
-
-
+[*.{sh,bash}]
+switch_case_indent = true
+space_redirects    = true
+keep_padding       = true
+function_next_line = false

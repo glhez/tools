@@ -17,7 +17,9 @@ public class DryRunFilesProxy extends AbstractFilesProxy {
   private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("dry-run");
 
   private void log(final Object... args) {
-    logger.info(Arrays.stream(args).map(this::convert).map(StringEscapeUtils::escapeXSI).collect(joining(" ")));
+    if (logger.isInfoEnabled()) {
+      logger.info(Arrays.stream(args).map(this::convert).map(StringEscapeUtils::escapeXSI).collect(joining(" ")));
+    }
   }
 
   @Override
@@ -64,11 +66,11 @@ public class DryRunFilesProxy extends AbstractFilesProxy {
   }
 
   private String convert(final Object arg) {
-    if (arg instanceof PathWrapper) {
-      return ((PathWrapper) arg).getFullPath();
+    if (arg instanceof PathWrapper a) {
+      return a.getFullPath();
     }
-    if (arg instanceof Path) {
-      return PathWrapper.pathToString((Path) arg);
+    if (arg instanceof Path a) {
+      return PathWrapper.pathToString(a);
     }
     return Objects.toString(arg, null);
   }

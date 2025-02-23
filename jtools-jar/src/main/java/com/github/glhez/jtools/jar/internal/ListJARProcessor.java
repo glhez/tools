@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
 
+@SuppressWarnings("java:S106")
 public class ListJARProcessor implements JARProcessor {
   private final List<JARProcessor> processors;
 

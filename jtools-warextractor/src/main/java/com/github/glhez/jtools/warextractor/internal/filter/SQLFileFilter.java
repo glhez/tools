@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
  * @author gael.lhez
  *
  */
+@SuppressWarnings("java:S6548")
 public enum SQLFileFilter implements Filter {
   INSTANCE;
 

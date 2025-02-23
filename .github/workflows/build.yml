@@ -16,4 +16,4 @@ jobs:
         cache: 'maven'
     - name: build
       run: |
-        ./mvnw -B package
+        ./mvnw -B verify

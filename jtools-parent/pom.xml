@@ -1,38 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-21</artifactId>
-    <version>91</version>
+    <version>92</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <groupId>com.github.glhez.jtools</groupId>
   <artifactId>jtools-parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
-  <name>glhez's java tools :: parent</name>
+  <properties>
+    <flatten.mode>defaults</flatten.mode>
 
-  <repositories>
-    <repository> <id>github-glhez-repository-releases</id>  <url>https://glhez.github.io/maven-repository/releases</url>  <snapshots> <enabled>false</enabled> </snapshots> </repository>
-    <repository> <id>github-glhez-repository-snapshots</id> <url>https://glhez.github.io/maven-repository/snapshots</url> <snapshots> <enabled>true</enabled>  </snapshots> </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository> <id>github-glhez-repository-plugin-releases</id>  <url>https://glhez.github.io/maven-repository/releases</url>  <snapshots> <enabled>false</enabled> </snapshots> </pluginRepository>
-    <pluginRepository> <id>github-glhez-repository-plugin-snapshots</id> <url>https://glhez.github.io/maven-repository/snapshots</url> <snapshots> <enabled>true</enabled>  </snapshots> </pluginRepository>
-  </pluginRepositories>
+    <revision>1.0.0-SNAPSHOT</revision>
+
+    <dep.asm-bom.version>9.7.1</dep.asm-bom.version>
+    <dep.cfr.version>0.152</dep.cfr.version>
+    <dep.commons-csv.version>1.13.0</dep.commons-csv.version>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
-      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-fileset</artifactId>      <version>${project.version}</version> </dependency>
-      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-jar</artifactId>          <version>${project.version}</version> </dependency>
-      <dependency> <groupId>com.github.glhez.jtools</groupId> <artifactId>jtools-warextractor</artifactId> <version>${project.version}</version> </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-bom</artifactId>
+        <version>${dep.asm-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>${dep.commons-csv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.benf</groupId>
+        <artifactId>cfr</artifactId>
+        <version>${dep.cfr.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.glhez.jtools</groupId>
+        <artifactId>jtools-fileset</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.glhez.jtools</groupId>
+        <artifactId>jtools-jar</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.glhez.jtools</groupId>
+        <artifactId>jtools-warextractor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>github-glhez-repository-releases</id>
+      <url>https://glhez.github.io/maven-repository/releases</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github-glhez-repository-snapshots</id>
+      <url>https://glhez.github.io/maven-repository/snapshots</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>github-glhez-repository-plugin-releases</id>
+      <url>https://glhez.github.io/maven-repository/releases</url>
+    </pluginRepository>
+    <pluginRepository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>github-glhez-repository-plugin-snapshots</id>
+      <url>https://glhez.github.io/maven-repository/snapshots</url>
+    </pluginRepository>
+  </pluginRepositories>
 </project>

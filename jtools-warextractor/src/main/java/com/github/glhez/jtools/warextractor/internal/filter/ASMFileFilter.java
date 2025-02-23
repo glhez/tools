@@ -13,6 +13,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
  *
  * @author gael.lhez
  */
+@SuppressWarnings("java:S6548")
 public enum ASMFileFilter implements Filter {
   INSTANCE;
 

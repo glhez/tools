@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -82,7 +81,7 @@ public class ChainFilter {
 
   public static ChainFilter newChainFilterBuilder(final List<String> parameters) {
     requireNonNull(parameters, "parameters");
-    return new ChainFilter(parameters.stream().map(ChainFilter::parse).collect(toUnmodifiableList()));
+    return new ChainFilter(parameters.stream().map(ChainFilter::parse).toList());
   }
 
   private static PredicateAndFilter parse(final String value) {
@@ -167,7 +166,7 @@ public class ChainFilter {
       if (this == obj) {
         return true;
       }
-      if ((obj == null) || (getClass() != obj.getClass())) {
+      if (obj == null || getClass() != obj.getClass()) {
         return false;
       }
       final ArrayWrapper<?> other = (ArrayWrapper<?>) obj;

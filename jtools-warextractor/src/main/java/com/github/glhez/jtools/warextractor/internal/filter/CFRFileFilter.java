@@ -27,6 +27,7 @@ import org.benf.cfr.reader.bytecode.analysis.parse.utils.Pair;
  * @author gael.lhez
  *
  */
+@SuppressWarnings("java:S6548")
 public enum CFRFileFilter implements Filter {
   INSTANCE;
 
@@ -60,8 +61,12 @@ public enum CFRFileFilter implements Filter {
 
     try {
       return stream.filter(future.get(30, TimeUnit.SECONDS));
-    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+    } catch (ExecutionException | TimeoutException e) {
       logger.warn("invokation of CFR failed, invoking ASM instead", e);
+      return ASMFileFilter.INSTANCE.filter(stream.filter(byteClassSource.bytes));
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      logger.warn("invokation of CFR interrupted, invoking ASM instead", e);
       return ASMFileFilter.INSTANCE.filter(stream.filter(byteClassSource.bytes));
     }
   }
@@ -100,7 +105,7 @@ public enum CFRFileFilter implements Filter {
 
     @Override
     public void informAnalysisRelativePathDetail(final String var1, final String var2) {
-
+      // NOOP
     }
 
   }
@@ -128,7 +133,7 @@ public enum CFRFileFilter implements Filter {
     }
 
     private <T> void fail(final SinkType sinkType, final SinkClass sinkClass, final T value) {
-      final var exception = value instanceof Throwable ? (Throwable) value : null;
+      final var exception = value instanceof Throwable throwable ? throwable : null;
       throw new IllegalStateException(
           String.format("unsupported cfr case: sinkType: %s, sinkClass: %s, value: %s", sinkType, sinkClass, value),
           exception);

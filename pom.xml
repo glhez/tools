@@ -5,15 +5,12 @@
   <parent>
     <groupId>com.github.glhez.jtools</groupId>
     <artifactId>jtools-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <relativePath>jtools-parent</relativePath>
   </parent>
 
   <artifactId>jtools-aggregator</artifactId>
-
   <packaging>pom</packaging>
-
-  <name>glhez's java tools :: aggregator</name>
 
   <modules>
     <module>jtools-parent</module>

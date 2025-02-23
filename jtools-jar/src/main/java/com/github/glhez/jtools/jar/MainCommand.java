@@ -42,6 +42,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(mixinStandardHelpOptions = true)
+@SuppressWarnings("java:S106")
 public class MainCommand implements Runnable {
 
   @Option(names = { "-O", "--output-directory" },
@@ -292,7 +293,7 @@ public class MainCommand implements Runnable {
         csvSeparator = ',';
       }
     }
-    format = CSVFormat.EXCEL.builder().setDelimiter(csvSeparator).build();
+    format = CSVFormat.EXCEL.builder().setDelimiter(csvSeparator).get();
   }
 
   private ListJARProcessor buildProcessor() {

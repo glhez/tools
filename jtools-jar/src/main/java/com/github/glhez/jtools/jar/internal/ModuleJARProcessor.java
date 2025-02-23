@@ -38,13 +38,8 @@ public class ModuleJARProcessor extends ReportFileJARProcessor {
         return;
       }
 
-      final Optional<String> automaticModuleName = Optional.ofNullable(jarFile.getManifest())
-                                                           .map(Manifest::getMainAttributes)
-                                                           .map(attr -> attr.getValue("Automatic-Module-Name"));
-
-      automaticModuleName.ifPresent(name -> {
-        this.moduleDescriptors.put(context.getJARInformation(), ModuleDescriptor.newAutomaticModule(name).build());
-      });
+      Optional.ofNullable(jarFile.getManifest()).map(Manifest::getMainAttributes).map(attr -> attr.getValue("Automatic-Module-Name"))
+              .ifPresent(name -> this.moduleDescriptors.put(context.getJARInformation(), ModuleDescriptor.newAutomaticModule(name).build()));
 
     } catch (final IOException | java.lang.module.InvalidModuleDescriptorException
         | java.lang.IllegalArgumentException e) {

@@ -2,7 +2,6 @@ package com.github.glhez.jtools.jar.internal;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleDescriptor.Provides;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -29,8 +29,8 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
   private final ModuleJARProcessor moduleJARProcessor;
   private final boolean all;
   private final Set<String> spiInterfaces;
-  private transient final Set<String> spiInterfacesPath;
-  private transient final Map<String, Set<AvailableImplementation>> services;
+  private final Set<String> spiInterfacesPath;
+  private final Map<String, Set<AvailableImplementation>> services;
   private final boolean moduleOnly;
 
   public SPIServiceJARProcessor(final ReportFile reportFile, final ModuleJARProcessor moduleJARProcessor,
@@ -58,10 +58,10 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
       List<JarEntry> entries;
       if (all) {
         try (final var ss = jarFile.stream()) {
-          entries = ss.filter(SPIServiceJARProcessor::isCandidateForServices).collect(toList());
+          entries = ss.filter(SPIServiceJARProcessor::isCandidateForServices).toList();
         }
       } else {
-        entries = spiInterfacesPath.stream().map(jarFile::getJarEntry).filter(Objects::nonNull).collect(toList());
+        entries = spiInterfacesPath.stream().map(jarFile::getJarEntry).filter(Objects::nonNull).toList();
       }
       entries.forEach(entry -> process(context, jarFile, entry));
     }
@@ -154,8 +154,9 @@ public class SPIServiceJARProcessor extends ReportFileJARProcessor {
 
     static AvailableImplementation parse(final JARInformation source, final InputStream is) throws IOException {
       final List<String> implementations = new ArrayList<>();
-      try (final var reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
-        for (String line = null; null != (line = reader.readLine());) {
+      try (final var reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        String line = null;
+        while (null != (line = reader.readLine())) {
           final var ci = line.indexOf('#');
           if (ci >= 0) {
             line = line.substring(0, ci);
