@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class FileErrors implements Iterable<FileErrors.FileError> {
   private final List<FileError> errors;
 

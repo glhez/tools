@@ -87,7 +87,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
    * <p>
    * The extension is cached and always in lower case.
    *
-   * @return an extension. Can be <code>null</code>.
+   * @return an extension. Empty if none found.
    */
   public String getExtension() {
     var extensionCache = this.extensionCache;
@@ -95,7 +95,7 @@ public final class CollectedFile implements Comparable<CollectedFile> {
       extensionCache = getExtension0();
       this.extensionCache = extensionCache;
     }
-    return extensionCache.isEmpty() ? null : extensionCache;
+    return extensionCache;
   }
 
   private String getExtension0() {
