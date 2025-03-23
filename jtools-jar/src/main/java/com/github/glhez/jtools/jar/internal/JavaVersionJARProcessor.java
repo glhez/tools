@@ -39,8 +39,8 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
       final var jvd = javaVersionDetector(context, jarFile);
       final var val = ss.filter(this::isValidEntry) //
                         .map(jvd)  //
-                        .collect(groupingBy(Map.Entry::getValue, () -> new EnumMap<>(
-                            JavaVersion.class), mapping(Map.Entry::getKey, counting())));
+                        .collect(groupingBy(Map.Entry::getValue, () -> new EnumMap<>(JavaVersion.class),
+                                            mapping(Map.Entry::getKey, counting())));
       entries.put(context.getJARInformation(), val);
     }
   }
