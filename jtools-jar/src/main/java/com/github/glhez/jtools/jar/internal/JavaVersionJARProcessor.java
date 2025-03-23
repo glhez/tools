@@ -80,29 +80,52 @@ public class JavaVersionJARProcessor extends ReportFileJARProcessor {
   }
 
   public enum JavaVersion {
-    JAVA_1_0(45, 3, "Java 1.0"),
-    JAVA_1_1(45, 3, "Java 1.1"),
-    JAVA_1_2(46, 0, "Java 1.2"),
-    JAVA_1_3(47, 0, "Java 1.3"),
-    JAVA_1_4(48, 0, "Java 1.4"),
-    JAVA_5(49, 0, "Java 5"),
-    JAVA_6(50, 0, "Java 6"),
-    JAVA_7(51, 0, "Java 7"),
-    JAVA_8(52, 0, "Java 8"),
-    JAVA_9(53, 0, "Java 9"),
-    JAVA_10(54, 0, "Java 10"),
-    JAVA_11(55, 0, "Java 11"),
-    JAVA_12(56, 0, "Java 12"),
-    JAVA_13(57, 0, "Java 13"),
-    JAVA_14(58, 0, "Java 14"),
-    JAVA_15(59, 0, "Java 15"),
-    JAVA_16(60, 0, "Java 16"),
-    JAVA_17(61, 0, "Java 17"),
-    JAVA_18(62, 0, "Java 18"),
-    JAVA_19(63, 0, "Java 19"),
-    JAVA_20(64, 0, "Java 20"),
-    UNKNOWN(-1, -1, "Unrecognized min/maj"),
-    ERROR(-1, -1, "Parsing error");
+    JAVA_1_0(45, 3, "Java 1.0"), //
+    JAVA_1_1(45, 3, "Java 1.1"), //
+    JAVA_1_2(46, 0, "Java 1.2"), //
+    JAVA_1_3(47, 0, "Java 1.3"), //
+    JAVA_1_4(48, 0, "Java 1.4"), //
+    JAVA_5(49, 0, "Java 5"), //
+    JAVA_6(50, 0, "Java 6"), //
+    JAVA_7(51, 0, "Java 7"), //
+    JAVA_8(52, 0, "Java 8"),  //
+    JAVA_9(53, 0, "Java 9"), //
+    JAVA_10(54, 0, "Java 10"), //
+    JAVA_11(55, 0, "Java 11"), //
+    JAVA_12(56, 0, "Java 12"), //
+    JAVA_13(57, 0, "Java 13"), //
+    JAVA_14(58, 0, "Java 14"), //
+    JAVA_15(59, 0, "Java 15"), //
+    JAVA_16(60, 0, "Java 16"), //
+    JAVA_17(61, 0, "Java 17"), //
+    JAVA_18(62, 0, "Java 18"), //
+    JAVA_19(63, 0, "Java 19"), //
+    JAVA_20(64, 0, "Java 20"), //
+    JAVA_21(65, 0, "Java 21"), //
+    JAVA_22(66, 0, "Java 22"), //
+    JAVA_23(67, 0, "Java 23"), //
+    JAVA_24(68, 0, "Java 24"), //
+    JAVA_25(69, 0, "Java 25"), //
+    JAVA_26(70, 0, "Java 26"), //
+    JAVA_27(71, 0, "Java 27"), //
+    JAVA_28(72, 0, "Java 28"), //
+    JAVA_29(73, 0, "Java 29"), //
+    JAVA_30(74, 0, "Java 30"), //
+    JAVA_31(75, 0, "Java 31"), //
+    JAVA_32(76, 0, "Java 32"), //
+    JAVA_33(77, 0, "Java 33"), //
+    JAVA_34(78, 0, "Java 34"), //
+    JAVA_35(79, 0, "Java 35"), //
+    JAVA_36(80, 0, "Java 36"), //
+    JAVA_37(81, 0, "Java 37"), //
+    JAVA_38(82, 0, "Java 38"), //
+    JAVA_39(83, 0, "Java 39"), //
+    JAVA_40(84, 0, "Java 40"), //
+
+    UNKNOWN(-1, -1, "Unrecognized min/maj"),  //
+    ERROR(-1, -1, "Parsing error")  //
+
+    ;
 
     private final int minor;
     private final int major;
