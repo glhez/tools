@@ -20,7 +20,7 @@
 
     <revision>1.0.0-SNAPSHOT</revision>
 
-    <dep.asm-bom.version>9.7.1</dep.asm-bom.version>
+    <dep.asm-bom.version>9.8</dep.asm-bom.version>
     <dep.cfr.version>0.152</dep.cfr.version>
     <dep.commons-csv.version>1.14.0</dep.commons-csv.version>
   </properties>
