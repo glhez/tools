@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.glhez.parent</groupId>
     <artifactId>java-21</artifactId>
-    <version>93</version>
+    <version>94</version>
     <!-- NOTE directory parent is an aggregator, which is not this aggregator. Maven will complain. -->
     <relativePath/>
   </parent>
@@ -22,7 +22,7 @@
 
     <dep.asm-bom.version>9.8</dep.asm-bom.version>
     <dep.cfr.version>0.152</dep.cfr.version>
-    <dep.commons-csv.version>1.14.0</dep.commons-csv.version>
+    <dep.commons-csv.version>1.14.1</dep.commons-csv.version>
   </properties>
 
   <dependencyManagement>
