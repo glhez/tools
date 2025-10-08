@@ -2,12 +2,12 @@
 <Configuration status="WARN">
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+      <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
       <PatternLayout pattern="%d{DEFAULT} %-5level %logger %msg%n" />
     </Console>
-    <RandomAccessFile  name="File" fileName="warextractor.log">
+    <RandomAccessFile name="File" fileName="warextractor.log">
       <PatternLayout pattern="%d{DEFAULT} %-5level %logger %msg%n" />
-    </RandomAccessFile >
+    </RandomAccessFile>
   </Appenders>
   <Loggers>
     <Root level="debug">
